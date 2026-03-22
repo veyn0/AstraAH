@@ -1,0 +1,10 @@
+name: AstraAH
+version: '1.0'
+main: dev.veyno.astraAH.AstraAH
+api-version: '1.21'
+authors: [ veyno ]
+website: https://veyno.dev
+folia-supported: true
+
+commands:
+  market:
