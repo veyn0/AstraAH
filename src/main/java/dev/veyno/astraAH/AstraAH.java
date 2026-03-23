@@ -17,7 +17,7 @@ import java.io.IOException;
 /*
 
 TODO:
- - Exclude specific items, including beeing able to match names
+ - Exclude specific items, including being able to match names
 
  */
 
