@@ -1,3 +1,8 @@
 messages:
   listings:
-    title:
+    item:
+      title: "<r><gray>Marktplatz"
+      display_name: "<r><gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>"
+      lore_header:
+        - "<r><gray>LinksKlick zum Kaufen"
+        - "<r><gray>RechtsKlick für Mehr Informationen"

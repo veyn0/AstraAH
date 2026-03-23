@@ -1,5 +1,8 @@
 package dev.veyno.astraAH;
 
+import dev.veyno.astraAH.ah.AuctionHouse;
+import dev.veyno.astraAH.storage.ListingStorage;
+import dev.veyno.astraAH.storage.YamlListingStorageController;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -20,6 +23,8 @@ TODO:
 
 public final class AstraAH extends JavaPlugin {
 
+    private ListingStorage listingStorage;
+
     private File dataFile;
     private FileConfiguration dataConfig;
 
@@ -29,10 +34,14 @@ public final class AstraAH extends JavaPlugin {
 
     private ClickableInventory.InventoryManager inventoryManager;
 
+    private AuctionHouse auctionHouse;
+
     @Override
     public void onEnable() {
         createDataFile();
         saveDefaultConfig();
+        listingStorage = new YamlListingStorageController(this);
+        auctionHouse = new AuctionHouse(this);
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
@@ -54,6 +63,14 @@ public final class AstraAH extends JavaPlugin {
         return uiController;
     }
 
+    public AuctionHouse getAuctionHouse() {
+        return auctionHouse;
+    }
+
+    public ListingStorage getListingStorage() {
+        return listingStorage;
+    }
+
     private void createDataFile() {
         dataFile = new File(getDataFolder(), "data.yml");
 
@@ -68,7 +85,6 @@ public final class AstraAH extends JavaPlugin {
 
         dataConfig = YamlConfiguration.loadConfiguration(dataFile);
     }
-
 
     public void saveDataConfig() {
         try {
