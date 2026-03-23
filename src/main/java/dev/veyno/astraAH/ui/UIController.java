@@ -24,29 +24,31 @@ public class UIController {
 
     private final String LISTING_DISPLAY_NAME_UNRESOLVED;
 
+    private final Component LISTING_DETAILS_TITLE;
+
+
     private final List<Component> LISTING_LORE_HEADER;
 
     public UIController(AstraAH plugin) {
         this.plugin = plugin;
         FileConfiguration configuration = plugin.getConfig();
-        this.AH_LISTINGS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listings.item.title", "<red>Error 404. Content Not Found"));
+        this.AH_LISTINGS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listings.title", "<red>Error 404. Content Not Found"));
         this.LISTING_DISPLAY_NAME_UNRESOLVED = configuration.getString("messages.listings.item.display_name", "<red>Error 404. Content Not Found");
         List<Component> loreHeaders = new ArrayList<>();
         for(String s : configuration.getStringList("messages.listings.item.lore_header")){
             loreHeaders.add(MiniMessage.miniMessage().deserialize(s));
         }
         LISTING_LORE_HEADER = loreHeaders;
+        LISTING_DETAILS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listing_info.title", "<red>Error 404. Content Not Found"));
     }
 
     public void onOpenAHUI(Player p){
-        if(playerUiStates.get(p.getUniqueId())==null||!(playerUiStates.get(p.getUniqueId())==UIState.CLOSED));{
+        if(playerUiStates.get(p.getUniqueId())==null||!(playerUiStates.get(p.getUniqueId())==UIState.CLOSED)){
             plugin.getErrorHandler().onIllegalInventoryView(p);
             return;
         }
 
-
-
-
+        openMainPage(p);
 
     }
 
@@ -58,16 +60,32 @@ public class UIController {
         for(Listing l : listings){
             inventory.addItem(getDisplayItem(l), clickContext -> {
                 if(clickContext.isLeftClick()){
-
+                    attemptPurchase(p, l);
+                }
+                else if(clickContext.isRightClick()){
+                    openListingInfo(p, l);
                 }
             });
         }
 
 
 
+        inventory.open();
+
     }
 
-    private void AttemptPurchase(Player buyer, Listing l){
+    private void openListingInfo(Player p, Listing l){
+        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), LISTING_DETAILS_TITLE, p );
+
+
+        //TODO
+
+
+
+
+    }
+
+    private void attemptPurchase(Player buyer, Listing l){
         buyer.sendMessage("...");
         buyer.closeInventory();
     }
@@ -82,6 +100,8 @@ public class UIController {
         result.setItemMeta(meta);
         return result;
     }
+
+
 
 
 
