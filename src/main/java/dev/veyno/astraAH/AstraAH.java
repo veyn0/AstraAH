@@ -1,8 +1,16 @@
 package dev.veyno.astraAH;
 
-import dev.veyno.astraAH.ui.ErrorHandler;
+import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.ui.UIController;
 import org.bukkit.plugin.java.JavaPlugin;
+
+
+/*
+
+TODO:
+ - Exclude specific items, including beeing able to match names
+
+ */
 
 public final class AstraAH extends JavaPlugin {
 
@@ -20,7 +28,6 @@ public final class AstraAH extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
     }
-
 
     public ErrorHandler getErrorHandler() {
         return errorHandler;

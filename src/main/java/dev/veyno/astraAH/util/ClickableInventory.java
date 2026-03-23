@@ -20,9 +20,7 @@ import java.util.function.Consumer;
 
 public class ClickableInventory implements Listener {
 
-
     private final InventoryManager manager;
-
 
     private static final int SLOTS_PER_ROW = 9;
     private static final int NAVIGATION_ROW_SIZE = 9;
@@ -43,7 +41,6 @@ public class ClickableInventory implements Listener {
     private int usableRows; // Anzahl der nutzbaren Reihen (1-5)
     private boolean hideNavigationOnSinglePage; // Navigation ausblenden wenn nur eine Seite
     private boolean showNavigation; // Ob Navigation angezeigt werden soll
-
 
     public ClickableInventory(InventoryManager manager, Component title, Player player) {
         this.manager = manager;

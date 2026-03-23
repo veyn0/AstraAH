@@ -19,8 +19,9 @@ public class AuctionHouseCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
         if(!(commandSender instanceof Player p)) return false;
 
+        //TODO: implement feature that allows other plugins to prevent players from opening the GUI entirely
 
-
+        plugin.getUiController().onOpenAHUI(p);
 
         return true;
     }

@@ -1,6 +1,7 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.ui.error.UIState;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -11,20 +12,20 @@ public class UIController {
 
     private Map<UUID, UIState> playerUiStates = new HashMap<>();
 
-
-
     private final AstraAH plugin;
 
     public UIController(AstraAH plugin) {
         this.plugin = plugin;
     }
 
-
     public void onOpenAHUI(Player p){
         if(playerUiStates.get(p.getUniqueId())==null||!(playerUiStates.get(p.getUniqueId())==UIState.CLOSED));{
             plugin.getErrorHandler().onIllegalInventoryView(p);
             return;
         }
+
+
+
 
 
     }

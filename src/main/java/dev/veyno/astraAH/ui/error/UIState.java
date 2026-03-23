@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.ui;
+package dev.veyno.astraAH.ui.error;
 
 public enum UIState {
     VIEW_LISTINGS,

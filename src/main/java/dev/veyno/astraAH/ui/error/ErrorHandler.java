@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.ui;
+package dev.veyno.astraAH.ui.error;
 
 import dev.veyno.astraAH.AstraAH;
 import net.kyori.adventure.text.minimessage.MiniMessage;
