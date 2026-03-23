@@ -2,6 +2,10 @@ package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ui.error.UIState;
+import dev.veyno.astraAH.util.ClickableInventory;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -14,8 +18,12 @@ public class UIController {
 
     private final AstraAH plugin;
 
+    private final Component AH_LISTINGS_TITLE;
+
     public UIController(AstraAH plugin) {
         this.plugin = plugin;
+        FileConfiguration configuration = plugin.getConfig();
+        this.AH_LISTINGS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listings.title", "<red>Error 404. Content Not Found"));
     }
 
     public void onOpenAHUI(Player p){
@@ -29,6 +37,13 @@ public class UIController {
 
 
     }
+
+
+
+    private void openMainPage(Player p){
+        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
+    }
+
 
 
 
