@@ -1,5 +1,6 @@
 package dev.veyno.astraAH.util;
 
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,134 +18,100 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 import java.util.function.Consumer;
 
-
-public class ClickableInventory implements Listener {
-
-    private final InventoryManager manager;
+public class ClickableInventory {
 
     private static final int SLOTS_PER_ROW = 9;
-    private static final int NAVIGATION_ROW_SIZE = 9;
 
-    private static final int PREV_PAGE_SLOT_OFFSET = 3;
-    private static final int CURRENT_PAGE_SLOT_OFFSET = 4;
-    private static final int NEXT_PAGE_SLOT_OFFSET = 5;
-
+    private final InventoryManager manager;
     private final Component title;
     private final Player player;
-    private final List<ClickableItem> items;
+
+    private final Map<String, InventoryRegion> regions;
     private final Map<Integer, Consumer<ClickContext>> slotActions;
-    private final Map<Integer, StaticNavigationItem> staticNavigationItems;
-    private int currentPage;
+
+    private int rows;
     private Inventory inventory;
-    private LayoutStyle layoutStyle;
-    private ItemStack fillerItem;
-    private int usableRows; // Anzahl der nutzbaren Reihen (1-5)
-    private boolean hideNavigationOnSinglePage; // Navigation ausblenden wenn nur eine Seite
-    private boolean showNavigation; // Ob Navigation angezeigt werden soll
 
     public ClickableInventory(InventoryManager manager, Component title, Player player) {
         this.manager = manager;
         this.title = title;
         this.player = player;
-        this.items = new ArrayList<>();
+        this.regions = new LinkedHashMap<>();
         this.slotActions = new HashMap<>();
-        this.staticNavigationItems = new HashMap<>();
-        this.currentPage = 0;
-        this.layoutStyle = LayoutStyle.STANDARD;
-        this.fillerItem = createNavigationItem(Material.GRAY_STAINED_GLASS_PANE, "§r", "");
-        this.usableRows = 5; // Standard: 5 Reihen
-        this.hideNavigationOnSinglePage = false;
-        this.showNavigation = true;
+        this.rows = 6;
     }
 
-    public ClickableInventory setUsableRows(int rows) {
-        if (rows < 1 || rows > 5) {
-            throw new IllegalArgumentException("Anzahl der Reihen muss zwischen 1 und 5 liegen!");
+    public ClickableInventory setRows(int rows) {
+        if (rows < 1 || rows > 6) {
+            throw new IllegalArgumentException("Anzahl der Reihen muss zwischen 1 und 6 liegen");
         }
-        this.usableRows = rows;
+        this.rows = rows;
         return this;
     }
 
-    public ClickableInventory setHideNavigationOnSinglePage(boolean hide) {
-        this.hideNavigationOnSinglePage = hide;
-        return this;
+    public int getRows() {
+        return rows;
     }
 
-    public ClickableInventory setShowNavigation(boolean show) {
-        this.showNavigation = show;
-        return this;
+    public Component getTitle() {
+        return title;
     }
 
-    public int getUsableRows() {
-        return usableRows;
+    public Player getPlayer() {
+        return player;
     }
 
-    public ClickableInventory addItem(ItemStack itemStack, Consumer<ClickContext> action) {
-        items.add(new ClickableItem(itemStack, action));
-        return this;
+    public InventoryManager getManager() {
+        return manager;
     }
 
-    public ClickableInventory addItem(ItemStack itemStack, Runnable action) {
-        items.add(new ClickableItem(itemStack, ctx -> action.run()));
-        return this;
-    }
-
-    public ClickableInventory addItems(List<ClickableItem> clickableItems) {
-        items.addAll(clickableItems);
-        return this;
-    }
-
-    public ClickableInventory addStaticNavigationItem(int slot, ItemStack itemStack, Consumer<ClickContext> action) {
-        if (slot < 0 || slot >= NAVIGATION_ROW_SIZE) {
-            throw new IllegalArgumentException("Slot muss zwischen 0 und 8 sein!");
+    public InventoryRegion createRegion(String id, List<Integer> slots) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Region id darf nicht leer sein");
         }
-        if (slot == PREV_PAGE_SLOT_OFFSET || slot == CURRENT_PAGE_SLOT_OFFSET || slot == NEXT_PAGE_SLOT_OFFSET) {
-            throw new IllegalArgumentException("Slot " + slot + " ist für die Navigation reserviert!");
+        if (regions.containsKey(id)) {
+            throw new IllegalArgumentException("Region mit id '" + id + "' existiert bereits");
         }
-        staticNavigationItems.put(slot, new StaticNavigationItem(itemStack, action));
+
+        InventoryRegion region = new InventoryRegion(this, id, slots);
+        regions.put(id, region);
+        return region;
+    }
+
+    public InventoryRegion createRegion(String id, int... slots) {
+        List<Integer> slotList = new ArrayList<>(slots.length);
+        for (int slot : slots) {
+            slotList.add(slot);
+        }
+        return createRegion(id, slotList);
+    }
+
+    public InventoryRegion getRegion(String id) {
+        return regions.get(id);
+    }
+
+    public Collection<InventoryRegion> getRegions() {
+        return Collections.unmodifiableCollection(regions.values());
+    }
+
+    public boolean hasRegion(String id) {
+        return regions.containsKey(id);
+    }
+
+    public ClickableInventory removeRegion(String id) {
+        regions.remove(id);
         return this;
     }
 
-    public ClickableInventory addStaticNavigationItem(int slot, Material material, String name, Consumer<ClickContext> action, String... lore) {
-        ItemStack item = createNavigationItem(material, name, lore);
-        return addStaticNavigationItem(slot, item, action);
-    }
-
-    public ClickableInventory addStaticNavigationItem(int slot, ItemStack itemStack, Runnable action) {
-        return addStaticNavigationItem(slot, itemStack, ctx -> action.run());
-    }
-
-    public ClickableInventory addStaticNavigationItem(int slot, Material material, String name, Runnable action, String... lore) {
-        return addStaticNavigationItem(slot, material, name, ctx -> action.run(), lore);
-    }
-
-    public ClickableInventory removeStaticNavigationItem(int slot) {
-        staticNavigationItems.remove(slot);
-        return this;
-    }
-
-    public ClickableInventory clearStaticNavigationItems() {
-        staticNavigationItems.clear();
-        return this;
-    }
-
-    public ClickableInventory setLayoutStyle(LayoutStyle layoutStyle) {
-        this.layoutStyle = layoutStyle;
-        return this;
-    }
-
-    public ClickableInventory setFillerItem(ItemStack fillerItem) {
-        this.fillerItem = fillerItem;
-        return this;
-    }
-
-    public ClickableInventory setFillerItem(Material material, String name) {
-        this.fillerItem = createItem(material, name);
+    public ClickableInventory clearRegions() {
+        regions.clear();
         return this;
     }
 
     public void open() {
-        if (player == null) return;
+        if (player == null) {
+            return;
+        }
 
         manager.registerInventory(player.getUniqueId(), this);
         updateInventory();
@@ -158,193 +125,340 @@ public class ClickableInventory implements Listener {
         }
     }
 
-    public void nextPage() {
-        int maxPages = getMaxPages();
-        if (currentPage < maxPages - 1) {
-            currentPage++;
-            updateInventory();
-            if (player != null) {
-                Bukkit.getRegionScheduler().run(manager.getPlugin(), player.getLocation(), task -> {
-                    player.openInventory(inventory);
-                });
-            }
+    public void rerender() {
+        updateInventory();
+
+        if (player != null) {
+            Bukkit.getRegionScheduler().run(manager.getPlugin(), player.getLocation(), task -> player.openInventory(inventory));
         }
     }
 
-    public void previousPage() {
-        if (currentPage > 0) {
-            currentPage--;
-            updateInventory();
-            if (player != null) {
-                Bukkit.getRegionScheduler().run(manager.getPlugin(), player.getLocation(), task -> player.openInventory(inventory));
-            }
+    public void rerenderIfOpen() {
+        if (player == null) {
+            return;
         }
-    }
 
-    public void setPage(int page) {
-        int maxPages = getMaxPages();
-        if (page >= 0 && page < maxPages) {
-            currentPage = page;
-            updateInventory();
-            if (player != null) {
-                Bukkit.getRegionScheduler().run(manager.getPlugin(), player.getLocation(), task -> player.openInventory(inventory));
-            }
+        if (inventory == null) {
+            return;
         }
-    }
 
-    public int getCurrentPage() {
-        return currentPage;
-    }
+        if (!player.getOpenInventory().getTopInventory().equals(inventory)) {
+            return;
+        }
 
-    public int getMaxPages() {
-        int itemsPerPage = layoutStyle.getItemsPerPage(usableRows);
-        return Math.max(1, (int) Math.ceil((double) items.size() / itemsPerPage));
-    }
-
-    private int getInventorySize() {
-        boolean shouldShowNavigation = showNavigation && (!hideNavigationOnSinglePage || getMaxPages() > 1);
-        int rows = shouldShowNavigation ? usableRows + 1 : usableRows;
-        return rows * SLOTS_PER_ROW;
+        rerender();
     }
 
     private void updateInventory() {
-        boolean shouldShowNavigation = showNavigation && (!hideNavigationOnSinglePage || getMaxPages() > 1);
-
-        Component inventoryTitle = shouldShowNavigation
-                ? title.append(Component.text(" (Seite " + (currentPage + 1) + "/" + getMaxPages() + ")"))
-                : title;
-
-        int inventorySize = getInventorySize();
-        inventory = Bukkit.createInventory(null, inventorySize, inventoryTitle);
+        inventory = Bukkit.createInventory(null, rows * SLOTS_PER_ROW, title);
         slotActions.clear();
 
-        int itemsPerPage = layoutStyle.getItemsPerPage(usableRows);
-        int totalItemSlots = usableRows * SLOTS_PER_ROW;
-
-        if (layoutStyle.usesFiller()) {
-            for (int i = 0; i < totalItemSlots; i++) {
-                inventory.setItem(i, fillerItem);
-            }
+        for (InventoryRegion region : regions.values()) {
+            region.renderInto(inventory, slotActions);
         }
-
-        int startIndex = currentPage * itemsPerPage;
-        int endIndex = Math.min(startIndex + itemsPerPage, items.size());
-
-        List<Integer> availableSlots = layoutStyle.getAvailableSlots(usableRows);
-        int slotIndex = 0;
-
-        for (int i = startIndex; i < endIndex && slotIndex < availableSlots.size(); i++, slotIndex++) {
-            int slot = availableSlots.get(slotIndex);
-            ClickableItem clickableItem = items.get(i);
-            inventory.setItem(slot, clickableItem.getItemStack());
-            slotActions.put(slot, clickableItem.getAction());
-        }
-
-        if (shouldShowNavigation) {
-            setupNavigation();
-            setupStaticNavigationItems();
-        }
-    }
-
-    private void setupNavigation() {
-        int navigationRowStart = usableRows * SLOTS_PER_ROW;
-
-        //TODO: add config variables for different languages etc.
-
-        if (currentPage > 0) {
-            ItemStack prevArrow = createNavigationItem(Material.ARROW, "§aPrevious Page",
-                    "§7Page " + currentPage + "/" + getMaxPages());
-            inventory.setItem(navigationRowStart + PREV_PAGE_SLOT_OFFSET, prevArrow);
-            slotActions.put(navigationRowStart + PREV_PAGE_SLOT_OFFSET, ctx -> previousPage());
-        }
-
-        ItemStack pageInfo = createNavigationItem(Material.PAPER, "§ePage " + (currentPage + 1),
-                "§7of " + getMaxPages() + " Pages",
-                "§7total " + items.size() + " Options");
-        inventory.setItem(navigationRowStart + CURRENT_PAGE_SLOT_OFFSET, pageInfo);
-
-        if (currentPage < getMaxPages() - 1) {
-            ItemStack nextArrow = createNavigationItem(Material.ARROW, "§aNext page",
-                    "§7Page " + (currentPage + 2) + "/" + getMaxPages());
-            inventory.setItem(navigationRowStart + NEXT_PAGE_SLOT_OFFSET, nextArrow);
-            slotActions.put(navigationRowStart + NEXT_PAGE_SLOT_OFFSET, ctx -> nextPage());
-        }
-
-        ItemStack separator = createNavigationItem(Material.GRAY_STAINED_GLASS_PANE, "§r", "");
-        for (int i = navigationRowStart; i < navigationRowStart + NAVIGATION_ROW_SIZE; i++) {
-            if (inventory.getItem(i) == null) {
-                inventory.setItem(i, separator);
-            }
-        }
-    }
-
-    private void setupStaticNavigationItems() {
-        int navigationRowStart = usableRows * SLOTS_PER_ROW;
-        for (Map.Entry<Integer, StaticNavigationItem> entry : staticNavigationItems.entrySet()) {
-            int relativeSlot = entry.getKey();
-            int absoluteSlot = navigationRowStart + relativeSlot;
-            StaticNavigationItem item = entry.getValue();
-            inventory.setItem(absoluteSlot, item.getItemStack());
-            slotActions.put(absoluteSlot, item.getAction());
-        }
-    }
-
-    private ItemStack createNavigationItem(Material material, String name, String... lore) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(name);
-            meta.setLore(Arrays.asList(lore));
-            item.setItemMeta(meta);
-        }
-        return item;
     }
 
     protected Inventory getInventory() {
         return inventory;
     }
 
+    protected int getInventorySize() {
+        return rows * SLOTS_PER_ROW;
+    }
+
     protected void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
 
-        int slot = event.getRawSlot();
-        int inventorySize = getInventorySize();
-
-        if (slot < 0 || slot >= inventorySize) {
+        int rawSlot = event.getRawSlot();
+        if (rawSlot < 0 || rawSlot >= getInventorySize()) {
             return;
         }
 
-        Consumer<ClickContext> action = slotActions.get(slot);
-
-        if (action != null) {
-            ClickContext context = new ClickContext(
-                    (Player) event.getWhoClicked(),
-                    event.getClick(),
-                    event.getSlot(),
-                    event.getCurrentItem(),
-                    event.isShiftClick(),
-                    event.isLeftClick(),
-                    event.isRightClick()
-            );
-
-            Bukkit.getRegionScheduler().run(manager.getPlugin(), event.getWhoClicked().getLocation(), task -> action.accept(context));
+        Consumer<ClickContext> action = slotActions.get(rawSlot);
+        if (action == null) {
+            return;
         }
+
+        ClickContext context = new ClickContext(
+                (Player) event.getWhoClicked(),
+                event.getClick(),
+                event.getSlot(),
+                event.getCurrentItem(),
+                event.isShiftClick(),
+                event.isLeftClick(),
+                event.isRightClick()
+        );
+
+        Bukkit.getRegionScheduler().run(manager.getPlugin(), event.getWhoClicked().getLocation(), task -> action.accept(context));
     }
 
     public static ItemStack createItem(Material material, String name, String... lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
+
         if (meta != null) {
             meta.setDisplayName(name);
-            if (lore.length > 0) {
+            if (lore != null && lore.length > 0) {
                 meta.setLore(Arrays.asList(lore));
             }
             item.setItemMeta(meta);
         }
+
         return item;
     }
 
+    public static class InventoryRegion {
+
+        private final ClickableInventory parent;
+        private final String id;
+        private final List<Integer> slots;
+        private final List<ClickableItem> items;
+
+        private ItemStack fillerItem;
+        private int firstItemIndex;
+
+        private InventoryRegion(ClickableInventory parent, String id, List<Integer> slots) {
+            this.parent = parent;
+            this.id = id;
+            this.slots = new ArrayList<>();
+            this.items = new ArrayList<>();
+            this.firstItemIndex = 0;
+
+            if (slots == null || slots.isEmpty()) {
+                throw new IllegalArgumentException("Eine Region muss mindestens einen Slot enthalten");
+            }
+
+            Set<Integer> uniqueSlots = new HashSet<>();
+            int inventorySize = parent.getInventorySize();
+
+            for (Integer slot : slots) {
+                if (slot == null) {
+                    throw new IllegalArgumentException("Slot darf nicht null sein");
+                }
+                if (slot < 0 || slot >= inventorySize) {
+                    throw new IllegalArgumentException("Ungültiger Slot " + slot + " für Inventargröße " + inventorySize);
+                }
+                if (!uniqueSlots.add(slot)) {
+                    throw new IllegalArgumentException("Doppelter Slot in Region '" + id + "': " + slot);
+                }
+                this.slots.add(slot);
+            }
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public ClickableInventory getParent() {
+            return parent;
+        }
+
+        public List<Integer> getSlots() {
+            return Collections.unmodifiableList(slots);
+        }
+
+        public List<ClickableItem> getItems() {
+            return Collections.unmodifiableList(items);
+        }
+
+        public int getSlotCount() {
+            return slots.size();
+        }
+
+        public int getItemCount() {
+            return items.size();
+        }
+
+        public int getFirstItemIndex() {
+            return firstItemIndex;
+        }
+
+        public InventoryRegion setFirstItemIndex(int firstItemIndex) {
+            this.firstItemIndex = clampFirstItemIndex(firstItemIndex);
+            return this;
+        }
+
+        public InventoryRegion setFirstItemIndexAndRefresh(int firstItemIndex) {
+            setFirstItemIndex(firstItemIndex);
+            refresh();
+            return this;
+        }
+
+        public int getLastVisibleItemIndexExclusive() {
+            return Math.min(firstItemIndex + slots.size(), items.size());
+        }
+
+        public boolean hasNextPage() {
+            return firstItemIndex + slots.size() < items.size();
+        }
+
+        public boolean hasPreviousPage() {
+            return firstItemIndex > 0;
+        }
+
+        public InventoryRegion nextPage() {
+            return scrollBy(slots.size());
+        }
+
+        public InventoryRegion nextPageAndRefresh() {
+            nextPage();
+            refresh();
+            return this;
+        }
+
+        public InventoryRegion previousPage() {
+            return scrollBy(-slots.size());
+        }
+
+        public InventoryRegion previousPageAndRefresh() {
+            previousPage();
+            refresh();
+            return this;
+        }
+
+        public InventoryRegion scrollBy(int offset) {
+            return setFirstItemIndex(firstItemIndex + offset);
+        }
+
+        public InventoryRegion scrollByAndRefresh(int offset) {
+            scrollBy(offset);
+            refresh();
+            return this;
+        }
+
+        public InventoryRegion openPage(int page) {
+            if (page < 0) {
+                page = 0;
+            }
+
+            return setFirstItemIndex(page * slots.size());
+        }
+
+        public InventoryRegion openPageAndRefresh(int page) {
+            openPage(page);
+            refresh();
+            return this;
+        }
+
+        public int getCurrentPage() {
+            return slots.isEmpty() ? 0 : firstItemIndex / slots.size();
+        }
+
+        public int getMaxPages() {
+            return Math.max(1, (int) Math.ceil((double) items.size() / slots.size()));
+        }
+
+        public ItemStack getFillerItem() {
+            return fillerItem == null ? null : fillerItem.clone();
+        }
+
+        public InventoryRegion setFillerItem(ItemStack fillerItem) {
+            this.fillerItem = fillerItem == null ? null : fillerItem.clone();
+            return this;
+        }
+
+        public InventoryRegion setFillerItem(Material material, String name, String... lore) {
+            this.fillerItem = createItem(material, name, lore);
+            return this;
+        }
+
+        public InventoryRegion addItem(ItemStack itemStack, Consumer<ClickContext> action) {
+            items.add(new ClickableItem(itemStack, action));
+            return this;
+        }
+
+        public InventoryRegion addItem(ItemStack itemStack, Runnable action) {
+            items.add(new ClickableItem(itemStack, ctx -> action.run()));
+            return this;
+        }
+
+        public InventoryRegion addItems(List<ClickableItem> clickableItems) {
+            items.addAll(clickableItems);
+            return this;
+        }
+
+        public InventoryRegion addItems(ClickableItem... clickableItems) {
+            items.addAll(Arrays.asList(clickableItems));
+            return this;
+        }
+
+        public InventoryRegion setItem(int index, ItemStack itemStack, Consumer<ClickContext> action) {
+            checkItemIndex(index);
+            items.set(index, new ClickableItem(itemStack, action));
+            return this;
+        }
+
+        public InventoryRegion setItem(int index, ItemStack itemStack, Runnable action) {
+            return setItem(index, itemStack, ctx -> action.run());
+        }
+
+        public ClickableItem getItem(int index) {
+            checkItemIndex(index);
+            return items.get(index);
+        }
+
+        public InventoryRegion removeItem(int index) {
+            checkItemIndex(index);
+            items.remove(index);
+            firstItemIndex = clampFirstItemIndex(firstItemIndex);
+            return this;
+        }
+
+        public InventoryRegion clearItems() {
+            items.clear();
+            firstItemIndex = 0;
+            return this;
+        }
+
+        public InventoryRegion refresh() {
+            parent.rerender();
+            return this;
+        }
+
+        private int clampFirstItemIndex(int requestedIndex) {
+            if (items.isEmpty()) {
+                return 0;
+            }
+
+            int maxIndex = Math.max(0, items.size() - 1);
+            if (requestedIndex < 0) {
+                return 0;
+            }
+            if (requestedIndex > maxIndex) {
+                return maxIndex;
+            }
+            return requestedIndex;
+        }
+
+        private void checkItemIndex(int index) {
+            if (index < 0 || index >= items.size()) {
+                throw new IndexOutOfBoundsException("Ungültiger Item-Index " + index + ", Größe: " + items.size());
+            }
+        }
+
+        protected void renderInto(Inventory inventory, Map<Integer, Consumer<ClickContext>> slotActions) {
+            for (int i = 0; i < slots.size(); i++) {
+                int slot = slots.get(i);
+                int itemIndex = firstItemIndex + i;
+
+                if (itemIndex >= 0 && itemIndex < items.size()) {
+                    ClickableItem clickableItem = items.get(itemIndex);
+                    inventory.setItem(slot, clickableItem.getItemStack());
+                    slotActions.put(slot, clickableItem.getAction());
+                } else {
+                    if (fillerItem != null) {
+                        inventory.setItem(slot, fillerItem.clone());
+                    } else {
+                        inventory.setItem(slot, null);
+                    }
+                    slotActions.remove(slot);
+                }
+            }
+        }
+    }
+
     public static class ClickContext {
+
         private final Player player;
         private final ClickType clickType;
         private final int slot;
@@ -364,186 +478,53 @@ public class ClickableInventory implements Listener {
             this.rightClick = rightClick;
         }
 
-        public Player getPlayer() { return player; }
-        public ClickType getClickType() { return clickType; }
-        public int getSlot() { return slot; }
-        public ItemStack getClickedItem() { return clickedItem; }
-        public boolean isShiftClick() { return shiftClick; }
-        public boolean isLeftClick() { return leftClick; }
-        public boolean isRightClick() { return rightClick; }
-        public boolean isMiddleClick() { return clickType == ClickType.MIDDLE; }
-        public boolean isDropClick() { return clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP; }
-        public boolean isNumberKey() { return clickType.isKeyboardClick(); }
-        public boolean isDoubleClick() { return clickType == ClickType.DOUBLE_CLICK; }
-    }
+        public Player getPlayer() {
+            return player;
+        }
 
-    public static enum LayoutStyle {
-        STANDARD {
-            @Override
-            public List<Integer> getAvailableSlots(int rows) {
-                List<Integer> slots = new ArrayList<>();
-                for (int i = 0; i < rows * 9; i++) {
-                    slots.add(i);
-                }
-                return slots;
-            }
+        public ClickType getClickType() {
+            return clickType;
+        }
 
-            @Override
-            public int getItemsPerPage(int rows) {
-                return rows * 9;
-            }
+        public int getSlot() {
+            return slot;
+        }
 
-            @Override
-            public boolean usesFiller() {
-                return false;
-            }
-        },
+        public ItemStack getClickedItem() {
+            return clickedItem;
+        }
 
-        BORDERED {
-            @Override
-            public List<Integer> getAvailableSlots(int rows) {
-                List<Integer> slots = new ArrayList<>();
-                int usableRows = Math.max(1, rows - 2);
-                for (int row = 1; row <= usableRows; row++) {
-                    for (int col = 1; col < 8; col++) {
-                        slots.add(row * 9 + col);
-                    }
-                }
-                return slots;
-            }
+        public boolean isShiftClick() {
+            return shiftClick;
+        }
 
-            @Override
-            public int getItemsPerPage(int rows) {
-                int usableRows = Math.max(1, rows - 2);
-                return usableRows * 7;
-            }
+        public boolean isLeftClick() {
+            return leftClick;
+        }
 
-            @Override
-            public boolean usesFiller() {
-                return true;
-            }
-        },
+        public boolean isRightClick() {
+            return rightClick;
+        }
 
-        COLUMNS {
-            @Override
-            public List<Integer> getAvailableSlots(int rows) {
-                List<Integer> slots = new ArrayList<>();
-                for (int row = 0; row < rows; row++) {
-                    for (int col = 1; col < 9; col += 2) {
-                        slots.add(row * 9 + col);
-                    }
-                }
-                return slots;
-            }
+        public boolean isMiddleClick() {
+            return clickType == ClickType.MIDDLE;
+        }
 
-            @Override
-            public int getItemsPerPage(int rows) {
-                return rows * 4;
-            }
+        public boolean isDropClick() {
+            return clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP;
+        }
 
-            @Override
-            public boolean usesFiller() {
-                return true;
-            }
-        },
+        public boolean isNumberKey() {
+            return clickType.isKeyboardClick();
+        }
 
-        ROWS {
-            @Override
-            public List<Integer> getAvailableSlots(int rows) {
-                List<Integer> slots = new ArrayList<>();
-                for (int row = 1; row < rows; row += 2) {
-                    for (int col = 0; col < 9; col++) {
-                        slots.add(row * 9 + col);
-                    }
-                }
-                return slots;
-            }
-
-            @Override
-            public int getItemsPerPage(int rows) {
-                return ((rows - 1) / 2 + 1) * 9;
-            }
-
-            @Override
-            public boolean usesFiller() {
-                return true;
-            }
-        },
-
-        GRID_3X3 {
-            @Override
-            public List<Integer> getAvailableSlots(int rows) {
-                List<Integer> slots = new ArrayList<>();
-                for (int row = 0; row < Math.min(3, rows); row++) {
-                    for (int col = 0; col < 9; col += 3) {
-                        slots.add(row * 9 + col);
-                    }
-                }
-                return slots;
-            }
-
-            @Override
-            public int getItemsPerPage(int rows) {
-                return Math.min(3, rows) * 3;
-            }
-
-            @Override
-            public boolean usesFiller() {
-                return true;
-            }
-        },
-
-
-        GAMEMODES_3 {
-            @Override
-            public List<Integer> getAvailableSlots(int rows) {
-                List<Integer> slots = new ArrayList<>();
-                int padding = (int)(rows-1)/2;
-                int startSlot = (padding*9)-1;
-                slots.addAll(Arrays.asList(startSlot+3, startSlot+5, startSlot+7));
-                return slots;
-            }
-
-            @Override
-            public int getItemsPerPage(int rows) {
-                return 3;
-            }
-
-            @Override
-            public boolean usesFiller() {
-                return true;
-            }
-        },
-
-        GAMEMODES_4 {
-            @Override
-            public List<Integer> getAvailableSlots(int rows) {
-                List<Integer> slots = new ArrayList<>();
-                int padding = (int)(rows-1)/2;
-                int startSlot = (padding*9)-1;
-                slots.addAll(Arrays.asList(startSlot+2, startSlot+4, startSlot+6, startSlot+8));
-                return slots;
-            }
-
-            @Override
-            public int getItemsPerPage(int rows) {
-                return 4;
-            }
-
-            @Override
-            public boolean usesFiller() {
-                return true;
-            }
-        };
-
-        public abstract List<Integer> getAvailableSlots(int rows);
-
-        public abstract int getItemsPerPage(int rows);
-
-        public abstract boolean usesFiller();
+        public boolean isDoubleClick() {
+            return clickType == ClickType.DOUBLE_CLICK;
+        }
     }
 
     public static class ClickableItem {
+
         private final ItemStack itemStack;
         private final Consumer<ClickContext> action;
 
@@ -561,25 +542,8 @@ public class ClickableInventory implements Listener {
         }
     }
 
-    private static class StaticNavigationItem {
-        private final ItemStack itemStack;
-        private final Consumer<ClickContext> action;
-
-        public StaticNavigationItem(ItemStack itemStack, Consumer<ClickContext> action) {
-            this.itemStack = itemStack.clone();
-            this.action = action;
-        }
-
-        public ItemStack getItemStack() {
-            return itemStack.clone();
-        }
-
-        public Consumer<ClickContext> getAction() {
-            return action;
-        }
-    }
-
     public static class InventoryManager implements Listener {
+
         private final JavaPlugin plugin;
         private final Map<UUID, ClickableInventory> activeInventories;
 
@@ -607,12 +571,19 @@ public class ClickableInventory implements Listener {
 
         @EventHandler
         public void onInventoryClick(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
+            if (!(event.getWhoClicked() instanceof Player)) {
+                return;
+            }
 
             Player clicker = (Player) event.getWhoClicked();
             ClickableInventory clickableInventory = activeInventories.get(clicker.getUniqueId());
 
-            if (clickableInventory == null || !event.getInventory().equals(clickableInventory.getInventory())) {
+            if (clickableInventory == null) {
+                return;
+            }
+
+            Inventory topInventory = event.getView().getTopInventory();
+            if (!topInventory.equals(clickableInventory.getInventory())) {
                 return;
             }
 
@@ -621,12 +592,18 @@ public class ClickableInventory implements Listener {
 
         @EventHandler
         public void onInventoryClose(InventoryCloseEvent event) {
-            if (!(event.getPlayer() instanceof Player)) return;
+            if (!(event.getPlayer() instanceof Player)) {
+                return;
+            }
 
             Player player = (Player) event.getPlayer();
             ClickableInventory clickableInventory = activeInventories.get(player.getUniqueId());
 
-            if (clickableInventory != null && event.getInventory().equals(clickableInventory.getInventory())) {
+            if (clickableInventory == null) {
+                return;
+            }
+
+            if (event.getInventory().equals(clickableInventory.getInventory())) {
                 activeInventories.remove(player.getUniqueId());
             }
         }

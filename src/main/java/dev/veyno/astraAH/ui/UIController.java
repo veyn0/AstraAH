@@ -3,7 +3,6 @@ package dev.veyno.astraAH.ui;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.Listing;
 import dev.veyno.astraAH.ui.error.UIState;
-import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;

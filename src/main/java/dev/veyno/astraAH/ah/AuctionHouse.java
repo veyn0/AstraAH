@@ -2,7 +2,7 @@ package dev.veyno.astraAH.ah;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.econ.EconomyProvider;
-import dev.veyno.astraAH.storage.ListingStorage;
+import dev.veyno.astraAH.storage.StorageProvider;
 import dev.veyno.astraAH.util.IDLocks;
 import dev.veyno.astraAH.util.PurchaseResult;
 import org.bukkit.Bukkit;
@@ -15,12 +15,12 @@ import java.util.concurrent.TimeUnit;
 public class AuctionHouse {
 
     private final AstraAH plugin;
-    private final ListingStorage storage;
+    private final StorageProvider storage;
     private final EconomyProvider economy;
 
     private Map<UUID, Listing> listings = new ConcurrentHashMap<>();
 
-    public AuctionHouse(AstraAH plugin, ListingStorage storage, EconomyProvider economy) {
+    public AuctionHouse(AstraAH plugin, StorageProvider storage, EconomyProvider economy) {
         this.plugin = plugin;
         this.storage = storage;
         this.economy = economy;

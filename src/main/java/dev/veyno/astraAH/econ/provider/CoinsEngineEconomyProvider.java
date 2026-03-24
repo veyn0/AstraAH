@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.econ.providers;
+package dev.veyno.astraAH.econ.provider;
 
 import dev.veyno.astraAH.econ.EconomyProvider;
 

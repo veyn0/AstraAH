@@ -2,9 +2,9 @@ package dev.veyno.astraAH;
 
 import dev.veyno.astraAH.ah.AuctionHouse;
 import dev.veyno.astraAH.econ.EconomyProvider;
-import dev.veyno.astraAH.econ.providers.VaultEconomyProvider;
-import dev.veyno.astraAH.storage.ListingStorage;
-import dev.veyno.astraAH.storage.YamlListingStorageController;
+import dev.veyno.astraAH.econ.provider.VaultEconomyProvider;
+import dev.veyno.astraAH.storage.StorageProvider;
+import dev.veyno.astraAH.storage.provider.FileStorageProvider;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -25,7 +25,7 @@ TODO:
 
 public final class AstraAH extends JavaPlugin {
 
-    private ListingStorage listingStorage;
+    private StorageProvider listingStorage;
 
     private File dataFile;
     private FileConfiguration dataConfig;
@@ -45,7 +45,7 @@ public final class AstraAH extends JavaPlugin {
         createDataFile();
         saveDefaultConfig();
         setupEconomy();
-        listingStorage = new YamlListingStorageController(this);
+        listingStorage = new FileStorageProvider(this);
         auctionHouse = new AuctionHouse(this, listingStorage, economy);
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
@@ -72,7 +72,7 @@ public final class AstraAH extends JavaPlugin {
         return auctionHouse;
     }
 
-    public ListingStorage getListingStorage() {
+    public StorageProvider getListingStorage() {
         return listingStorage;
     }
 
