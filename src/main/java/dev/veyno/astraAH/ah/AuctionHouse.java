@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class AuctionHouse {
@@ -13,7 +14,9 @@ public class AuctionHouse {
     private final AstraAH plugin;
     private final ListingStorage storage;
 
-    private Map<UUID, Listing> listings = new HashMap<>();
+    private Map<UUID, Listing> listings = new ConcurrentHashMap<>();
+
+    private Map<UUID, Object> listingLocks = new ConcurrentHashMap<>();
 
     public AuctionHouse(AstraAH plugin, ListingStorage storage) {
         this.plugin = plugin;
@@ -55,19 +58,29 @@ public class AuctionHouse {
         }, 1, 120, TimeUnit.SECONDS);
     }
 
-    private void refreshCache(){
+    private synchronized void refreshCache(){
         try {
             List<Listing> listingsRaw = storage.getListings();
-
-
-
+            Map<UUID, Listing> result = new ConcurrentHashMap<>();
+            for(Listing l : listingsRaw){
+                result.put(l.listingId(), l);
+            }
+            listings = result;
         } catch (Exception e){
-
+            plugin.getLogger().severe("Failed to refresh AuctionHouse Listings: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private void refreshListing(UUID listingId){
 
+    }
+
+    public Object getLock(UUID listingId){
+        if(listingLocks.containsKey(listingId)) return listingLocks.get(listingId);
+        Object lock = new Object();
+        listingLocks.put(listingId, lock);
+        return getLock(listingId);
     }
 
 }
