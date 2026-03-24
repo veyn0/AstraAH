@@ -28,6 +28,9 @@ public class AuctionHouse {
     }
 
     public List<Listing> getListings(UUID playerId){
+        synchronized (IDLocks.getLock(playerId)){
+
+        }
         return null;
     }
 
@@ -35,8 +38,10 @@ public class AuctionHouse {
         return listings.get(listingId);
     }
 
-    public boolean isListingAvailable(UUID listingId){
-        return false;
+    public boolean isListingAvailableBlocking(UUID listingId){
+        synchronized (IDLocks.getLock(listingId)){
+            return storage.getListing(listingId) != null;
+        }
     }
 
     public boolean onAttemptPurchase(Player buyer, UUID listingId){
@@ -44,11 +49,26 @@ public class AuctionHouse {
     }
 
     public boolean onAttemptRemove(UUID listingId){
+        synchronized (IDLocks.getLock(listingId)){
+            storage.removeListing(listingId);
+            removeListingFromCache(listingId);
+        }
         return false;
     }
 
-    public void onListingUpdate(UUID listingId){
+    public Listing onListingUpdateBlocking(UUID listingId){
+        synchronized (IDLocks.getLock(listingId)) {
+            Listing result = storage.getListing(listingId);
+            if (result == null){
+                removeListingFromCache(listingId);
+                return null;
+            }
+            listings.put(listingId, result);
+            return result;
+        }
+
         //TODO: check if the listing exists, if yes update it to the cache, if not, make sure to delete it from cache.
+
     }
 
     private void startCacheRefreshSchedule(){
@@ -71,12 +91,8 @@ public class AuctionHouse {
         }
     }
 
-    private Listing refreshListing(UUID listingId){
-        synchronized (IDLocks.getLock(listingId)) {
-            Listing result = storage.getListing(listingId);
-            listings.put(listingId, result);
-            return result;
-        }
+    private void removeListingFromCache(UUID listingId) {
+        listings.remove(listingId);
     }
 
 

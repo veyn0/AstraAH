@@ -8,7 +8,7 @@ public class IDLocks {
 
     private static Map<UUID, Object> locks = new ConcurrentHashMap<>();
 
-    public static Object getLock(UUID uuid){
+    public static synchronized Object getLock(UUID uuid){
         if(locks.containsKey(uuid)) return locks.get(uuid);
         Object lock = new Object();
         locks.put(uuid, lock);
