@@ -2,6 +2,7 @@ package dev.veyno.astraAH.ah;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.storage.ListingStorage;
+import dev.veyno.astraAH.util.IDLocks;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -15,8 +16,6 @@ public class AuctionHouse {
     private final ListingStorage storage;
 
     private Map<UUID, Listing> listings = new ConcurrentHashMap<>();
-
-    private Map<UUID, Object> listingLocks = new ConcurrentHashMap<>();
 
     public AuctionHouse(AstraAH plugin, ListingStorage storage) {
         this.plugin = plugin;
@@ -72,15 +71,14 @@ public class AuctionHouse {
         }
     }
 
-    private void refreshListing(UUID listingId){
-
+    private Listing refreshListing(UUID listingId){
+        synchronized (IDLocks.getLock(listingId)) {
+            Listing result = storage.getListing(listingId);
+            listings.put(listingId, result);
+            return result;
+        }
     }
 
-    public Object getLock(UUID listingId){
-        if(listingLocks.containsKey(listingId)) return listingLocks.get(listingId);
-        Object lock = new Object();
-        listingLocks.put(listingId, lock);
-        return getLock(listingId);
-    }
+
 
 }
