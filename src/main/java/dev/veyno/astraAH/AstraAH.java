@@ -1,6 +1,8 @@
 package dev.veyno.astraAH;
 
 import dev.veyno.astraAH.ah.AuctionHouse;
+import dev.veyno.astraAH.econ.EconomyConnector;
+import dev.veyno.astraAH.econ.VaultEconomyConnector;
 import dev.veyno.astraAH.storage.ListingStorage;
 import dev.veyno.astraAH.storage.YamlListingStorageController;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
@@ -36,12 +38,15 @@ public final class AstraAH extends JavaPlugin {
 
     private AuctionHouse auctionHouse;
 
+    private EconomyConnector economy;
+
     @Override
     public void onEnable() {
         createDataFile();
         saveDefaultConfig();
+        setupEconomy();
         listingStorage = new YamlListingStorageController(this);
-        auctionHouse = new AuctionHouse(this, listingStorage);
+        auctionHouse = new AuctionHouse(this, listingStorage, economy);
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
@@ -91,6 +96,13 @@ public final class AstraAH extends JavaPlugin {
             dataConfig.save(dataFile);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setupEconomy(){
+        economy = VaultEconomyConnector.createOrNull();
+        if(economy==null){
+
         }
     }
 

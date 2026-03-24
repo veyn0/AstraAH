@@ -55,15 +55,12 @@ public class AuctionHouse {
         Listing listing = onListingUpdateBlocking(listingId);
         synchronized (IDLocks.getLock(listingId)){
             if(storage.getListing(listingId)==null) return PurchaseResult.UNAVAILABLE;
-            if(economy.withdraw(buyer.getUniqueId(), listing.price())){
-                if(economy.add(listing.playerId(), listing.price())){
+            if(!economy.withdraw(buyer.getUniqueId(), listing.price())) return PurchaseResult.MISSING_FUNDS;
+            if(!economy.add(listing.playerId(), listing.price())) return PurchaseResult.ERROR;
 
-                }
-                else {
-                    return PurchaseResult.ERROR;
-                }
-            }
 
+
+            return PurchaseResult.SUCCESS;
         }
     }
 

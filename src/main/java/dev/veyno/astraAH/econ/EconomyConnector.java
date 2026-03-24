@@ -4,24 +4,12 @@ import dev.veyno.astraAH.AstraAH;
 
 import java.util.UUID;
 
-public class EconomyConnector {
+public interface EconomyConnector {
 
-    private final AstraAH plugin;
+    public double getBalance(UUID playerId);
 
-    public EconomyConnector(AstraAH plugin) {
-        this.plugin = plugin;
-    }
+    public boolean withdraw(UUID playerId, double value);
 
-    public double getBalance(UUID playerId){
-        return 0;
-    }
-
-    public boolean withdraw(UUID playerId, double value){
-        return false;
-    }
-
-    public boolean add(UUID playerId, double value){
-        return false;
-    }
+    public boolean add(UUID playerId, double value);
 
 }

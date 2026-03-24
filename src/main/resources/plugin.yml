@@ -6,5 +6,8 @@ authors: [ veyno ]
 website: https://veyno.dev
 folia-supported: true
 
+softdepend:
+  - Vault
+
 commands:
   market:
