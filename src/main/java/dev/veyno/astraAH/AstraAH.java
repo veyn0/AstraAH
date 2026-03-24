@@ -41,7 +41,7 @@ public final class AstraAH extends JavaPlugin {
         createDataFile();
         saveDefaultConfig();
         listingStorage = new YamlListingStorageController(this);
-        auctionHouse = new AuctionHouse(this);
+        auctionHouse = new AuctionHouse(this, listingStorage);
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
