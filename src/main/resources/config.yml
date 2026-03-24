@@ -1,11 +1,28 @@
 messages:
   listings:
     title: "<r><gray>Marktplatz"
-    filter_item:
-      material: ""
-      display_name: ""
+    sort_item:
+      material: "HOPPER"
+      display_name: "<gray>Sortieren"
+      options:
+        enabled:
+          name_a_z: ""
+          name_z_a: ""
+          price_h_l: ""
+          price_l_h: ""
+          price_per_piece_h_l: ""
+          price_per_piece_l_h: ""
+        disabled:
+          name_a_z: ""
+          name_z_a: ""
+          price_h_l: ""
+          price_l_h: ""
+          price_per_piece_h_l: ""
+          price_per_piece_l_h: ""
+
+
     item:
-      display_name: "<r><gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>"
+      display_name: "<r><gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>{ITEM_NAME}"
       lore_header:
         - "<r><gray>LinksKlick zum Kaufen"
         - "<r><gray>RechtsKlick für Mehr Informationen"
@@ -20,7 +37,35 @@ messages:
         - "<r><gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
 
 
+categories:
+  - filter:
+      item:
+        material: "OAK_LOG"
+        display_name: "<gray>Baumeterialien"
+        lore:
+          - "<r><gray> Beschreibung..."
+      rules:
+        - "*_LOG"
+        - "*TERRACOTTA*"
+
+  - filter:
+      item:
+        material: "IREON_SWORD"
+        display_name: "<gray>Ausrüstung"
+        lore:
+          - "<r><gray> Werkzeuge und Rüstung"
+      rules:
+        - "*SWORD*"
+        - "*PICKAXE*"
+        - "*SHOVEL*"
+        - "*AXE*"
 
 settings:
   economy:
     tax_percentage: 10
+#    supported economy providers at the time are:
+#      plugins: "vault", ...
+#      other: "auto", "file".
+#    setting this to auto will use the first compatible plugin in the order they are written above
+    provider: "auto"
+
