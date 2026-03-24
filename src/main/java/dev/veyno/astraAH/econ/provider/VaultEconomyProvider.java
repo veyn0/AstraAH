@@ -16,7 +16,7 @@ public class VaultEconomyProvider implements EconomyProvider {
         this.economy = economy;
     }
 
-    public static EconomyProvider createOrNull() {
+    public static EconomyProvider createOrNull(){
         RegisteredServiceProvider<Economy> rsp =
                 Bukkit.getServicesManager().getRegistration(Economy.class);
 

@@ -1,6 +1,6 @@
 messages:
   listings:
-    title: "<r><gray>Marktplatz"
+    title: "<reset><gray>Marktplatz"
     sort_item:
       material: "HOPPER"
       display_name: "<gray>Sortieren"
@@ -22,19 +22,19 @@ messages:
 
 
     item:
-      display_name: "<r><gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>{ITEM_NAME}"
+      display_name: "<reset><gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>{ITEM_NAME}"
       lore_header:
-        - "<r><gray>LinksKlick zum Kaufen"
-        - "<r><gray>RechtsKlick für Mehr Informationen"
+        - "<reset><gray>LinksKlick zum Kaufen"
+        - "<reset><gray>RechtsKlick für Mehr Informationen"
   listing_info:
     # in listing_info the following placeholders are available: {SELLER_NAME}, {BUYER_BALANCE}, {ITEM_PRICE}, {ITEM_NAME}, {ITEM_DISPLAY_NAME}, {ITEM_COUNT}, {PRICE_PER_PIECE}
-    title: "<r><gray>Marktplatz - Informationen"
+    title: "<reset><gray>Marktplatz - Informationen"
     info_item:
-      title: "<r><gray>Informationen zum Angebot von <light_gray>{SELLER_NAME}"
+      title: "<rreset><gray>Informationen zum Angebot von <light_gray>{SELLER_NAME}"
       lore:
-        - "<r><gray>Preis<dark_gray>:<light_gray> {ITEM_PRICE}$ <dark_gray>(<gray>{PRICE_PER_PIECE}$ pro Stück</gray>)"
-        - "<r><gray>Item<dark_gray>:<light_gray> {ITEM_NAME}"
-        - "<r><gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
+        - "<rreset><gray>Preis<dark_gray>:<light_gray> {ITEM_PRICE}$ <dark_gray>(<gray>{PRICE_PER_PIECE}$ pro Stück</gray>)"
+        - "<rreset><gray>Item<dark_gray>:<light_gray> {ITEM_NAME}"
+        - "<rreset><gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
 
 
 
@@ -44,7 +44,7 @@ categories:
         material: "OAK_LOG"
         display_name: "<gray>Baumaterial"
         lore:
-          - "<r><gray> Beschreibung..."
+          - "<rreset><gray> Beschreibung..."
       rules:
         - "*LOG"
         - "*TERRACOTTA*"
@@ -54,7 +54,7 @@ categories:
         material: "IREON_SWORD"
         display_name: "<gray>Ausrüstung"
         lore:
-          - "<r><gray> Werkzeuge und Rüstung"
+          - "<rreset><gray> Werkzeuge und Rüstung"
       rules:
         - "*SWORD*"
         - "*PICKAXE*"

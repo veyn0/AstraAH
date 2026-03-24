@@ -3,6 +3,7 @@ package dev.veyno.astraAH;
 import dev.veyno.astraAH.ah.AuctionHouse;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
+import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
 import dev.veyno.astraAH.econ.provider.VaultEconomyProvider;
 import dev.veyno.astraAH.storage.StorageProvider;
 import dev.veyno.astraAH.storage.provider.FileStorageProvider;
@@ -104,10 +105,13 @@ public final class AstraAH extends JavaPlugin {
     private void setupEconomy(){
 
         //TODO: implement more economy providers and the selection in the config file aswell as automaticly using the file to provide economy
-
-        economy = VaultEconomyProvider.createOrNull();
+        try {
+            //economy = VaultEconomyProvider.createOrNull();
+        }catch (Exception e){
+            getLogger().warning("Vault API not found");
+        }
         if(economy==null){
-
+            economy= new FileEconomyProvider(this);
         }
     }
 
