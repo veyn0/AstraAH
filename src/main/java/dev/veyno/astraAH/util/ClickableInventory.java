@@ -78,6 +78,10 @@ public class ClickableInventory {
         return region;
     }
 
+    public InventoryRegion createRegion(String id, InventoryLayout layout){
+        return createRegion(id, layout.getSlots(getRows()));
+    }
+
     public InventoryRegion createRegion(String id, int... slots) {
         List<Integer> slotList = new ArrayList<>(slots.length);
         for (int slot : slots) {
@@ -608,4 +612,65 @@ public class ClickableInventory {
             }
         }
     }
+
+    public static interface InventoryLayout{
+        List<Integer> getSlots(int rows);
+    }
+
+    public static class LayoutCenter implements InventoryLayout{
+
+        @Override
+        public List<Integer> getSlots(int rows) {
+            List<Integer> result = new ArrayList<>();
+            if(rows<=2)return result;
+            for(int i = 1; i < (rows-1); i++){
+                result.addAll(List.of(i * 9, i*9+8));
+            }
+
+            return result;
+        }
+    }
+
+
+    public static class LayoutSide implements InventoryLayout{
+
+        private final boolean leftSide;
+
+        public LayoutSide(boolean leftSide) {
+            this.leftSide = leftSide;
+        }
+
+        @Override
+        public List<Integer> getSlots(int rows) {
+            int before = leftSide ? 0 : 8;
+            List<Integer> result = new ArrayList<>();
+            for(int i = 0; i<rows; i++){
+                result.add((9*i)+before);
+            }
+            return result;
+        }
+    }
+
+    public static class LayoutHorizontalNoSides implements InventoryLayout{
+
+        private int row;
+
+        public LayoutHorizontalNoSides(int row){
+            this.row = row;
+        }
+
+        @Override
+        public List<Integer> getSlots(int rows) {
+            List<Integer> result = new ArrayList<>();
+
+            if(row>rows) row = rows;
+
+            for(int i = ((rows-1)*9); i < (rows*9); i++ ){
+                result.add(i);
+            }
+
+            return result;
+        }
+    }
+
 }

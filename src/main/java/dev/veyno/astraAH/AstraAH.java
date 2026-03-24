@@ -1,6 +1,7 @@
 package dev.veyno.astraAH;
 
 import dev.veyno.astraAH.ah.AuctionHouse;
+import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.VaultEconomyProvider;
 import dev.veyno.astraAH.storage.StorageProvider;
@@ -45,6 +46,7 @@ public final class AstraAH extends JavaPlugin {
         createDataFile();
         saveDefaultConfig();
         setupEconomy();
+        setupCommands();
         listingStorage = new FileStorageProvider(this);
         auctionHouse = new AuctionHouse(this, listingStorage, economy);
         inventoryManager = new ClickableInventory.InventoryManager(this);
@@ -109,4 +111,7 @@ public final class AstraAH extends JavaPlugin {
         }
     }
 
+    private void setupCommands(){
+        getCommand("market").setExecutor(new AuctionHouseCommand(this));
+    }
 }

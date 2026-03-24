@@ -3,6 +3,7 @@ package dev.veyno.astraAH.ui;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.Listing;
 import dev.veyno.astraAH.ui.error.UIState;
+import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -24,7 +25,6 @@ public class UIController {
     private final String LISTING_DISPLAY_NAME_UNRESOLVED;
 
     private final Component LISTING_DETAILS_TITLE;
-
 
     private final List<Component> LISTING_LORE_HEADER;
 
@@ -56,8 +56,11 @@ public class UIController {
     private void openMainPage(Player p){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
         List<Listing> listings = plugin.getAuctionHouse().getListings();
+
+        //Center: available listings
+        ClickableInventory.InventoryRegion centerContent = inventory.createRegion("center", new ClickableInventory.LayoutCenter());
         for(Listing l : listings){
-            inventory.addItem(getDisplayItem(l), clickContext -> {
+            centerContent.addItem(getDisplayItem(l), clickContext -> {
                 if(clickContext.isLeftClick()){
                     attemptPurchase(p, l);
                 }
@@ -66,6 +69,9 @@ public class UIController {
                 }
             });
         }
+
+        //Left side: categories
+
 
 
 

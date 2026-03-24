@@ -37,6 +37,7 @@ messages:
         - "<r><gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
 
 
+
 categories:
   - filter:
       item:
