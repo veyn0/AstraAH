@@ -1,8 +1,10 @@
 package dev.veyno.astraAH.ah;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.econ.EconomyConnector;
 import dev.veyno.astraAH.storage.ListingStorage;
 import dev.veyno.astraAH.util.IDLocks;
+import dev.veyno.astraAH.util.PurchaseResult;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -14,12 +16,14 @@ public class AuctionHouse {
 
     private final AstraAH plugin;
     private final ListingStorage storage;
+    private final EconomyConnector economy;
 
     private Map<UUID, Listing> listings = new ConcurrentHashMap<>();
 
-    public AuctionHouse(AstraAH plugin, ListingStorage storage) {
+    public AuctionHouse(AstraAH plugin, ListingStorage storage, EconomyConnector economy) {
         this.plugin = plugin;
         this.storage = storage;
+        this.economy = economy;
         startCacheRefreshSchedule();
     }
 
@@ -27,11 +31,14 @@ public class AuctionHouse {
         return listings.values().stream().toList();
     }
 
-    public List<Listing> getListings(UUID playerId){
+    public List<Listing> getListingsBlocking(UUID playerId){
         synchronized (IDLocks.getLock(playerId)){
-
+            List<Listing> result = new ArrayList<>();
+            for(Listing l : getListings()){
+                if(l.playerId().equals(playerId)) result.add(l);
+            }
+            return result;
         }
-        return null;
     }
 
     public Listing getListing(UUID listingId){
@@ -44,8 +51,20 @@ public class AuctionHouse {
         }
     }
 
-    public boolean onAttemptPurchase(Player buyer, UUID listingId){
-        return false;
+    public PurchaseResult onAttemptPurchase(Player buyer, UUID listingId){
+        Listing listing = onListingUpdateBlocking(listingId);
+        synchronized (IDLocks.getLock(listingId)){
+            if(storage.getListing(listingId)==null) return PurchaseResult.UNAVAILABLE;
+            if(economy.withdraw(buyer.getUniqueId(), listing.price())){
+                if(economy.add(listing.playerId(), listing.price())){
+
+                }
+                else {
+                    return PurchaseResult.ERROR;
+                }
+            }
+
+        }
     }
 
     public boolean onAttemptRemove(UUID listingId){
