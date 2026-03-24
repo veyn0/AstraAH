@@ -1,10 +1,8 @@
 package dev.veyno.astraAH.econ;
 
-import dev.veyno.astraAH.AstraAH;
-
 import java.util.UUID;
 
-public interface EconomyConnector {
+public interface EconomyProvider {
 
     public double getBalance(UUID playerId);
 

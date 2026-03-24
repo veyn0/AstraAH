@@ -1,5 +1,6 @@
-package dev.veyno.astraAH.econ;
+package dev.veyno.astraAH.econ.providers;
 
+import dev.veyno.astraAH.econ.EconomyProvider;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -7,19 +8,19 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.UUID;
 
-public class VaultEconomyConnector implements EconomyConnector {
+public class VaultEconomyProvider implements EconomyProvider {
 
     private final Economy economy;
 
-    public VaultEconomyConnector(Economy economy) {
+    public VaultEconomyProvider(Economy economy) {
         this.economy = economy;
     }
 
-    public static EconomyConnector createOrNull() {
+    public static EconomyProvider createOrNull() {
         RegisteredServiceProvider<Economy> rsp =
                 Bukkit.getServicesManager().getRegistration(Economy.class);
 
-        return rsp != null ? new VaultEconomyConnector(rsp.getProvider()) : null;
+        return rsp != null ? new VaultEconomyProvider(rsp.getProvider()) : null;
     }
 
     private OfflinePlayer getPlayer(UUID uuid) {

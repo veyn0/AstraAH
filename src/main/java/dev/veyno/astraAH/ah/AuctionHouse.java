@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.ah;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.econ.EconomyConnector;
+import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.storage.ListingStorage;
 import dev.veyno.astraAH.util.IDLocks;
 import dev.veyno.astraAH.util.PurchaseResult;
@@ -16,11 +16,11 @@ public class AuctionHouse {
 
     private final AstraAH plugin;
     private final ListingStorage storage;
-    private final EconomyConnector economy;
+    private final EconomyProvider economy;
 
     private Map<UUID, Listing> listings = new ConcurrentHashMap<>();
 
-    public AuctionHouse(AstraAH plugin, ListingStorage storage, EconomyConnector economy) {
+    public AuctionHouse(AstraAH plugin, ListingStorage storage, EconomyProvider economy) {
         this.plugin = plugin;
         this.storage = storage;
         this.economy = economy;

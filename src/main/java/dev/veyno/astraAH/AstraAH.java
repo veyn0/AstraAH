@@ -1,8 +1,8 @@
 package dev.veyno.astraAH;
 
 import dev.veyno.astraAH.ah.AuctionHouse;
-import dev.veyno.astraAH.econ.EconomyConnector;
-import dev.veyno.astraAH.econ.VaultEconomyConnector;
+import dev.veyno.astraAH.econ.EconomyProvider;
+import dev.veyno.astraAH.econ.providers.VaultEconomyProvider;
 import dev.veyno.astraAH.storage.ListingStorage;
 import dev.veyno.astraAH.storage.YamlListingStorageController;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
@@ -38,7 +38,7 @@ public final class AstraAH extends JavaPlugin {
 
     private AuctionHouse auctionHouse;
 
-    private EconomyConnector economy;
+    private EconomyProvider economy;
 
     @Override
     public void onEnable() {
@@ -100,7 +100,10 @@ public final class AstraAH extends JavaPlugin {
     }
 
     private void setupEconomy(){
-        economy = VaultEconomyConnector.createOrNull();
+
+        //TODO: implement more economy providers and the selection in the config file aswell as automaticly using the file to provide economy
+
+        economy = VaultEconomyProvider.createOrNull();
         if(economy==null){
 
         }

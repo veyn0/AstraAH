@@ -41,11 +41,11 @@ categories:
   - filter:
       item:
         material: "OAK_LOG"
-        display_name: "<gray>Baumeterialien"
+        display_name: "<gray>Baumaterial"
         lore:
           - "<r><gray> Beschreibung..."
       rules:
-        - "*_LOG"
+        - "*LOG"
         - "*TERRACOTTA*"
 
   - filter:
@@ -64,8 +64,10 @@ settings:
   economy:
     tax_percentage: 10
 #    supported economy providers at the time are:
-#      plugins: "vault", ...
+#      plugins: "astraeconomy", "vault", "coinsengine" ...
 #      other: "auto", "file".
-#    setting this to auto will use the first compatible plugin in the order they are written above
+#    setting this to auto will use the first compatible plugin in the order they are written above.
+#    if none work it will use a file to store balances and provide basic commands for players to use money.
+#    keep in mind that the built in economy is not compatible with other plugins and is intended for small servers where the Auctionhouse is the only way players interact with money
     provider: "auto"
 
