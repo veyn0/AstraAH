@@ -29,9 +29,6 @@ public final class AstraAH extends JavaPlugin {
 
     private StorageProvider listingStorage;
 
-    private File dataFile;
-    private FileConfiguration dataConfig;
-
     private UIController uiController;
 
     private ErrorHandler errorHandler;
@@ -44,7 +41,6 @@ public final class AstraAH extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        createDataFile();
         saveDefaultConfig();
         setupEconomy();
         setupCommands();
@@ -79,28 +75,6 @@ public final class AstraAH extends JavaPlugin {
         return listingStorage;
     }
 
-    private void createDataFile() {
-        dataFile = new File(getDataFolder(), "data.yml");
-
-        if (!dataFile.exists()) {
-            try {
-                getDataFolder().mkdirs();
-                dataFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        dataConfig = YamlConfiguration.loadConfiguration(dataFile);
-    }
-
-    public void saveDataConfig() {
-        try {
-            dataConfig.save(dataFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void setupEconomy(){
 
