@@ -6,6 +6,7 @@ import dev.veyno.astraAH.ui.error.UIState;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
@@ -33,14 +34,14 @@ public class UIController {
     public UIController(AstraAH plugin) {
         this.plugin = plugin;
         FileConfiguration configuration = plugin.getConfig();
-        this.AH_LISTINGS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listings.title", "<red>Error 404. Content Not Found"));
+        this.AH_LISTINGS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listings.title", "<red>Error 404. Content Not Found")).decoration(TextDecoration.ITALIC, false);
         this.LISTING_DISPLAY_NAME_UNRESOLVED = configuration.getString("messages.listings.item.display_name", "<red>Error 404. Content Not Found");
         List<Component> loreHeaders = new ArrayList<>();
         for(String s : configuration.getStringList("messages.listings.item.lore_header")){
-            loreHeaders.add(MiniMessage.miniMessage().deserialize(s));
+            loreHeaders.add(MiniMessage.miniMessage().deserialize(s).decoration(TextDecoration.ITALIC, false));
         }
         LISTING_LORE_HEADER = loreHeaders;
-        LISTING_DETAILS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listing_info.title", "<red>Error 404. Content Not Found"));
+        LISTING_DETAILS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listing_info.title", "<red>Error 404. Content Not Found")).decoration(TextDecoration.ITALIC, false);
     }
 
     public void onOpenAHUI(Player p){
@@ -74,9 +75,6 @@ public class UIController {
 
         //Left side: categories
 
-
-
-
         inventory.open();
 
     }
@@ -100,7 +98,7 @@ public class UIController {
         ItemStack result = l.content().clone();
         ItemMeta meta = result.getItemMeta();
         String itemName = PlainTextComponentSerializer.plainText().serialize(l.content().displayName());
-        meta.customName(MiniMessage.miniMessage().deserialize(LISTING_DISPLAY_NAME_UNRESOLVED.replace("{PRICE}", NumberFormat.formatGerman(l.price())).replace("{ITEM_NAME}", itemName)));
+        meta.customName(MiniMessage.miniMessage().deserialize(LISTING_DISPLAY_NAME_UNRESOLVED.replace("{PRICE}", NumberFormat.formatGerman(l.price())).replace("{ITEM_NAME}", itemName)).decoration(TextDecoration.ITALIC, false));
         List<Component> lore = new ArrayList<>();
         lore.addAll(LISTING_LORE_HEADER);
         meta.lore(lore);

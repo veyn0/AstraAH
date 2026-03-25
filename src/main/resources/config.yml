@@ -19,22 +19,20 @@ messages:
           price_l_h: ""
           price_per_piece_h_l: ""
           price_per_piece_l_h: ""
-
-
     item:
-      display_name: "<reset><gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>{ITEM_NAME}"
+      display_name: "<gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>{ITEM_NAME}"
       lore_header:
-        - "<reset><gray>LinksKlick zum Kaufen"
-        - "<reset><gray>RechtsKlick für Mehr Informationen"
+        - "<gray>LinksKlick zum Kaufen"
+        - "<gray>RechtsKlick für Mehr Informationen"
   listing_info:
     # in listing_info the following placeholders are available: {SELLER_NAME}, {BUYER_BALANCE}, {ITEM_PRICE}, {ITEM_NAME}, {ITEM_DISPLAY_NAME}, {ITEM_COUNT}, {PRICE_PER_PIECE}
-    title: "<reset><gray>Marktplatz - Informationen"
+    title: "<gray>Marktplatz - Informationen"
     info_item:
-      title: "<rreset><gray>Informationen zum Angebot von <light_gray>{SELLER_NAME}"
+      title: "<gray>Informationen zum Angebot von <light_gray>{SELLER_NAME}"
       lore:
-        - "<rreset><gray>Preis<dark_gray>:<light_gray> {ITEM_PRICE}$ <dark_gray>(<gray>{PRICE_PER_PIECE}$ pro Stück</gray>)"
-        - "<rreset><gray>Item<dark_gray>:<light_gray> {ITEM_NAME}"
-        - "<rreset><gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
+        - "<gray>Preis<dark_gray>:<light_gray> {ITEM_PRICE}$ <dark_gray>(<gray>{PRICE_PER_PIECE}$ pro Stück</gray>)"
+        - "<gray>Item<dark_gray>:<light_gray> {ITEM_NAME}"
+        - "gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
 
 
 
@@ -44,7 +42,7 @@ categories:
         material: "OAK_LOG"
         display_name: "<gray>Baumaterial"
         lore:
-          - "<rreset><gray> Beschreibung..."
+          - "<gray> Beschreibung..."
       rules:
         - "*LOG"
         - "*TERRACOTTA*"
@@ -54,7 +52,7 @@ categories:
         material: "IREON_SWORD"
         display_name: "<gray>Ausrüstung"
         lore:
-          - "<rreset><gray> Werkzeuge und Rüstung"
+          - "<gray> Werkzeuge und Rüstung"
       rules:
         - "*SWORD*"
         - "*PICKAXE*"
@@ -71,4 +69,9 @@ settings:
 #    if none work it will use a file to store balances and provide basic commands for players to use money.
 #    keep in mind that the built in economy is not compatible with other plugins and is intended for small servers where the Auctionhouse is the only way players interact with money
     provider: "auto"
+
+
+# if the economy provider is set to "file" it will use these settings:
+economy:
+  default_balance: 1000
 
