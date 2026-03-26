@@ -24,7 +24,6 @@ public class YamlStorage {
         if(!fileLocks.containsKey(fileName)){
             fileLocks.put(fileName,new Object());
         }
-
         this.plugin = p;
         this.fileName = fileName;
         this.file = new File(plugin.getDataFolder(), fileName+".yml");
@@ -81,5 +80,12 @@ public class YamlStorage {
         }, 1, seconds, TimeUnit.SECONDS);
     }
 
+    public void set(String key, Object value){
+        Bukkit.getAsyncScheduler().runNow(plugin, task -> {
+            synchronized (fileLocks.get(fileName)){
+                fileConfiguration.set(key, value);
+            }
+        });
+    }
 
 }
