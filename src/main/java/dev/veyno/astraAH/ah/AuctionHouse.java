@@ -58,8 +58,6 @@ public class AuctionHouse {
             if(!economy.withdraw(buyer.getUniqueId(), listing.price())) return PurchaseResult.MISSING_FUNDS;
             if(!economy.add(listing.playerId(), listing.price())) return PurchaseResult.ERROR;
 
-
-
             return PurchaseResult.SUCCESS;
         }
     }

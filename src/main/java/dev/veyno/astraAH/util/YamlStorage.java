@@ -20,13 +20,13 @@ public class YamlStorage {
     private final Plugin plugin;
     private final String fileName;
 
-    public YamlStorage(Plugin p, String fileName, boolean copyFromResourceIfEmpty, int saveIntervalSeconds){
-        if(!fileLocks.containsKey(fileName)){
-            fileLocks.put(fileName,new Object());
+    public YamlStorage(Plugin p, String fileName, boolean copyFromResourceIfEmpty, int saveIntervalSeconds) {
+        if (!fileLocks.containsKey(fileName)) {
+            fileLocks.put(fileName, new Object());
         }
         this.plugin = p;
         this.fileName = fileName;
-        this.file = new File(plugin.getDataFolder(), fileName+".yml");
+        this.file = new File(plugin.getDataFolder(), fileName + ".yml");
         createFileIfNotExists(copyFromResourceIfEmpty);
         this.fileConfiguration = YamlConfiguration.loadConfiguration(file);
         startSaveSchedule(saveIntervalSeconds);
@@ -34,7 +34,7 @@ public class YamlStorage {
 
     private void createFileIfNotExists(boolean copy) {
         synchronized (fileLocks.get(fileName)) {
-            if(copy) plugin.saveResource(file.getName(), false);
+            if (copy) plugin.saveResource(file.getName(), false);
             if (!file.exists()) {
                 try {
                     plugin.getDataFolder().mkdirs();
@@ -56,36 +56,44 @@ public class YamlStorage {
         }
     }
 
-    private void createFileBackup(){
+    private void createFileBackup() {
         synchronized (fileLocks.get(fileName)) {
             try {
-                fileConfiguration.save(new File(file.getParentFile(),"backup-"+fileName+"/backup-"+fileName+".yml"));
+                fileConfiguration.save(new File(file.getParentFile(), "backup-" + fileName + "/backup-" + fileName + ".yml"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void saveFileAsync(){
-        Bukkit.getAsyncScheduler().runNow(plugin, task ->{
+    public void saveFileAsync() {
+        Bukkit.getAsyncScheduler().runNow(plugin, task -> {
             createFileBackup();
             saveFile();
         });
     }
 
-    private void startSaveSchedule(int seconds){
+    private void startSaveSchedule(int seconds) {
         Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task -> {
             createFileBackup();
             saveFile();
         }, 1, seconds, TimeUnit.SECONDS);
     }
 
-    public void set(String key, Object value){
+    public void setAsync(String key, Object value) {
         Bukkit.getAsyncScheduler().runNow(plugin, task -> {
-            synchronized (fileLocks.get(fileName)){
+            synchronized (fileLocks.get(fileName)) {
                 fileConfiguration.set(key, value);
             }
         });
+    }
+
+    public FileConfiguration getFileConfiguration() {
+        return fileConfiguration;
+    }
+
+    public Object getLock() {
+        return fileLocks.get(fileName);
     }
 
 }

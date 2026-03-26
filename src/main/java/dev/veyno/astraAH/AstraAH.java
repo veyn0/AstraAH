@@ -11,7 +11,6 @@ import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
 /*
 
 TODO:
