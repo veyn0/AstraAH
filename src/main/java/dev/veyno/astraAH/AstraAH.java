@@ -10,9 +10,11 @@ import dev.veyno.astraAH.storage.provider.FileStorageProvider;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +76,6 @@ public final class AstraAH extends JavaPlugin {
     public StorageProvider getListingStorage() {
         return listingStorage;
     }
-
 
     private void setupEconomy(){
 

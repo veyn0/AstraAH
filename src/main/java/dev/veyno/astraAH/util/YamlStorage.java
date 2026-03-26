@@ -20,19 +20,17 @@ public class YamlStorage {
     private final Plugin plugin;
     private final String fileName;
 
-
-
-    public YamlStorage(Plugin p, String fileName, boolean copyFromResourceIfEmpty, int SaveIntervalSeconds){
+    public YamlStorage(Plugin p, String fileName, boolean copyFromResourceIfEmpty, int saveIntervalSeconds){
         if(!fileLocks.containsKey(fileName)){
             fileLocks.put(fileName,new Object());
         }
-
 
         this.plugin = p;
         this.fileName = fileName;
         this.file = new File(plugin.getDataFolder(), fileName+".yml");
         createFileIfNotExists(copyFromResourceIfEmpty);
         this.fileConfiguration = YamlConfiguration.loadConfiguration(file);
+        startSaveSchedule(saveIntervalSeconds);
     }
 
     private void createFileIfNotExists(boolean copy) {
@@ -67,6 +65,13 @@ public class YamlStorage {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void saveFileAsync(){
+        Bukkit.getAsyncScheduler().runNow(plugin, task ->{
+            createFileBackup();
+            saveFile();
+        });
     }
 
     private void startSaveSchedule(int seconds){
