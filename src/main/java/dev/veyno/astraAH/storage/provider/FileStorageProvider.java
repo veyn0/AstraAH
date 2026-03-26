@@ -20,17 +20,17 @@ public class FileStorageProvider implements StorageProvider {
 
     public FileStorageProvider(AstraAH plugin) {
         this.plugin = plugin;
-        this.storage = new YamlStorage(plugin, "data.yml", true, 30);
+        this.storage = new YamlStorage(plugin, "data", true, 30);
     }
 
     @Override
     public void saveListing(Listing listing) throws Exception {
         synchronized (storage.getLock()) {
             FileConfiguration config = storage.getFileConfiguration();
-            String path = "listings."+listing.listingId();
-            config.set(path+".listingId", listing.listingId());
+            String path = "listings."+listing.listingId().toString();
+            config.set(path+".listingId", listing.listingId().toString());
             config.set(path+".price", listing.price());
-            config.set(path+".playerId", listing.playerId());
+            config.set(path+".playerId", listing.playerId().toString());
             config.set(path+".content", ItemStackUtil.itemToBase64(listing.content()));
         }
     }
@@ -58,14 +58,14 @@ public class FileStorageProvider implements StorageProvider {
     public void removeListing(UUID listingId){
         synchronized (storage.getLock()){
             FileConfiguration config = storage.getFileConfiguration();
-            config.set("listings."+listingId, null);
+            config.set("listings."+listingId.toString(), null);
         }
         storage.saveFileAsync();
     }
 
     private Listing getListingById(UUID listingId){
         try {
-            String path = "listings."+listingId;
+            String path = "listings."+listingId.toString();
             FileConfiguration config = storage.getFileConfiguration();
             double price = config.getDouble(path+".price");
             UUID playerId = UUID.fromString(config.getString(path+".playerId"));

@@ -1,6 +1,7 @@
 package dev.veyno.astraAH;
 
 import dev.veyno.astraAH.ah.AuctionHouse;
+import dev.veyno.astraAH.ah.Listing;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
@@ -15,7 +16,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 TODO:
  - Exclude specific items, including being able to match names
-
+ - save transaction history in transactions.yml and
+ - add quick filter section at right side of screen based on the last 4 items that were purchased. click -> filter by material and lowest price automatically
  */
 
 public final class AstraAH extends JavaPlugin {
@@ -42,6 +44,17 @@ public final class AstraAH extends JavaPlugin {
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
+
+
+//        for(int i = 0; i < 10; i++) {
+//            for (Listing l : UIController.createExampleListings()) {
+//
+//                try {
+//                    listingStorage.saveListing(l);
+//                } catch (Exception e) {
+//                }
+//            }
+//        }
     }
 
     @Override

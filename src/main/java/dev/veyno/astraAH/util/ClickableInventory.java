@@ -624,7 +624,7 @@ public class ClickableInventory {
             List<Integer> result = new ArrayList<>();
             if(rows<=2)return result;
             for(int i = 1; i < (rows-1); i++){
-                for(int j = 1; j < 7; j++) {
+                for(int j = 1; j < 8; j++) {
                     result.addAll(List.of((i * 9)+j));
                 }
             }

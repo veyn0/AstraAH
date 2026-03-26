@@ -4,6 +4,7 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.Listing;
 import dev.veyno.astraAH.ui.error.UIState;
 import dev.veyno.astraAH.util.ClickableInventory;
+import dev.veyno.astraAH.util.ItemStackParser;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -58,8 +59,8 @@ public class UIController {
 
     private void openMainPage(Player p){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
-//        List<Listing> listings = plugin.getAuctionHouse().getListings();
-        List<Listing> listings = createExampleListings();
+        List<Listing> listings = plugin.getAuctionHouse().getListings();
+        //List<Listing> listings = createExampleListings();
         //Center: available listings
         ClickableInventory.InventoryRegion centerContent = inventory.createRegion("center", new ClickableInventory.LayoutCenter());
         for(Listing l : listings){
@@ -74,6 +75,27 @@ public class UIController {
         }
 
         //Left side: categories
+
+        //Right side: last bought items
+
+        //Bottom: navigation + insert + filter
+        ClickableInventory.InventoryRegion bottomContent = inventory.createRegion("bottom", new ClickableInventory.LayoutCenter());
+        bottomContent.setItem(
+                0,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_page"), plugin),
+                action ->{
+                    centerContent.previousPageAndRefresh();
+                }
+        );
+        bottomContent.setItem(
+                6,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_page"), plugin),
+                action ->{
+                    centerContent.previousPageAndRefresh();
+                }
+        );
+
+
 
         inventory.open();
 
@@ -151,5 +173,6 @@ public class UIController {
 
         return listings;
     }
+
 
 }

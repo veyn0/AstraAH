@@ -75,3 +75,24 @@ settings:
 economy:
   default_balance: 1000
 
+items:
+  buttons:
+    insert:
+    my_listings:
+    prev_page:
+      material: DIAMOND_SWORD
+      amount: 1
+      display-name: "<gold><bold>Mein Schwert</bold></gold>"
+      lore:
+       - "<gray>Erste Zeile"
+       - "<gray>Zweite Zeile"
+      custom-model-data: 1001
+      unbreakable: true
+      hide-flags: true
+      enchantments:
+        SHARPNESS: 5
+        UNBREAKING: 3
+    next_page:
+    home:
+    scroll_categories_down:
+    scroll_categories_up:
