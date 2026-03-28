@@ -1,26 +1,45 @@
 package dev.veyno.astraAH.util;
 
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListenerAbstract;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.component.ComponentTypes;
+import com.github.retrooper.packetevents.protocol.component.builtin.item.ItemLore;
+import com.github.retrooper.packetevents.protocol.item.ItemStack;
+import com.github.retrooper.packetevents.protocol.item.type.ItemType;
+import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCloseWindow;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCloseWindow;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowItems;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetSlot;
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+/**
+ * Packet-based ClickableInventory using PacketEvents.
+ * No Bukkit inventories or Bukkit inventory events are used.
+ * All inventory display and interaction is handled purely via packets.
+ */
 public class ClickableInventory {
 
     private static final int SLOTS_PER_ROW = 9;
+    // Container type IDs for chest-like inventories (MC protocol)
+    // 0 = generic 9x1, 1 = generic 9x2, ... 5 = generic 9x6
+    private static final int CONTAINER_TYPE_BASE = 0;
 
     private final InventoryManager manager;
     private final Component title;
@@ -30,7 +49,12 @@ public class ClickableInventory {
     private final Map<Integer, Consumer<ClickContext>> slotActions;
 
     private int rows;
-    private Inventory inventory;
+    /** The virtual container ID assigned to this inventory. */
+    private int containerId = -1;
+    /** State ID for packet synchronization. */
+    private int stateId = 0;
+    /** The virtual slot contents (size = rows * 9). */
+    private ItemStack[] contents;
 
     public ClickableInventory(InventoryManager manager, Component title, Player player) {
         this.manager = manager;
@@ -65,6 +89,8 @@ public class ClickableInventory {
         return manager;
     }
 
+    // ── Region management (unchanged API) ──────────────────────────────
+
     public InventoryRegion createRegion(String id, List<Integer> slots) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("Region id darf nicht leer sein");
@@ -78,7 +104,7 @@ public class ClickableInventory {
         return region;
     }
 
-    public InventoryRegion createRegion(String id, InventoryLayout layout){
+    public InventoryRegion createRegion(String id, InventoryLayout layout) {
         return createRegion(id, layout.getSlots(getRows()));
     }
 
@@ -112,68 +138,107 @@ public class ClickableInventory {
         return this;
     }
 
+    // ── Open / Close / Render ──────────────────────────────────────────
+
     public void open() {
-        if (player == null) {
+        if (player == null || !player.isOnline()) {
             return;
         }
 
         manager.registerInventory(player.getUniqueId(), this);
-        updateInventory();
-        player.openInventory(inventory);
+        containerId = manager.nextContainerId();
+        buildContents();
+        sendOpenWindow();
+        sendWindowItems();
     }
 
     public void close() {
-        if (player != null) {
-            player.closeInventory();
+        if (player != null && player.isOnline()) {
+            sendCloseWindow();
             manager.unregisterInventory(player.getUniqueId());
+            containerId = -1;
         }
     }
 
     public void rerender() {
-        updateInventory();
-
-        if (player != null) {
-            Bukkit.getRegionScheduler().run(manager.getPlugin(), player.getLocation(), task -> player.openInventory(inventory));
+        if (player == null || !player.isOnline() || containerId == -1) {
+            return;
         }
+        buildContents();
+        sendWindowItems();
     }
 
     public void rerenderIfOpen() {
-        if (player == null) {
+        if (player == null || containerId == -1) {
             return;
         }
-
-        if (inventory == null) {
-            return;
-        }
-
-        if (!player.getOpenInventory().getTopInventory().equals(inventory)) {
-            return;
-        }
-
         rerender();
     }
 
-    private void updateInventory() {
-        inventory = Bukkit.createInventory(null, rows * SLOTS_PER_ROW, title);
+    // ── Packet sending ─────────────────────────────────────────────────
+
+    private void sendOpenWindow() {
+        int containerType = CONTAINER_TYPE_BASE + (rows - 1); // 0=9x1 .. 5=9x6
+        WrapperPlayServerOpenWindow packet = new WrapperPlayServerOpenWindow(
+                containerId,
+                containerType,
+                title
+        );
+        PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
+    }
+
+    private void sendWindowItems() {
+        stateId++;
+        List<ItemStack> items = new ArrayList<>(Arrays.asList(contents));
+
+        // The WindowItems packet also expects the 36 player inventory slots appended
+        // after the container slots. We send empty stacks for those to not interfere
+        // with the player's real inventory – the client merges them.
+        for (int i = 0; i < 36; i++) {
+            items.add(ItemStack.EMPTY);
+        }
+
+        WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(
+                containerId,
+                stateId,
+                items,
+                ItemStack.EMPTY // carried item (cursor)
+        );
+        PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
+    }
+
+    private void sendCloseWindow() {
+        WrapperPlayServerCloseWindow packet = new WrapperPlayServerCloseWindow(containerId);
+        PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
+    }
+
+    // ── Content building ───────────────────────────────────────────────
+
+    private void buildContents() {
+        int size = rows * SLOTS_PER_ROW;
+        contents = new ItemStack[size];
+        Arrays.fill(contents, ItemStack.EMPTY);
         slotActions.clear();
 
         for (InventoryRegion region : regions.values()) {
-            region.renderInto(inventory, slotActions);
+            region.renderInto(contents, slotActions);
         }
     }
 
-    protected Inventory getInventory() {
-        return inventory;
+    protected int getContainerId() {
+        return containerId;
     }
 
     protected int getInventorySize() {
         return rows * SLOTS_PER_ROW;
     }
 
-    protected void handleClick(InventoryClickEvent event) {
-        event.setCancelled(true);
+    // ── Click handling (called from InventoryManager packet listener) ──
 
-        int rawSlot = event.getRawSlot();
+    protected void handleClick(Player clicker, int rawSlot, int button, int mode) {
+        // Always deny the click by re-sending the window items (resets client state)
+        sendWindowItems();
+
         if (rawSlot < 0 || rawSlot >= getInventorySize()) {
             return;
         }
@@ -183,22 +248,39 @@ public class ClickableInventory {
             return;
         }
 
+        // Derive click properties from the protocol mode + button
+        boolean leftClick = (mode == 0 && button == 0) || (mode == 1 && button == 0);
+        boolean rightClick = (mode == 0 && button == 1) || (mode == 1 && button == 1);
+        boolean shiftClick = (mode == 1);
+        boolean middleClick = (mode == 3 && button == 2);
+        boolean dropClick = (mode == 4);
+        boolean numberKey = (mode == 2);
+        boolean doubleClick = (mode == 6);
+
         ClickContext context = new ClickContext(
-                (Player) event.getWhoClicked(),
-                event.getClick(),
-                event.getSlot(),
-                event.getCurrentItem(),
-                event.isShiftClick(),
-                event.isLeftClick(),
-                event.isRightClick()
+                clicker,
+                rawSlot,
+                contents[rawSlot],
+                shiftClick,
+                leftClick,
+                rightClick,
+                middleClick,
+                dropClick,
+                numberKey,
+                doubleClick,
+                button,
+                mode
         );
 
-        Bukkit.getRegionScheduler().run(manager.getPlugin(), event.getWhoClicked().getLocation(), task -> action.accept(context));
+        // Run action on the region scheduler (Folia-safe)
+        Bukkit.getRegionScheduler().run(manager.getPlugin(), clicker.getLocation(), task -> action.accept(context));
     }
 
-    public static ItemStack createItem(Material material, String name, String... lore) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
+    // ── Static helper to create Bukkit ItemStacks (unchanged) ──────────
+
+    public static org.bukkit.inventory.ItemStack createItem(Material material, String name, String... lore) {
+        org.bukkit.inventory.ItemStack item = new org.bukkit.inventory.ItemStack(material);
+        org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
             meta.setDisplayName(name);
@@ -211,6 +293,34 @@ public class ClickableInventory {
         return item;
     }
 
+    // ── Conversion: Bukkit ItemStack → PacketEvents ItemStack ──────────
+
+    /**
+     * Converts a Bukkit ItemStack to a PacketEvents ItemStack
+     * using the SpigotConversionUtil provided by PacketEvents.
+     */
+    public static ItemStack toPacketItem(org.bukkit.inventory.ItemStack bukkitItem) {
+        if (bukkitItem == null || bukkitItem.getType() == Material.AIR) {
+            return ItemStack.EMPTY;
+        }
+
+        return SpigotConversionUtil.fromBukkitItemStack(bukkitItem);
+    }
+
+    /**
+     * Converts a PacketEvents ItemStack back to a Bukkit ItemStack.
+     */
+    public static org.bukkit.inventory.ItemStack toBukkitItem(ItemStack packetItem) {
+        if (packetItem == null || packetItem.isEmpty()) {
+            return new org.bukkit.inventory.ItemStack(Material.AIR);
+        }
+        return SpigotConversionUtil.toBukkitItemStack(packetItem);
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // Inner Classes
+    // ════════════════════════════════════════════════════════════════════
+
     public static class InventoryRegion {
 
         private final ClickableInventory parent;
@@ -218,7 +328,7 @@ public class ClickableInventory {
         private final List<Integer> slots;
         private final List<ClickableItem> items;
 
-        private ItemStack fillerItem;
+        private org.bukkit.inventory.ItemStack fillerItem;
         private int firstItemIndex;
 
         private InventoryRegion(ClickableInventory parent, String id, List<Integer> slots) {
@@ -334,7 +444,6 @@ public class ClickableInventory {
             if (page < 0) {
                 page = 0;
             }
-
             return setFirstItemIndex(page * slots.size());
         }
 
@@ -352,11 +461,11 @@ public class ClickableInventory {
             return Math.max(1, (int) Math.ceil((double) items.size() / slots.size()));
         }
 
-        public ItemStack getFillerItem() {
+        public org.bukkit.inventory.ItemStack getFillerItem() {
             return fillerItem == null ? null : fillerItem.clone();
         }
 
-        public InventoryRegion setFillerItem(ItemStack fillerItem) {
+        public InventoryRegion setFillerItem(org.bukkit.inventory.ItemStack fillerItem) {
             this.fillerItem = fillerItem == null ? null : fillerItem.clone();
             return this;
         }
@@ -366,12 +475,12 @@ public class ClickableInventory {
             return this;
         }
 
-        public InventoryRegion addItem(ItemStack itemStack, Consumer<ClickContext> action) {
+        public InventoryRegion addItem(org.bukkit.inventory.ItemStack itemStack, Consumer<ClickContext> action) {
             items.add(new ClickableItem(itemStack, action));
             return this;
         }
 
-        public InventoryRegion addItem(ItemStack itemStack, Runnable action) {
+        public InventoryRegion addItem(org.bukkit.inventory.ItemStack itemStack, Runnable action) {
             items.add(new ClickableItem(itemStack, ctx -> action.run()));
             return this;
         }
@@ -386,13 +495,18 @@ public class ClickableInventory {
             return this;
         }
 
-        public InventoryRegion setItem(int index, ItemStack itemStack, Consumer<ClickContext> action) {
-            checkItemIndex(index);
+        public InventoryRegion setItem(int index, org.bukkit.inventory.ItemStack itemStack, Consumer<ClickContext> action) {
+            if (index < 0) {
+                throw new IndexOutOfBoundsException("Index darf nicht negativ sein: " + index);
+            }
+            while (items.size() <= index) {
+                items.add(null);
+            }
             items.set(index, new ClickableItem(itemStack, action));
             return this;
         }
 
-        public InventoryRegion setItem(int index, ItemStack itemStack, Runnable action) {
+        public InventoryRegion setItem(int index, org.bukkit.inventory.ItemStack itemStack, Runnable action) {
             return setItem(index, itemStack, ctx -> action.run());
         }
 
@@ -423,7 +537,6 @@ public class ClickableInventory {
             if (items.isEmpty()) {
                 return 0;
             }
-
             int maxIndex = Math.max(0, items.size() - 1);
             if (requestedIndex < 0) {
                 return 0;
@@ -440,62 +553,90 @@ public class ClickableInventory {
             }
         }
 
-        protected void renderInto(Inventory inventory, Map<Integer, Consumer<ClickContext>> slotActions) {
+        /**
+         * Renders this region's items into the packet-level contents array.
+         * Converts Bukkit ItemStacks to PacketEvents ItemStacks on the fly.
+         */
+        protected void renderInto(ItemStack[] contents, Map<Integer, Consumer<ClickContext>> slotActions) {
+            ItemStack packetFiller = toPacketItem(fillerItem);
+
             for (int i = 0; i < slots.size(); i++) {
                 int slot = slots.get(i);
                 int itemIndex = firstItemIndex + i;
 
                 if (itemIndex >= 0 && itemIndex < items.size()) {
                     ClickableItem clickableItem = items.get(itemIndex);
-                    inventory.setItem(slot, clickableItem.getItemStack());
-                    slotActions.put(slot, clickableItem.getAction());
-                } else {
-                    if (fillerItem != null) {
-                        inventory.setItem(slot, fillerItem.clone());
+
+                    if (clickableItem != null) {
+                        contents[slot] = toPacketItem(clickableItem.getItemStack());
+                        slotActions.put(slot, clickableItem.getAction());
                     } else {
-                        inventory.setItem(slot, null);
+                        contents[slot] = fillerItem != null ? packetFiller : ItemStack.EMPTY;
+                        slotActions.remove(slot);
                     }
+                } else {
+                    contents[slot] = fillerItem != null ? packetFiller : ItemStack.EMPTY;
                     slotActions.remove(slot);
                 }
             }
         }
     }
 
+    // ── ClickContext ────────────────────────────────────────────────────
+
     public static class ClickContext {
 
         private final Player player;
-        private final ClickType clickType;
         private final int slot;
-        private final ItemStack clickedItem;
+        private final ItemStack clickedItem; // PacketEvents ItemStack
         private final boolean shiftClick;
         private final boolean leftClick;
         private final boolean rightClick;
+        private final boolean middleClick;
+        private final boolean dropClick;
+        private final boolean numberKey;
+        private final boolean doubleClick;
+        private final int button;
+        private final int mode;
 
-        public ClickContext(Player player, ClickType clickType, int slot, ItemStack clickedItem,
-                            boolean shiftClick, boolean leftClick, boolean rightClick) {
+        public ClickContext(Player player, int slot, ItemStack clickedItem,
+                            boolean shiftClick, boolean leftClick, boolean rightClick,
+                            boolean middleClick, boolean dropClick, boolean numberKey,
+                            boolean doubleClick, int button, int mode) {
             this.player = player;
-            this.clickType = clickType;
             this.slot = slot;
             this.clickedItem = clickedItem;
             this.shiftClick = shiftClick;
             this.leftClick = leftClick;
             this.rightClick = rightClick;
+            this.middleClick = middleClick;
+            this.dropClick = dropClick;
+            this.numberKey = numberKey;
+            this.doubleClick = doubleClick;
+            this.button = button;
+            this.mode = mode;
         }
 
         public Player getPlayer() {
             return player;
         }
 
-        public ClickType getClickType() {
-            return clickType;
-        }
-
         public int getSlot() {
             return slot;
         }
 
+        /**
+         * Returns the clicked item as a PacketEvents ItemStack.
+         */
         public ItemStack getClickedItem() {
             return clickedItem;
+        }
+
+        /**
+         * Returns the clicked item converted back to a Bukkit ItemStack.
+         */
+        public org.bukkit.inventory.ItemStack getClickedBukkitItem() {
+            return toBukkitItem(clickedItem);
         }
 
         public boolean isShiftClick() {
@@ -511,33 +652,49 @@ public class ClickableInventory {
         }
 
         public boolean isMiddleClick() {
-            return clickType == ClickType.MIDDLE;
+            return middleClick;
         }
 
         public boolean isDropClick() {
-            return clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP;
+            return dropClick;
         }
 
         public boolean isNumberKey() {
-            return clickType.isKeyboardClick();
+            return numberKey;
         }
 
         public boolean isDoubleClick() {
-            return clickType == ClickType.DOUBLE_CLICK;
+            return doubleClick;
+        }
+
+        /**
+         * Raw protocol button value.
+         */
+        public int getButton() {
+            return button;
+        }
+
+        /**
+         * Raw protocol inventory action mode.
+         */
+        public int getMode() {
+            return mode;
         }
     }
 
+    // ── ClickableItem (unchanged, still uses Bukkit ItemStack externally) ──
+
     public static class ClickableItem {
 
-        private final ItemStack itemStack;
+        private final org.bukkit.inventory.ItemStack itemStack;
         private final Consumer<ClickContext> action;
 
-        public ClickableItem(ItemStack itemStack, Consumer<ClickContext> action) {
+        public ClickableItem(org.bukkit.inventory.ItemStack itemStack, Consumer<ClickContext> action) {
             this.itemStack = itemStack.clone();
             this.action = action;
         }
 
-        public ItemStack getItemStack() {
+        public org.bukkit.inventory.ItemStack getItemStack() {
             return itemStack.clone();
         }
 
@@ -546,19 +703,39 @@ public class ClickableInventory {
         }
     }
 
-    public static class InventoryManager implements Listener {
+    // ── InventoryManager (PacketEvents listener instead of Bukkit Listener) ──
+
+    public static class InventoryManager extends PacketListenerAbstract {
 
         private final JavaPlugin plugin;
         private final Map<UUID, ClickableInventory> activeInventories;
+        private final AtomicInteger containerIdCounter;
 
         public InventoryManager(JavaPlugin plugin) {
+            super(PacketListenerPriority.HIGH);
             this.plugin = plugin;
-            this.activeInventories = new HashMap<>();
-            Bukkit.getPluginManager().registerEvents(this, plugin);
+            this.activeInventories = new ConcurrentHashMap<>();
+            // Start at a high number to avoid collisions with vanilla container IDs
+            this.containerIdCounter = new AtomicInteger(100);
+
+            PacketEvents.getAPI().getEventManager().registerListener(this);
         }
 
         public JavaPlugin getPlugin() {
             return plugin;
+        }
+
+        /**
+         * Generates a unique container ID for a new virtual inventory.
+         */
+        protected int nextContainerId() {
+            int id = containerIdCounter.incrementAndGet();
+            // Wrap around if it gets too high (container IDs are typically bytes/varints)
+            if (id > 200) {
+                containerIdCounter.set(100);
+                return 100;
+            }
+            return id;
         }
 
         protected void registerInventory(UUID playerId, ClickableInventory inventory) {
@@ -573,68 +750,83 @@ public class ClickableInventory {
             return new ClickableInventory(this, title, player);
         }
 
-        @EventHandler
-        public void onInventoryClick(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) {
-                return;
+        @Override
+        public void onPacketReceive(PacketReceiveEvent event) {
+            // Handle window click packets
+            if (event.getPacketType() == PacketType.Play.Client.CLICK_WINDOW) {
+                WrapperPlayClientClickWindow packet = new WrapperPlayClientClickWindow(event);
+                Player player = (Player) event.getPlayer();
+                if (player == null) return;
+
+                ClickableInventory inv = activeInventories.get(player.getUniqueId());
+                if (inv == null) return;
+
+                // Check if this click is for our virtual container
+                if (packet.getWindowId() != inv.getContainerId()) return;
+
+                // Cancel the packet – the server must not process this click
+                event.setCancelled(true);
+
+                int rawSlot = packet.getSlot();
+                int button = packet.getButton();
+                int mode = packet.getWindowClickType().ordinal();
+
+                inv.handleClick(player, rawSlot, button, mode);
             }
 
-            Player clicker = (Player) event.getWhoClicked();
-            ClickableInventory clickableInventory = activeInventories.get(clicker.getUniqueId());
+            // Handle window close packets
+            if (event.getPacketType() == PacketType.Play.Client.CLOSE_WINDOW) {
+                WrapperPlayClientCloseWindow packet = new WrapperPlayClientCloseWindow(event);
+                Player player = (Player) event.getPlayer();
+                if (player == null) return;
 
-            if (clickableInventory == null) {
-                return;
+                ClickableInventory inv = activeInventories.get(player.getUniqueId());
+                if (inv == null) return;
+
+                if (packet.getWindowId() == inv.getContainerId()) {
+                    activeInventories.remove(player.getUniqueId());
+                    inv.containerId = -1;
+                }
             }
-
-            Inventory topInventory = event.getView().getTopInventory();
-            if (!topInventory.equals(clickableInventory.getInventory())) {
-                return;
-            }
-
-            clickableInventory.handleClick(event);
         }
 
-        @EventHandler
-        public void onInventoryClose(InventoryCloseEvent event) {
-            if (!(event.getPlayer() instanceof Player)) {
-                return;
+        /**
+         * Call this in your plugin's onDisable() to clean up.
+         */
+        public void shutdown() {
+            for (Map.Entry<UUID, ClickableInventory> entry : activeInventories.entrySet()) {
+                ClickableInventory inv = entry.getValue();
+                if (inv.player != null && inv.player.isOnline() && inv.containerId != -1) {
+                    inv.sendCloseWindow();
+                }
             }
-
-            Player player = (Player) event.getPlayer();
-            ClickableInventory clickableInventory = activeInventories.get(player.getUniqueId());
-
-            if (clickableInventory == null) {
-                return;
-            }
-
-            if (event.getInventory().equals(clickableInventory.getInventory())) {
-                activeInventories.remove(player.getUniqueId());
-            }
+            activeInventories.clear();
+            PacketEvents.getAPI().getEventManager().unregisterListener(this);
         }
     }
 
-    public static interface InventoryLayout{
+    // ── Layouts (unchanged) ────────────────────────────────────────────
+
+    public static interface InventoryLayout {
         List<Integer> getSlots(int rows);
     }
 
-    public static class LayoutCenter implements InventoryLayout{
+    public static class LayoutCenter implements InventoryLayout {
 
         @Override
         public List<Integer> getSlots(int rows) {
             List<Integer> result = new ArrayList<>();
-            if(rows<=2)return result;
-            for(int i = 1; i < (rows-1); i++){
-                for(int j = 1; j < 8; j++) {
-                    result.addAll(List.of((i * 9)+j));
+            if (rows <= 2) return result;
+            for (int i = 1; i < (rows - 1); i++) {
+                for (int j = 1; j < 8; j++) {
+                    result.addAll(List.of((i * 9) + j));
                 }
             }
-
             return result;
         }
     }
 
-
-    public static class LayoutSide implements InventoryLayout{
+    public static class LayoutSide implements InventoryLayout {
 
         private final boolean leftSide;
 
@@ -646,33 +838,30 @@ public class ClickableInventory {
         public List<Integer> getSlots(int rows) {
             int before = leftSide ? 0 : 8;
             List<Integer> result = new ArrayList<>();
-            for(int i = 0; i<rows; i++){
-                result.add((9*i)+before);
+            for (int i = 0; i < rows; i++) {
+                result.add((9 * i) + before);
             }
             return result;
         }
     }
 
-    public static class LayoutHorizontalNoSides implements InventoryLayout{
+    public static class LayoutHorizontalNoSides implements InventoryLayout {
 
         private int row;
 
-        public LayoutHorizontalNoSides(int row){
+        public LayoutHorizontalNoSides(int row) {
             this.row = row;
         }
 
         @Override
         public List<Integer> getSlots(int rows) {
             List<Integer> result = new ArrayList<>();
-
-            if(row>rows) row = rows;
-
-            for(int i = ((rows-1)*9); i < (rows*9); i++ ){
-                result.add(i);
+            if (row > rows) row = rows;
+            int base = ((rows - 1) * 9) + 1;
+            for (int i = 0; i < 7; i++) {
+                result.add(i + base);
             }
-
             return result;
         }
     }
-
 }

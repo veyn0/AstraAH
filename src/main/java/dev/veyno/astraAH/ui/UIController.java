@@ -77,7 +77,7 @@ public class UIController {
         //Right side: last bought items
 
         //Bottom: navigation + insert + filter
-        ClickableInventory.InventoryRegion bottomContent = inventory.createRegion("bottom", new ClickableInventory.LayoutCenter());
+        ClickableInventory.InventoryRegion bottomContent = inventory.createRegion("bottom", new ClickableInventory.LayoutHorizontalNoSides(6));
         bottomContent.setItem(
                 0,
                 ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_page"), plugin),
@@ -89,7 +89,7 @@ public class UIController {
                 6,
                 ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_page"), plugin),
                 action ->{
-                    centerContent.previousPageAndRefresh();
+                    centerContent.nextPageAndRefresh();
                 }
         );
 

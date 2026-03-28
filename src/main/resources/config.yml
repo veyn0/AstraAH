@@ -80,19 +80,29 @@ items:
     insert:
     my_listings:
     prev_page:
-      material: DIAMOND_SWORD
+      material: DIRT
       amount: 1
-      display-name: "<gold><bold>Mein Schwert</bold></gold>"
+      display-name: "<gold>prev_page</gold>"
       lore:
        - "<gray>Erste Zeile"
        - "<gray>Zweite Zeile"
-      custom-model-data: 1001
       unbreakable: true
       hide-flags: true
       enchantments:
         SHARPNESS: 5
         UNBREAKING: 3
     next_page:
+      material: DIRT
+      amount: 1
+      display-name: "<gold>next_page</gold>"
+      lore:
+        - "<gray>Erste Zeile"
+        - "<gray>Zweite Zeile"
+      unbreakable: true
+      hide-flags: true
+      enchantments:
+        SHARPNESS: 5
+        UNBREAKING: 3
     home:
     scroll_categories_down:
     scroll_categories_up:
