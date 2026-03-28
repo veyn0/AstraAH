@@ -37,22 +37,19 @@ messages:
 
 
 categories:
-  - filter:
+  filter1:
       item:
-        material: "OAK_LOG"
-        display_name: "<gray>Baumaterial"
+        material: DIRT
+        amount: 1
+        display-name: "<gold>prev_page</gold>"
         lore:
-          - "<gray> Beschreibung..."
-      rules:
-        - "*LOG"
-        - "*TERRACOTTA*"
-
-  - filter:
-      item:
-        material: "IREON_SWORD"
-        display_name: "<gray>Ausrüstung"
-        lore:
-          - "<gray> Werkzeuge und Rüstung"
+          - "<gray>Erste Zeile"
+          - "<gray>Zweite Zeile"
+        unbreakable: true
+        hide-flags: true
+        enchantments:
+          SHARPNESS: 5
+          UNBREAKING: 3
       rules:
         - "*SWORD*"
         - "*PICKAXE*"

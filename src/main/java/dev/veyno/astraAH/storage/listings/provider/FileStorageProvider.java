@@ -1,8 +1,8 @@
-package dev.veyno.astraAH.storage.provider;
+package dev.veyno.astraAH.storage.listings.provider;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.Listing;
-import dev.veyno.astraAH.storage.StorageProvider;
+import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.storage.listings.StorageProvider;
 import dev.veyno.astraAH.util.ItemStackUtil;
 import dev.veyno.astraAH.util.YamlStorage;
 import org.bukkit.configuration.file.FileConfiguration;

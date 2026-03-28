@@ -2,7 +2,8 @@ package dev.veyno.astraAH.ah;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.econ.EconomyProvider;
-import dev.veyno.astraAH.storage.StorageProvider;
+import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.storage.listings.StorageProvider;
 import dev.veyno.astraAH.util.IDLocks;
 import dev.veyno.astraAH.util.PurchaseResult;
 import org.bukkit.Bukkit;

@@ -1,7 +1,8 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.Listing;
+import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.entity.ListingsFilter;
 import dev.veyno.astraAH.ui.error.UIState;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.ItemStackParser;
@@ -11,6 +12,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +34,8 @@ public class UIController {
 
     private final List<Component> LISTING_LORE_HEADER;
 
+    private final List<ListingsFilter> filters;
+
     public UIController(AstraAH plugin) {
         this.plugin = plugin;
         FileConfiguration configuration = plugin.getConfig();
@@ -43,6 +47,7 @@ public class UIController {
         }
         LISTING_LORE_HEADER = loreHeaders;
         LISTING_DETAILS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listing_info.title", "<red>Error 404. Content Not Found")).decoration(TextDecoration.ITALIC, false);
+        filters = getFilter();
     }
 
     public void onOpenAHUI(Player p){
@@ -172,5 +177,20 @@ public class UIController {
         return listings;
     }
 
+
+
+    private List<ListingsFilter> getFilter(){
+        List<ListingsFilter> result = new ArrayList<>();
+
+        for(String s : plugin.getConfig().getConfigurationSection("categories").getKeys(false)){
+            String path = "categories." + s;
+
+
+
+        }
+
+
+
+    }
 
 }

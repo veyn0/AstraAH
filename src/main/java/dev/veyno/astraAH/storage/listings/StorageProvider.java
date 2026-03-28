@@ -1,6 +1,6 @@
-package dev.veyno.astraAH.storage;
+package dev.veyno.astraAH.storage.listings;
 
-import dev.veyno.astraAH.ah.Listing;
+import dev.veyno.astraAH.entity.Listing;
 
 import java.util.List;
 import java.util.UUID;

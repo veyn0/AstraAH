@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.ah;
+package dev.veyno.astraAH.entity;
 
 import org.bukkit.inventory.ItemStack;
 

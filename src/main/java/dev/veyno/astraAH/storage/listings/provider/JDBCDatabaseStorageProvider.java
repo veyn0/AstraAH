@@ -1,7 +1,7 @@
-package dev.veyno.astraAH.storage.provider;
+package dev.veyno.astraAH.storage.listings.provider;
 
-import dev.veyno.astraAH.ah.Listing;
-import dev.veyno.astraAH.storage.StorageProvider;
+import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.storage.listings.StorageProvider;
 
 import java.util.List;
 import java.util.UUID;
