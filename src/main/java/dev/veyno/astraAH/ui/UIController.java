@@ -14,6 +14,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.BreezeWindCharge;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -181,16 +182,48 @@ public class UIController {
 
     private List<ListingsFilter> getFilter(){
         List<ListingsFilter> result = new ArrayList<>();
-
-        for(String s : plugin.getConfig().getConfigurationSection("categories").getKeys(false)){
+        FileConfiguration config = plugin.getConfig();
+        for(String s : config.getConfigurationSection("categories").getKeys(false)){
             String path = "categories." + s;
-
-
-
+            ItemStack item = ItemStackParser.parseSection(config.getConfigurationSection(path+".item"), plugin);
+            List<Material> materials = parseMaterialPatterns(config.getStringList(path+".rules"));
+            result.add(new ListingsFilter(materials, item));
         }
-
-
-
+        return result;
     }
 
+
+    public static List<Material> parseMaterialPatterns(List<String> patterns) {
+        List<Material> result = new ArrayList<>();
+
+        for (String pattern : patterns) {
+            if (pattern == null || pattern.isBlank()) continue;
+
+            String upper = pattern.toUpperCase();
+
+            boolean startWild = upper.startsWith("*");
+            boolean endWild = upper.endsWith("*");
+            String core = upper
+                    .substring(startWild ? 1 : 0, endWild ? upper.length() - 1 : upper.length());
+
+            if (startWild && endWild) {
+                for (Material m : Material.values())
+                    if (m.name().contains(core)) result.add(m);
+
+            } else if (startWild) {
+                for (Material m : Material.values())
+                    if (m.name().endsWith(core)) result.add(m);
+
+            } else if (endWild) {
+                for (Material m : Material.values())
+                    if (m.name().startsWith(core)) result.add(m);
+
+            } else {
+                Material exact = Material.matchMaterial(upper);
+                if (exact != null) result.add(exact);
+            }
+        }
+
+        return result;
+    }
 }
