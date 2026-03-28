@@ -55,8 +55,6 @@ public class UIController {
 
     }
 
-
-
     private void openMainPage(Player p){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
         List<Listing> listings = plugin.getAuctionHouse().getListings();
