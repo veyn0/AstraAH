@@ -23,7 +23,7 @@ import java.util.*;
 
 public class UIController {
 
-    private Map<UUID, UIState> playerUiStates = new HashMap<>();
+//    private Map<UUID, UIState> playerUiStates = new HashMap<>();
 
     private final AstraAH plugin;
 
@@ -78,6 +78,7 @@ public class UIController {
                 }
             });
         }
+
 
         //Left side: categories
 
@@ -215,6 +216,7 @@ public class UIController {
     }
 
 
+
     public static List<Material> parseMaterialPatterns(List<String> patterns) {
         List<Material> result = new ArrayList<>();
 
@@ -252,4 +254,7 @@ public class UIController {
 
         return result;
     }
+
+
+
 }

@@ -34,8 +34,6 @@ messages:
         - "<gray>Item<dark_gray>:<light_gray> {ITEM_NAME}"
         - "gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
 
-
-
 categories:
   filter0:
     item:
@@ -131,6 +129,8 @@ settings:
 
 # by default the following languages are supported: en_us, de_de
   language: "en_us"
+
+
 
 # if the economy provider is set to "file" it will use these settings:
 economy:

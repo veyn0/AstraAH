@@ -1,6 +1,7 @@
 package dev.veyno.astraAH.util;
 import de.leycm.i18label4j.Label;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
@@ -102,6 +103,8 @@ public final class ItemStackParser {
             meta.displayName(nameComponent);
         }
 
+        //TODO: besser machen
+
         // --- Lore (optional) ---
         List<String> rawLore = section.getStringList("lore");
 //        List<String> rawLore = new ArrayList<>();
@@ -112,10 +115,11 @@ public final class ItemStackParser {
             List<Component> loreComponents = rawLore.stream()
                     .map(MM::deserialize)
                     .collect(Collectors.toList());
+            List<Component> loreComponents1 = new ArrayList<>();
             for(Component c : loreComponents){
-                c.decoration(TextDecoration.ITALIC, false);
+                loreComponents1.add(c.decoration(TextDecoration.ITALIC, false));
             }
-            meta.lore(loreComponents);
+            meta.lore(loreComponents1);
         }
 
         // --- Item Model (optional, 1.21.4+) ---
