@@ -1,6 +1,7 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.ah.SortType;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.ListingsFilter;
 import dev.veyno.astraAH.ui.error.UIState;
@@ -57,11 +58,11 @@ public class UIController {
 //            return;
 //        }
 
-        openMainPage(p, null);
+        openMainPage(p, null, SortType.NAME_A_Z, false);
 
     }
 
-    private void openMainPage(Player p, List<Material> filter){
+    private void openMainPage(Player p, List<Material> filter, SortType sortType, boolean legacyLayout){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
         List<Listing> listings = plugin.getAuctionHouse().getListings();
         //List<Listing> listings = createExampleListings();
@@ -126,6 +127,11 @@ public class UIController {
 
 
         inventory.open();
+
+    }
+
+
+    private void createListingsSection(Player p, List<Material> filter, SortType sortType, boolean legacyLayout){
 
     }
 
@@ -255,6 +261,36 @@ public class UIController {
         return result;
     }
 
+    public List<Listing> sortListings(List<Listing> listings, SortType sortType) {
+        return switch (sortType) {
+            case NAME_A_Z -> listings.stream()
+                    .sorted(Comparator.comparing(l -> l.content().getType().name()))
+                    .toList();
 
+            case NAME_Z_A -> listings.stream()
+                    .sorted(Comparator.comparing((Listing l) -> l.content().getType().name()).reversed())
+                    .toList();
+
+            case PRICE_H_L -> listings.stream()
+                    .sorted(Comparator.comparingDouble(Listing::price).reversed())
+                    .toList();
+
+            case PRICE_L_H -> listings.stream()
+                    .sorted(Comparator.comparingDouble(Listing::price))
+                    .toList();
+
+            case PRICE_PER_PIECE_H_L -> listings.stream()
+                    .sorted(Comparator.comparingDouble((Listing l) ->
+                            -(l.price() / l.content().getAmount()))
+                    )
+                    .toList();
+
+            case PRICE_PER_PICE_L_H -> listings.stream()
+                    .sorted(Comparator.comparingDouble(l ->
+                            l.price() / l.content().getAmount())
+                    )
+                    .toList();
+        };
+    }
 
 }
