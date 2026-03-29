@@ -37,21 +37,28 @@ messages:
 
 
 categories:
+  filter0:
+    item:
+      material: BARRIER
+      amount: 1
+      display-name: "<gray>Filter Deaktivieren</gray>"
+      lore:
+        - "<gray>klicken um Filter zu deaktivieren"
+      unbreakable: true
+      hide-flags: true
+    rules:
+      - "**"
   filter1:
       item:
-        material: DIRT
+        material: SANDSTONE
         amount: 1
-        display-name: "<gold>Filter 1</gold>"
+        display-name: "<gray>Baumaterialien</gray>"
         lore:
-          - "<gray>Erste Zeile"
-          - "<gray>Zweite Zeile"
+          - "<gray>klicken um Filter zu aktivieren"
         unbreakable: true
         hide-flags: true
-        enchantments:
-          SHARPNESS: 5
-          UNBREAKING: 3
       rules:
-        - "*SWORD*"
+        - "*STONE*"
         - "*PICKAXE*"
         - "*SHOVEL*"
         - "*AXE*"
@@ -65,9 +72,46 @@ categories:
         - "<gray>Zweite Zeile"
       unbreakable: true
       hide-flags: true
-      enchantments:
-        SHARPNESS: 5
-        UNBREAKING: 3
+    rules:
+      - "*GOLD*"
+      - "*IRON*"
+      - "*DEEPSLATE*"
+      - "*AXE*"
+  filter3:
+    item:
+      material: BARRIER
+      amount: 1
+      display-name: "<gray>Filter Deaktivieren</gray>"
+      lore:
+        - "<gray>klicken um Filter zu deaktivieren"
+      unbreakable: true
+      hide-flags: true
+    rules:
+      - "*"
+  filter4:
+    item:
+      material: SANDSTONE
+      amount: 1
+      display-name: "<gray>Baumaterialien</gray>"
+      lore:
+        - "<gray>klicken um Filter zu aktivieren"
+      unbreakable: true
+      hide-flags: true
+    rules:
+      - "*STONE*"
+      - "*PICKAXE*"
+      - "*SHOVEL*"
+      - "*AXE*"
+  filter5:
+    item:
+      material: STONE
+      amount: 1
+      display-name: "<gold>Filter2</gold>"
+      lore:
+        - "<gray>Erste Zeile"
+        - "<gray>Zweite Zeile"
+      unbreakable: true
+      hide-flags: true
     rules:
       - "*GOLD*"
       - "*IRON*"
@@ -85,6 +129,8 @@ settings:
 #    keep in mind that the built in economy is not compatible with other plugins and is intended for small servers where the Auctionhouse is the only way players interact with money
     provider: "auto"
 
+# by default the following languages are supported: en_us, de_de
+  language: "en_us"
 
 # if the economy provider is set to "file" it will use these settings:
 economy:
@@ -95,53 +141,41 @@ items:
     insert:
     my_listings:
     prev_page:
-      material: DIRT
+      material: ARROW
       amount: 1
-      display-name: "<gold>prev_page</gold>"
+      display-name: "<gray>Vorherige Seite"
       lore:
-       - "<gray>Erste Zeile"
-       - "<gray>Zweite Zeile"
+       - "<gray>Klicke um zur vorherigen Seite"
+       - "<gray>Der angebote zu kommen"
       unbreakable: true
       hide-flags: true
-      enchantments:
-        SHARPNESS: 5
-        UNBREAKING: 3
     next_page:
-      material: DIRT
+      material: ARROW
       amount: 1
-      display-name: "<gold>next_page</gold>"
+      display-name: "<gray>Nächste Seite"
       lore:
-        - "<gray>Erste Zeile"
-        - "<gray>Zweite Zeile"
+        - "<gray>Klicke um zur Nächsten Seite"
+        - "<gray>Der angebote zu kommen"
       unbreakable: true
       hide-flags: true
-      enchantments:
-        SHARPNESS: 5
-        UNBREAKING: 3
     prev_category:
-      material: DIRT
+      material: SPECTRAL_ARROW
       amount: 1
-      display-name: "<gold>next_page</gold>"
+      display-name: "<gray>Kategorien Hochscrollen"
       lore:
-        - "<gray>Erste Zeile"
-        - "<gray>Zweite Zeile"
+        - "<gray>Klicke um Die Verfügbaren"
+        - "<gray>Kategorien Hoch zu scrollen"
       unbreakable: true
       hide-flags: true
-      enchantments:
-        SHARPNESS: 5
-        UNBREAKING: 3
     next_category:
-      material: DIRT
+      material: SPECTRAL_ARROW
       amount: 1
-      display-name: "<gold>next_page</gold>"
+      display-name: "<gray>Kategorien Runterscrollen"
       lore:
-        - "<gray>Erste Zeile"
-        - "<gray>Zweite Zeile"
+        - "<gray>Klicke um Die Verfügbaren"
+        - "<gray>Kategorien Runter zu scrollen"
       unbreakable: true
       hide-flags: true
-      enchantments:
-        SHARPNESS: 5
-        UNBREAKING: 3
     home:
     scroll_categories_down:
     scroll_categories_up:

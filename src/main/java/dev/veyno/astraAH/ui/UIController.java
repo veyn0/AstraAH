@@ -223,11 +223,15 @@ public class UIController {
 
             String upper = pattern.toUpperCase();
 
+            String core;
+
+            if(upper.equalsIgnoreCase("*")||upper.equalsIgnoreCase("**")){
+                return List.of(Material.values());
+            }
             boolean startWild = upper.startsWith("*");
             boolean endWild = upper.endsWith("*");
-            String core = upper
+            core = upper
                     .substring(startWild ? 1 : 0, endWild ? upper.length() - 1 : upper.length());
-
             if (startWild && endWild) {
                 for (Material m : Material.values())
                     if (m.name().contains(core)) result.add(m);

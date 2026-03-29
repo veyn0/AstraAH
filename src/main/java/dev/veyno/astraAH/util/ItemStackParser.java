@@ -1,6 +1,7 @@
 package dev.veyno.astraAH.util;
 import de.leycm.i18label4j.Label;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -92,11 +93,12 @@ public final class ItemStackParser {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item; // luftige Items o.ä. haben kein Meta
 
+
         // --- Display-Name (optional) ---
         String displayName = section.getString("display-name");
 //        displayName = Label.of(displayName, displayName).resolve();
         if (displayName != null && !displayName.isBlank()) {
-            Component nameComponent = MM.deserialize(displayName);
+            Component nameComponent = MM.deserialize(displayName).decoration(TextDecoration.ITALIC, false);
             meta.displayName(nameComponent);
         }
 
@@ -110,6 +112,9 @@ public final class ItemStackParser {
             List<Component> loreComponents = rawLore.stream()
                     .map(MM::deserialize)
                     .collect(Collectors.toList());
+            for(Component c : loreComponents){
+                c.decoration(TextDecoration.ITALIC, false);
+            }
             meta.lore(loreComponents);
         }
 

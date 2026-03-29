@@ -46,7 +46,7 @@ public final class AstraAH extends JavaPlugin {
 
     private EconomyProvider economy;
 
-    //private LabelProvider provider;
+//    private LabelProvider provider;
 
     @Override
     public void onEnable() {
@@ -59,7 +59,7 @@ public final class AstraAH extends JavaPlugin {
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
-        //FileSource source = FileSource.yaml(new File(getDataFolder(), "lang").toURI());
+//        FileSource source = FileSource.yaml(new File(getDataFolder(), "lang").toURI());
 //        provider = CommonLabelProvider.builder()
 //                .defaultMappingRule(MappingRule.CURLY)
 //                .withSerializer(Component.class, new KyoriAdventureSerializer.KyoriMiniMessage())
@@ -79,6 +79,7 @@ public final class AstraAH extends JavaPlugin {
 //                }
 //            }
 //        }
+
     }
 
     @Override
