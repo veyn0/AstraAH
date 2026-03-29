@@ -328,6 +328,9 @@ public class ClickableInventory {
         private final List<Integer> slots;
         private final List<ClickableItem> items;
 
+        /** Static items pinned to specific region-slot indices (key = region slot index 0..n). */
+        private final Map<Integer, ClickableItem> staticItems;
+
         private org.bukkit.inventory.ItemStack fillerItem;
         private int firstItemIndex;
 
@@ -336,6 +339,7 @@ public class ClickableInventory {
             this.id = id;
             this.slots = new ArrayList<>();
             this.items = new ArrayList<>();
+            this.staticItems = new HashMap<>();
             this.firstItemIndex = 0;
 
             if (slots == null || slots.isEmpty()) {
@@ -398,12 +402,33 @@ public class ClickableInventory {
             return this;
         }
 
+        /**
+         * Returns a list of region-slot indices that are NOT occupied by a static item.
+         * These are the slots available for dynamically paged items.
+         */
+        private List<Integer> getDynamicSlotIndices() {
+            List<Integer> dynamic = new ArrayList<>();
+            for (int i = 0; i < slots.size(); i++) {
+                if (!staticItems.containsKey(i)) {
+                    dynamic.add(i);
+                }
+            }
+            return dynamic;
+        }
+
+        /**
+         * Returns the number of region slots available for dynamic items.
+         */
+        public int getDynamicSlotCount() {
+            return slots.size() - staticItems.size();
+        }
+
         public int getLastVisibleItemIndexExclusive() {
-            return Math.min(firstItemIndex + slots.size(), items.size());
+            return Math.min(firstItemIndex + getDynamicSlotCount(), items.size());
         }
 
         public boolean hasNextPage() {
-            return firstItemIndex + slots.size() < items.size();
+            return firstItemIndex + getDynamicSlotCount() < items.size();
         }
 
         public boolean hasPreviousPage() {
@@ -411,7 +436,7 @@ public class ClickableInventory {
         }
 
         public InventoryRegion nextPage() {
-            return scrollBy(slots.size());
+            return scrollBy(getDynamicSlotCount());
         }
 
         public InventoryRegion nextPageAndRefresh() {
@@ -421,7 +446,7 @@ public class ClickableInventory {
         }
 
         public InventoryRegion previousPage() {
-            return scrollBy(-slots.size());
+            return scrollBy(-getDynamicSlotCount());
         }
 
         public InventoryRegion previousPageAndRefresh() {
@@ -444,7 +469,7 @@ public class ClickableInventory {
             if (page < 0) {
                 page = 0;
             }
-            return setFirstItemIndex(page * slots.size());
+            return setFirstItemIndex(page * getDynamicSlotCount());
         }
 
         public InventoryRegion openPageAndRefresh(int page) {
@@ -454,11 +479,14 @@ public class ClickableInventory {
         }
 
         public int getCurrentPage() {
-            return slots.isEmpty() ? 0 : firstItemIndex / slots.size();
+            int dynCount = getDynamicSlotCount();
+            return dynCount <= 0 ? 0 : firstItemIndex / dynCount;
         }
 
         public int getMaxPages() {
-            return Math.max(1, (int) Math.ceil((double) items.size() / slots.size()));
+            int dynCount = getDynamicSlotCount();
+            if (dynCount <= 0) return 1;
+            return Math.max(1, (int) Math.ceil((double) items.size() / dynCount));
         }
 
         public org.bukkit.inventory.ItemStack getFillerItem() {
@@ -474,6 +502,74 @@ public class ClickableInventory {
             this.fillerItem = createItem(material, name, lore);
             return this;
         }
+
+        // ── Static items ───────────────────────────────────────────────
+
+        /**
+         * Sets a static item pinned to a specific region slot index.
+         * This item stays at this position regardless of scrolling/paging.
+         * Dynamic items will skip this slot entirely.
+         *
+         * @param regionSlot the slot index within this region (0-based, NOT the inventory slot)
+         * @param itemStack  the item to display
+         * @param action     the click action
+         * @return this region for chaining
+         */
+        public InventoryRegion setStaticItem(int regionSlot, org.bukkit.inventory.ItemStack itemStack, Consumer<ClickContext> action) {
+            if (regionSlot < 0 || regionSlot >= slots.size()) {
+                throw new IndexOutOfBoundsException(
+                        "Region-Slot " + regionSlot + " ungültig, Region '" + id + "' hat " + slots.size() + " Slots"
+                );
+            }
+            staticItems.put(regionSlot, new ClickableItem(itemStack, action));
+            return this;
+        }
+
+        /**
+         * Sets a static item pinned to a specific region slot index with a simple Runnable action.
+         */
+        public InventoryRegion setStaticItem(int regionSlot, org.bukkit.inventory.ItemStack itemStack, Runnable action) {
+            return setStaticItem(regionSlot, itemStack, ctx -> action.run());
+        }
+
+        /**
+         * Removes the static item at the given region slot index.
+         */
+        public InventoryRegion removeStaticItem(int regionSlot) {
+            staticItems.remove(regionSlot);
+            return this;
+        }
+
+        /**
+         * Returns the static item at the given region slot index, or null if none.
+         */
+        public ClickableItem getStaticItem(int regionSlot) {
+            return staticItems.get(regionSlot);
+        }
+
+        /**
+         * Returns true if a static item occupies the given region slot index.
+         */
+        public boolean hasStaticItem(int regionSlot) {
+            return staticItems.containsKey(regionSlot);
+        }
+
+        /**
+         * Removes all static items from this region.
+         */
+        public InventoryRegion clearStaticItems() {
+            staticItems.clear();
+            return this;
+        }
+
+        /**
+         * Returns an unmodifiable view of all static items (key = region slot index).
+         */
+        public Map<Integer, ClickableItem> getStaticItems() {
+            return Collections.unmodifiableMap(staticItems);
+        }
+
+        // ── Dynamic items (unchanged API) ──────────────────────────────
 
         public InventoryRegion addItem(org.bukkit.inventory.ItemStack itemStack, Consumer<ClickContext> action) {
             items.add(new ClickableItem(itemStack, action));
@@ -555,29 +651,46 @@ public class ClickableInventory {
 
         /**
          * Renders this region's items into the packet-level contents array.
-         * Converts Bukkit ItemStacks to PacketEvents ItemStacks on the fly.
+         * Static items are placed first at their pinned positions.
+         * Dynamic items fill the remaining slots, respecting paging/scrolling.
          */
         protected void renderInto(ItemStack[] contents, Map<Integer, Consumer<ClickContext>> slotActions) {
             ItemStack packetFiller = toPacketItem(fillerItem);
 
-            for (int i = 0; i < slots.size(); i++) {
-                int slot = slots.get(i);
-                int itemIndex = firstItemIndex + i;
+            // 1) Render static items at their pinned region-slot positions
+            for (Map.Entry<Integer, ClickableItem> entry : staticItems.entrySet()) {
+                int regionSlotIndex = entry.getKey();
+                ClickableItem staticItem = entry.getValue();
+                int inventorySlot = slots.get(regionSlotIndex);
 
-                if (itemIndex >= 0 && itemIndex < items.size()) {
-                    ClickableItem clickableItem = items.get(itemIndex);
+                contents[inventorySlot] = toPacketItem(staticItem.getItemStack());
+                slotActions.put(inventorySlot, staticItem.getAction());
+            }
+
+            // 2) Collect the region-slot indices that are NOT occupied by static items
+            List<Integer> dynamicSlotIndices = getDynamicSlotIndices();
+
+            // 3) Fill dynamic slots with paged items
+            int dynamicItemCursor = firstItemIndex;
+            for (int dynamicIdx : dynamicSlotIndices) {
+                int inventorySlot = slots.get(dynamicIdx);
+
+                if (dynamicItemCursor >= 0 && dynamicItemCursor < items.size()) {
+                    ClickableItem clickableItem = items.get(dynamicItemCursor);
 
                     if (clickableItem != null) {
-                        contents[slot] = toPacketItem(clickableItem.getItemStack());
-                        slotActions.put(slot, clickableItem.getAction());
+                        contents[inventorySlot] = toPacketItem(clickableItem.getItemStack());
+                        slotActions.put(inventorySlot, clickableItem.getAction());
                     } else {
-                        contents[slot] = fillerItem != null ? packetFiller : ItemStack.EMPTY;
-                        slotActions.remove(slot);
+                        contents[inventorySlot] = fillerItem != null ? packetFiller : ItemStack.EMPTY;
+                        slotActions.remove(inventorySlot);
                     }
                 } else {
-                    contents[slot] = fillerItem != null ? packetFiller : ItemStack.EMPTY;
-                    slotActions.remove(slot);
+                    contents[inventorySlot] = fillerItem != null ? packetFiller : ItemStack.EMPTY;
+                    slotActions.remove(inventorySlot);
                 }
+
+                dynamicItemCursor++;
             }
         }
     }

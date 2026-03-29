@@ -52,6 +52,10 @@
 
     <repositories>
         <repository>
+            <id>leycm-repo</id>
+            <url>https://leycm.github.io/repository/</url>
+        </repository>
+        <repository>
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
@@ -93,6 +97,22 @@
             <artifactId>paper-api</artifactId>
             <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.leycm</groupId>
+            <artifactId>i18label4j-impl</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>de.leycm</groupId>
+            <artifactId>i18label4j-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.leycm</groupId>
+            <artifactId>init4j-api</artifactId>
+            <version>1.3</version>
         </dependency>
     </dependencies>
 </project>

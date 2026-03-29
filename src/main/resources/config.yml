@@ -41,7 +41,7 @@ categories:
       item:
         material: DIRT
         amount: 1
-        display-name: "<gold>prev_page</gold>"
+        display-name: "<gold>Filter 1</gold>"
         lore:
           - "<gray>Erste Zeile"
           - "<gray>Zweite Zeile"
@@ -55,6 +55,24 @@ categories:
         - "*PICKAXE*"
         - "*SHOVEL*"
         - "*AXE*"
+  filter2:
+    item:
+      material: STONE
+      amount: 1
+      display-name: "<gold>Filter2</gold>"
+      lore:
+        - "<gray>Erste Zeile"
+        - "<gray>Zweite Zeile"
+      unbreakable: true
+      hide-flags: true
+      enchantments:
+        SHARPNESS: 5
+        UNBREAKING: 3
+    rules:
+      - "*GOLD*"
+      - "*IRON*"
+      - "*DEEPSLATE*"
+      - "*AXE*"
 
 settings:
   economy:
@@ -89,6 +107,30 @@ items:
         SHARPNESS: 5
         UNBREAKING: 3
     next_page:
+      material: DIRT
+      amount: 1
+      display-name: "<gold>next_page</gold>"
+      lore:
+        - "<gray>Erste Zeile"
+        - "<gray>Zweite Zeile"
+      unbreakable: true
+      hide-flags: true
+      enchantments:
+        SHARPNESS: 5
+        UNBREAKING: 3
+    prev_category:
+      material: DIRT
+      amount: 1
+      display-name: "<gold>next_page</gold>"
+      lore:
+        - "<gray>Erste Zeile"
+        - "<gray>Zweite Zeile"
+      unbreakable: true
+      hide-flags: true
+      enchantments:
+        SHARPNESS: 5
+        UNBREAKING: 3
+    next_category:
       material: DIRT
       amount: 1
       display-name: "<gold>next_page</gold>"

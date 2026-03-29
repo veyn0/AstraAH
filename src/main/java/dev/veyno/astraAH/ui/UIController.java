@@ -57,17 +57,18 @@ public class UIController {
 //            return;
 //        }
 
-        openMainPage(p);
+        openMainPage(p, null);
 
     }
 
-    private void openMainPage(Player p){
+    private void openMainPage(Player p, List<Material> filter){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
         List<Listing> listings = plugin.getAuctionHouse().getListings();
         //List<Listing> listings = createExampleListings();
         //Center: available listings
         ClickableInventory.InventoryRegion centerContent = inventory.createRegion("center", new ClickableInventory.LayoutCenter());
         for(Listing l : listings){
+            if(filter != null && !filter.contains(l.content().getType())) continue;
             centerContent.addItem(getDisplayItem(l), clickContext -> {
                 if(clickContext.isLeftClick()){
                     attemptPurchase(p, l);
@@ -80,7 +81,29 @@ public class UIController {
 
         //Left side: categories
 
+        ClickableInventory.InventoryRegion leftContent = inventory.createRegion("left", new ClickableInventory.LayoutSide(true));
+        leftContent.setStaticItem(
+                0,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_category"), plugin), action ->{
+                leftContent.scrollByAndRefresh(-1);
+                });
+        leftContent.setStaticItem(
+                5,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_category"), plugin), action -> {
+                    leftContent.scrollByAndRefresh(1);
+                });
+
+        for(ListingsFilter f : filters){
+            leftContent.addItem(
+                    f.preview(),
+                    action ->{
+                        openMainPage(action.getPlayer(), f.materials());
+                    });
+        }
+
         //Right side: last bought items
+
+
 
         //Bottom: navigation + insert + filter
         ClickableInventory.InventoryRegion bottomContent = inventory.createRegion("bottom", new ClickableInventory.LayoutHorizontalNoSides(6));
@@ -104,6 +127,8 @@ public class UIController {
         inventory.open();
 
     }
+
+
 
     private void openListingInfo(Player p, Listing l){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), LISTING_DETAILS_TITLE, p );
@@ -135,9 +160,6 @@ public class UIController {
 
 
 
-    public void clearPlayerUIState(UUID pId){
-        playerUiStates.put(pId, UIState.CLOSED);
-    }
 
     private static final Material[] SAMPLE_MATERIALS = {
             Material.DIAMOND,

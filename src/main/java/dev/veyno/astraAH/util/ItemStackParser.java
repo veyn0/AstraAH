@@ -1,4 +1,5 @@
 package dev.veyno.astraAH.util;
+import de.leycm.i18label4j.Label;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
@@ -11,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,6 +94,7 @@ public final class ItemStackParser {
 
         // --- Display-Name (optional) ---
         String displayName = section.getString("display-name");
+//        displayName = Label.of(displayName, displayName).resolve();
         if (displayName != null && !displayName.isBlank()) {
             Component nameComponent = MM.deserialize(displayName);
             meta.displayName(nameComponent);
@@ -99,6 +102,10 @@ public final class ItemStackParser {
 
         // --- Lore (optional) ---
         List<String> rawLore = section.getStringList("lore");
+//        List<String> rawLore = new ArrayList<>();
+//        for(String s : rawLore){
+//            rawLore.add(Label.of(s,s).resolve());
+//        }
         if (!rawLore.isEmpty()) {
             List<Component> loreComponents = rawLore.stream()
                     .map(MM::deserialize)

@@ -2,6 +2,11 @@
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
     <remote-repository>
+      <option name="id" value="leycm-repo" />
+      <option name="name" value="leycm-repo" />
+      <option name="url" value="https://leycm.github.io/repository/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="codemc-snapshots" />
       <option name="name" value="codemc-snapshots" />
       <option name="url" value="https://repo.codemc.io/repository/maven-snapshots/" />

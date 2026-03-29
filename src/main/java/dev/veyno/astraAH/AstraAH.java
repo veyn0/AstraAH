@@ -1,5 +1,12 @@
 package dev.veyno.astraAH;
 
+//import de.leycm.i18label4j.CommonLabelProvider;
+//import de.leycm.i18label4j.Label;
+//import de.leycm.i18label4j.LabelProvider;
+//import de.leycm.i18label4j.mapping.MappingRule;
+//import de.leycm.i18label4j.serializer.KyoriAdventureSerializer;
+//import de.leycm.i18label4j.source.FileSource;
+//import de.leycm.init4j.instance.Instanceable;
 import dev.veyno.astraAH.ah.AuctionHouse;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
@@ -9,7 +16,13 @@ import dev.veyno.astraAH.storage.listings.provider.FileStorageProvider;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
+import net.kyori.adventure.text.Component;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.net.URI;
+import java.util.Locale;
+import java.util.Map;
 
 /*
 
@@ -33,17 +46,29 @@ public final class AstraAH extends JavaPlugin {
 
     private EconomyProvider economy;
 
+    //private LabelProvider provider;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
         setupEconomy();
         setupCommands();
+        saveResource("lang/en_us.yml", false);
         listingStorage = new FileStorageProvider(this);
         auctionHouse = new AuctionHouse(this, listingStorage, economy);
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
-
+        //FileSource source = FileSource.yaml(new File(getDataFolder(), "lang").toURI());
+//        provider = CommonLabelProvider.builder()
+//                .defaultMappingRule(MappingRule.CURLY)
+//                .withSerializer(Component.class, new KyoriAdventureSerializer.KyoriMiniMessage())
+//                .buildWarm(source, Locale.US);
+//
+//        Instanceable.register(provider, LabelProvider.class);
+//
+//
+//        Label.of("w").map("pl1", "<red>du stinkst</red>").resolve(Component.class);
 
 //        for(int i = 0; i < 10; i++) {
 //            for (Listing l : UIController.createExampleListings()) {
