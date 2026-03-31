@@ -75,9 +75,9 @@ guis:
       1: "^^^^^^^^^^^^^^^"
       2: "Set Price"
       3: "_______________"
-  # |===============================================|
+  # |================================================|
   # |   /ah -> create Listing GUI - preview listing  |
-  # |===============================================|
+  # |================================================|
   create_listing_3:
     title: "<dark_gray>Create Listing - Confirm"
     items:
@@ -95,7 +95,6 @@ guis:
         lore:
           - "<gray>This is a Placeholder"
           - "<gray>configure at AstrAH/config.yml"
-
   # |==========================|
   # |   /ah -> settings GUI    |
   # |==========================|
@@ -130,6 +129,9 @@ guis:
         lore:
           - "<gray>This is a Placeholder"
           - "<gray>configure at AstrAH/config.yml"
+  # |=================================|
+  # |   /ah -> player listings GUI    |
+  # |=================================|
   my_listings:
     title: "<dark_gray>My listings"
     items:
@@ -154,8 +156,16 @@ guis:
         lore:
           - "<gray>This is a Placeholder"
           - "<gray>configure at AstrAH/config.yml"
-
-
+  listing_info:
+    title: "<dark_gray>Listing details"
+    items:
+      back:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
 
 
 
@@ -317,61 +327,3 @@ settings:
 economy:
   default_balance: 1000
 
-items1:
-  buttons:
-    categories:
-      material: BOOKSHELF
-      amount: 1
-      display-name: "<gray>kategorien"
-      lore:
-        - ""
-      unbreakable: true
-      hide-flags: true
-    insert:
-    my_listings:
-    prev_page:
-      material: ARROW
-      amount: 1
-      display-name: "<gray>Vorherige Seite"
-      lore:
-       - "<gray>Klicke um zur vorherigen Seite"
-       - "<gray>Der angebote zu kommen"
-      unbreakable: true
-      hide-flags: true
-    next_page:
-      material: ARROW
-      amount: 1
-      display-name: "<gray>Nächste Seite"
-      lore:
-        - "<gray>Klicke um zur Nächsten Seite"
-        - "<gray>Der angebote zu kommen"
-      unbreakable: true
-      hide-flags: true
-    prev_category:
-      material: SPECTRAL_ARROW
-      amount: 1
-      display-name: "<gray>Kategorien Hochscrollen"
-      lore:
-        - "<gray>Klicke um Die Verfügbaren"
-        - "<gray>Kategorien Hoch zu scrollen"
-      unbreakable: true
-      hide-flags: true
-    next_category:
-      material: SPECTRAL_ARROW
-      amount: 1
-      display-name: "<gray>Kategorien Runterscrollen"
-      lore:
-        - "<gray>Klicke um Die Verfügbaren"
-        - "<gray>Kategorien Runter zu scrollen"
-      unbreakable: true
-      hide-flags: true
-    home:
-    create_auction:
-      material: CRAFTING_TABLE
-      amount: 1
-      display-name: "<gray>Auktion erstellen"
-      lore:
-        - "<gray>LinksClick um"
-        - "<gray>eine Auktion zu erstellen"
-      unbreakable: true
-      hide-flags: true
