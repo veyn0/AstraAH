@@ -89,7 +89,54 @@ public class ClickableInventory {
         return manager;
     }
 
-    // ── Region management (unchanged API) ──────────────────────────────
+    // ── Coordinate helpers ─────────────────────────────────────────────
+
+    /**
+     * Converts an (x, y) coordinate to an inventory slot index.
+     * Origin (0,0) is the top-left corner of the inventory.
+     *
+     * @param x column (0–8)
+     * @param y row (0–5)
+     * @return the slot index
+     */
+    public static int slotAt(int x, int y) {
+        return y * SLOTS_PER_ROW + x;
+    }
+
+    /**
+     * Computes all slot indices inside the rectangular area from (x1,y1) to (x2,y2), inclusive.
+     * The coordinates are automatically normalized so order doesn't matter.
+     * Slots are returned in reading order (left-to-right, top-to-bottom).
+     *
+     * @param x1 first corner column  (0–8)
+     * @param y1 first corner row     (0–5)
+     * @param x2 second corner column (0–8)
+     * @param y2 second corner row    (0–5)
+     * @return list of slot indices
+     */
+    public static List<Integer> slotsFromCoords(int x1, int y1, int x2, int y2) {
+        int minX = Math.min(x1, x2);
+        int maxX = Math.max(x1, x2);
+        int minY = Math.min(y1, y2);
+        int maxY = Math.max(y1, y2);
+
+        if (minX < 0 || maxX > 8) {
+            throw new IllegalArgumentException("X-Koordinate muss zwischen 0 und 8 liegen (war: " + x1 + ", " + x2 + ")");
+        }
+        if (minY < 0 || maxY > 5) {
+            throw new IllegalArgumentException("Y-Koordinate muss zwischen 0 und 5 liegen (war: " + y1 + ", " + y2 + ")");
+        }
+
+        List<Integer> result = new ArrayList<>((maxX - minX + 1) * (maxY - minY + 1));
+        for (int y = minY; y <= maxY; y++) {
+            for (int x = minX; x <= maxX; x++) {
+                result.add(slotAt(x, y));
+            }
+        }
+        return result;
+    }
+
+    // ── Region management ──────────────────────────────────────────────
 
     public InventoryRegion createRegion(String id, List<Integer> slots) {
         if (id == null || id.isBlank()) {
@@ -114,6 +161,24 @@ public class ClickableInventory {
             slotList.add(slot);
         }
         return createRegion(id, slotList);
+    }
+
+    /**
+     * Creates a region spanning the rectangular area from (x1,y1) to (x2,y2).
+     * Origin (0,0) is top-left. Both corners are inclusive and order-independent.
+     * <p>
+     * Example: {@code createRegionFromCoords("content", 1, 1, 7, 4)} creates a region
+     * covering columns 1–7 in rows 1–4 (the inner area of a 6-row inventory).
+     *
+     * @param id the region identifier
+     * @param x1 first corner column  (0–8)
+     * @param y1 first corner row     (0–5)
+     * @param x2 second corner column (0–8)
+     * @param y2 second corner row    (0–5)
+     * @return the created region
+     */
+    public InventoryRegion createRegionFromCoords(String id, int x1, int y1, int x2, int y2) {
+        return createRegion(id, slotsFromCoords(x1, y1, x2, y2));
     }
 
     public InventoryRegion getRegion(String id) {
@@ -192,10 +257,18 @@ public class ClickableInventory {
         List<ItemStack> items = new ArrayList<>(Arrays.asList(contents));
 
         // The WindowItems packet also expects the 36 player inventory slots appended
-        // after the container slots. We send empty stacks for those to not interfere
-        // with the player's real inventory – the client merges them.
-        for (int i = 0; i < 36; i++) {
-            items.add(ItemStack.EMPTY);
+        // after the container slots (9 hotbar + 27 main inventory, in protocol order:
+        // slots 9-35 of the Bukkit inventory = main, slots 0-8 = hotbar).
+        // We must send the player's REAL items here, otherwise the client will
+        // visually clear the player's inventory.
+        org.bukkit.inventory.PlayerInventory playerInv = player.getInventory();
+        // Main inventory (Bukkit slots 9–35, i.e. rows 2–4)
+        for (int i = 9; i <= 35; i++) {
+            items.add(toPacketItem(playerInv.getItem(i)));
+        }
+        // Hotbar (Bukkit slots 0–8)
+        for (int i = 0; i <= 8; i++) {
+            items.add(toPacketItem(playerInv.getItem(i)));
         }
 
         WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(

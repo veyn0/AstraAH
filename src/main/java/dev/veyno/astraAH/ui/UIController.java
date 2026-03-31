@@ -1,10 +1,10 @@
 package dev.veyno.astraAH.ui;
 
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.SortType;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.ListingsFilter;
-import dev.veyno.astraAH.ui.error.UIState;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.ItemStackParser;
 import dev.veyno.astraAH.util.NumberFormat;
@@ -13,18 +13,19 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.BreezeWindCharge;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UIController {
 
 //    private Map<UUID, UIState> playerUiStates = new HashMap<>();
+
+    private Map<UUID, Listing> pendingCreations = new ConcurrentHashMap<>();
 
     private final AstraAH plugin;
 
@@ -58,16 +59,118 @@ public class UIController {
 //            return;
 //        }
 
-        openMainPage(p, null, SortType.NAME_A_Z, false);
+        openMainPage(p, null, SortType.NAME_A_Z, false, false);
 
     }
 
-    private void openMainPage(Player p, List<Material> filter, SortType sortType, boolean legacyLayout){
+    //TODO: move filter, sorting and history/filter option to DTO object
+
+    private void openMainPage(Player p, List<Material> filter, SortType sortType, boolean advancedFilter, boolean quickHistory){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
-        List<Listing> listings = plugin.getAuctionHouse().getListings();
-        //List<Listing> listings = createExampleListings();
+
         //Center: available listings
-        ClickableInventory.InventoryRegion centerContent = inventory.createRegion("center", new ClickableInventory.LayoutCenter());
+
+        ClickableInventory.InventoryRegion centerContent = createListingsSection(p, filter, sortType, inventory, advancedFilter, quickHistory);
+
+        //Left side: categories
+
+        if(advancedFilter) {
+            ClickableInventory.InventoryRegion leftContent = createCategorySection(p, inventory);
+        }
+
+        //Right side: last bought items
+
+
+
+
+        //Bottom: navigation + insert + filter
+
+        ClickableInventory.InventoryRegion bottomContent = createNavbarSection(p, inventory, advancedFilter, quickHistory, centerContent);
+
+
+        inventory.open();
+
+    }
+
+    private ClickableInventory.InventoryRegion createCategorySection(Player p, ClickableInventory inventory) {
+        ClickableInventory.InventoryRegion leftContent = inventory.createRegion("left", new ClickableInventory.LayoutSide(true));
+        leftContent.setStaticItem(
+                0,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_category"), plugin), action -> {
+                    leftContent.scrollByAndRefresh(-1);
+                });
+        leftContent.setStaticItem(
+                5,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_category"), plugin), action -> {
+                    leftContent.scrollByAndRefresh(1);
+                });
+
+        for(ListingsFilter f : filters){
+            leftContent.addItem(
+                    f.preview(),
+                    action ->{
+                        openMainPage(action.getPlayer(), f.materials(), SortType.NAME_A_Z, false, false);
+                    });
+        }
+
+        return leftContent;
+    }
+
+    private ClickableInventory.InventoryRegion createTransactionHistorySection(Player p, ClickableInventory inventory, boolean advancedFilter, boolean quickHistory, ClickableInventory.InventoryRegion centerContent) {
+        ClickableInventory.InventoryRegion rightContent = inventory.createRegionFromCoords("right", 8,0,8,5);
+
+        rightContent.setStaticItem(
+                0,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_category"), plugin), action -> {
+                    rightContent.scrollByAndRefresh(-1);
+                });
+
+        rightContent.setStaticItem(
+                5,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_category"), plugin), action -> {
+                    rightContent.scrollByAndRefresh(1);
+                });
+
+        return rightContent;
+    }
+
+    private ClickableInventory.InventoryRegion createNavbarSection(Player p, ClickableInventory inventory, boolean advancedFilter, boolean quickHistory, ClickableInventory.InventoryRegion centerContent) {
+
+        ClickableInventory.InventoryRegion bottomContent = inventory.createRegionFromCoords("bottom", advancedFilter ? 1 : 0, 5, quickHistory? 7 : 8, 5);
+        bottomContent.setItem(
+                0,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_page"), plugin),
+                action ->{
+                    centerContent.previousPageAndRefresh();
+                }
+        );
+
+        int indexArrow = 8;
+        if(advancedFilter) indexArrow--;
+        if(quickHistory) indexArrow--;
+        bottomContent.setItem(
+                indexArrow,
+                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_page"), plugin),
+                action ->{
+                    centerContent.nextPageAndRefresh();
+                }
+        );
+
+        return bottomContent;
+    }
+
+
+
+    private ClickableInventory.InventoryRegion createListingsSection(Player p, List<Material> filter, SortType sortType, ClickableInventory inventory, boolean advancedFilter, boolean quickHistory){
+        int fromX = advancedFilter ? 1 : 0;
+        int fromY = 0;
+        int toX = quickHistory ? 7 : 8;
+        int toY = 4;
+
+
+        List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), sortType);
+
+        ClickableInventory.InventoryRegion centerContent = inventory.createRegionFromCoords("center", fromX, fromY, toX, toY);
         for(Listing l : listings){
             if(filter != null && !filter.contains(l.content().getType())) continue;
             centerContent.addItem(getDisplayItem(l), clickContext -> {
@@ -81,61 +184,21 @@ public class UIController {
         }
 
 
-        //Left side: categories
+        return centerContent;
+    }
 
-        ClickableInventory.InventoryRegion leftContent = inventory.createRegion("left", new ClickableInventory.LayoutSide(true));
-        leftContent.setStaticItem(
-                0,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_category"), plugin), action ->{
-                leftContent.scrollByAndRefresh(-1);
-                });
-        leftContent.setStaticItem(
-                5,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_category"), plugin), action -> {
-                    leftContent.scrollByAndRefresh(1);
-                });
+    private void openCreateListingMenu(Player p){
+        Component title = MiniMessage.miniMessage().deserialize("<dark_gray>Auktion erstellen");
+        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(),title,  p);
+        inventory.setRows(3);
 
-        for(ListingsFilter f : filters){
-            leftContent.addItem(
-                    f.preview(),
-                    action ->{
-                        openMainPage(action.getPlayer(), f.materials());
-                    });
-        }
+        inventory.createRegionFromCoords("main",0,0,8,2);
 
-        //Right side: last bought items
-
-
-
-        //Bottom: navigation + insert + filter
-        ClickableInventory.InventoryRegion bottomContent = inventory.createRegion("bottom", new ClickableInventory.LayoutHorizontalNoSides(6));
-        bottomContent.setItem(
-                0,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_page"), plugin),
-                action ->{
-                    centerContent.previousPageAndRefresh();
-                }
-        );
-        bottomContent.setItem(
-                6,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_page"), plugin),
-                action ->{
-                    centerContent.nextPageAndRefresh();
-                }
-        );
 
 
 
         inventory.open();
-
     }
-
-
-    private void createListingsSection(Player p, List<Material> filter, SortType sortType, boolean legacyLayout){
-
-    }
-
-
 
     private void openListingInfo(Player p, Listing l){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), LISTING_DETAILS_TITLE, p );
@@ -262,6 +325,7 @@ public class UIController {
     }
 
     public List<Listing> sortListings(List<Listing> listings, SortType sortType) {
+        if(sortType==null) sortType = SortType.NAME_A_Z;
         return switch (sortType) {
             case NAME_A_Z -> listings.stream()
                     .sorted(Comparator.comparing(l -> l.content().getType().name()))

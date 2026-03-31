@@ -1,3 +1,127 @@
+guis:
+# |=======================|
+# |   /ah - main Page GUI |
+# |=======================|
+  main_page:
+    title: "<dark_gray>Market - ur-server.de"
+    items:
+      arrow_left:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      settings:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      my_listings:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      create_listing:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      sort:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      search:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      arrow_right:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+  # |===========================================|
+  # |   /ah - create Listing GUI - select item  |
+  # |===========================================|
+  create_listing_1:
+    title: "<dark_gray>Create Listing - Select Item"
+    items:
+      cancel:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+  # |=====================================|
+  # |   /ah - create Listing GUI - price  |
+  # |=====================================|
+  create_listing_2:
+    lines:
+      1: "^^^^^^^^^^^^^^^"
+      2: "Set Price"
+      3: "_______________"
+  # |===============================================|
+  # |   /ah - create Listing GUI - preview listing  |
+  # |===============================================|
+  create_listing_3:
+    title: "<dark_gray>Create Listing - Confirm"
+    items:
+      confirm:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      cancel:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+
+  # |=============================|
+  # |   /ah - settings GUI  |
+  # |=============================|
+  settings:
+    title:
+  my_listings:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 messages:
   listings:
     title: "<reset><gray>Marktplatz"
@@ -129,6 +253,8 @@ settings:
 
 # by default the following languages are supported: en_us, de_de
   language: "en_us"
+# If categories are enabled the left row of the Auctionhouse UI will display the configured Categories as Items. If disabled the bottom row will include the categories button item and
+  categories: true
 
 
 
@@ -136,8 +262,16 @@ settings:
 economy:
   default_balance: 1000
 
-items:
+items1:
   buttons:
+    categories:
+      material: BOOKSHELF
+      amount: 1
+      display-name: "<gray>kategorien"
+      lore:
+        - ""
+      unbreakable: true
+      hide-flags: true
     insert:
     my_listings:
     prev_page:
@@ -177,5 +311,12 @@ items:
       unbreakable: true
       hide-flags: true
     home:
-    scroll_categories_down:
-    scroll_categories_up:
+    create_auction:
+      material: CRAFTING_TABLE
+      amount: 1
+      display-name: "<gray>Auktion erstellen"
+      lore:
+        - "<gray>LinksClick um"
+        - "<gray>eine Auktion zu erstellen"
+      unbreakable: true
+      hide-flags: true
