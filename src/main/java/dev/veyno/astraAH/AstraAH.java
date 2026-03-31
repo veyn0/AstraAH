@@ -30,6 +30,7 @@ TODO:
  - Exclude specific items, including being able to match names
  - save transaction history in transactions.yml and
  - add quick filter section at right side of screen based on the last 4 items that were purchased. click -> filter by material and lowest price automatically
+ - create custom filters per user
  */
 
 public final class AstraAH extends JavaPlugin {
