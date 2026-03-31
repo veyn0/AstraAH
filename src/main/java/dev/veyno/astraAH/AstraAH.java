@@ -30,7 +30,16 @@ TODO:
  - Exclude specific items, including being able to match names
  - save transaction history in transactions.yml and
  - add quick filter section at right side of screen based on the last 4 items that were purchased. click -> filter by material and lowest price automatically
- - create custom filters per user
+ - create custom filters per user, individual preferences such as default currency, category or sorting type
+ - multi currency support
+ - configurable fees/taxes e.g. base-fee + X% tax, both configurable if to pay upfront or not
+ - API
+ - Register plugin as independent economy provider if none present via vault
+ - Admin UI: transaction history, per player, stats e.g. total money made
+ - alerts: thresholds /h for money made, specific interactions and all time values.
+
+
+
  */
 
 public final class AstraAH extends JavaPlugin {

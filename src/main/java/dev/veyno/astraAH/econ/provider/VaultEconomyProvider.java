@@ -49,3 +49,5 @@ public class VaultEconomyProvider implements EconomyProvider {
         return economy.depositPlayer(player, value).transactionSuccess();
     }
 }
+
+
