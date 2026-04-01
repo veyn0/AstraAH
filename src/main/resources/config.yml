@@ -1,3 +1,4 @@
+
 guis:
 # |=======================|
 # |   /ah - main Page GUI |
@@ -20,10 +21,13 @@ guis:
         price_per_piece_h_l: "<gray>Price/piece High -> Low"
         price_per_piece_l_h: "<gray>Price/piece Low -> High"
     items:
-
-      # Supported placeholder:
+      # Supported placeholder: {ITEM_NAME}, {PRICE}
       listing:
-        name: ""
+        name: "{ITEM_NAME}"
+      lore_header:
+        - "<gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray>"
+        - "<gray>LinksKlick zum Kaufen"
+        - "<gray>RechtsKlick für Mehr Informationen"
       arrow_left:
         material: BARRIER
         amount: 1
@@ -174,7 +178,25 @@ guis:
           - "<gray>configure at AstrAH/config.yml"
   listing_info:
     title: "<dark_gray>Listing details"
+    show_seller_head: false
     items:
+      # seller_head and info support the following placeholders: {SELLER_NAME}, {BUYER_BALANCE}, {ITEM_PRICE}, {ITEM_NAME}, {ITEM_DISPLAY_NAME}, {ITEM_COUNT}, {PRICE_PER_PIECE}
+      seller_head:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      info:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+
+
       back:
         material: BARRIER
         amount: 1
@@ -189,43 +211,6 @@ guis:
 
 
 
-
-
-messages:
-  listings:
-    title: "<reset><gray>Marktplatz"
-    sort_item:
-      material: "HOPPER"
-      display_name: "<gray>Sortieren"
-      options:
-        enabled:
-          name_a_z: ""
-          name_z_a: ""
-          price_h_l: ""
-          price_l_h: ""
-          price_per_piece_h_l: ""
-          price_per_piece_l_h: ""
-        disabled:
-          name_a_z: ""
-          name_z_a: ""
-          price_h_l: ""
-          price_l_h: ""
-          price_per_piece_h_l: ""
-          price_per_piece_l_h: ""
-    item:
-      display_name: "<gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray><white>{ITEM_NAME}"
-      lore_header:
-        - "<gray>LinksKlick zum Kaufen"
-        - "<gray>RechtsKlick für Mehr Informationen"
-  listing_info:
-    # in listing_info the following placeholders are available: {SELLER_NAME}, {BUYER_BALANCE}, {ITEM_PRICE}, {ITEM_NAME}, {ITEM_DISPLAY_NAME}, {ITEM_COUNT}, {PRICE_PER_PIECE}
-    title: "<gray>Marktplatz - Informationen"
-    info_item:
-      title: "<gray>Informationen zum Angebot von <light_gray>{SELLER_NAME}"
-      lore:
-        - "<gray>Preis<dark_gray>:<light_gray> {ITEM_PRICE}$ <dark_gray>(<gray>{PRICE_PER_PIECE}$ pro Stück</gray>)"
-        - "<gray>Item<dark_gray>:<light_gray> {ITEM_NAME}"
-        - "gray>Stückzahl<dark_gray>:<light_gray> {ITEM_COUNT}"
 
 categories:
   filter0:
@@ -310,6 +295,11 @@ categories:
       - "*AXE*"
 
 settings:
+  gui:
+    default_layout:
+      categories_left: true
+      history_right: true
+
   economy:
     tax_percentage: 10
 #    supported economy providers at the time are:
