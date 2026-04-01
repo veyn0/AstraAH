@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.ah.configuration.config.guis;
+package dev.veyno.astraAH.ah.configuration.config.guis.main;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.Configurable;
@@ -17,8 +17,14 @@ public class MainPageGuiConfiguration extends Configurable {
     private ItemStack sortIcon;
     private ItemStack searchIcon;
 
+
+    private MainPageSortOptionsConfiguration mainpageSortOptionsConfiguration;
+
+
     public MainPageGuiConfiguration(AstraAH plugin, String path) {
         super(path, plugin);
+
+        mainpageSortOptionsConfiguration = new MainPageSortOptionsConfiguration(path + ".sort_options", plugin);
 
         title = getMessage("title");
 

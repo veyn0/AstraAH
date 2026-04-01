@@ -3,6 +3,7 @@ package dev.veyno.astraAH.ah.configuration.config;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.Configurable;
 import dev.veyno.astraAH.ah.configuration.config.guis.*;
+import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 
 public class ConfiguredGuis extends Configurable {
 

@@ -8,6 +8,7 @@ package dev.veyno.astraAH;
 //import de.leycm.i18label4j.source.FileSource;
 //import de.leycm.init4j.instance.Instanceable;
 import dev.veyno.astraAH.ah.AuctionHouse;
+import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
@@ -16,14 +17,7 @@ import dev.veyno.astraAH.storage.listings.provider.FileStorageProvider;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
-import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.net.URI;
-import java.util.Locale;
-import java.util.Map;
 
 /*
 
@@ -45,7 +39,10 @@ TODO:
 
 public final class AstraAH extends JavaPlugin {
 
-    private StorageProvider listingStorage;
+
+    private AstraAHConfiguration configuration;
+
+    private StorageProvider storageProvider;
 
     private UIController uiController;
 
@@ -62,11 +59,12 @@ public final class AstraAH extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        configuration = new AstraAHConfiguration(this);
         setupEconomy();
         setupCommands();
-        saveResource("lang/en_us.yml", false);
-        listingStorage = new FileStorageProvider(this);
-        auctionHouse = new AuctionHouse(this, listingStorage, economy);
+       // saveResource("lang/en_us.yml", false);
+        storageProvider = new FileStorageProvider(this);
+        auctionHouse = new AuctionHouse(this, storageProvider, economy);
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
@@ -113,8 +111,12 @@ public final class AstraAH extends JavaPlugin {
         return auctionHouse;
     }
 
-    public StorageProvider getListingStorage() {
-        return listingStorage;
+    public StorageProvider getStorageProvider() {
+        return storageProvider;
+    }
+
+    public AstraAHConfiguration getConfiguration() {
+        return configuration;
     }
 
     private void setupEconomy(){

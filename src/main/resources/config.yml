@@ -4,7 +4,26 @@ guis:
 # |=======================|
   main_page:
     title: "<dark_gray>Market - ur-server.de"
+    sort_options:
+      enabled:
+        name_a_z: "<blue>Name A -> Z"
+        name_z_a: "<blue>Name Z -> A"
+        price_h_l: "<blue>Price High -> Low"
+        price_l_h: "<blue>Price Low -> High"
+        price_per_piece_h_l: "<blue>Price/piece High -> Low"
+        price_per_piece_l_h: "<blue>Price/piece Low -> High"
+      disabled:
+        name_a_z: "<gray>Name A -> Z"
+        name_z_a: "<gray>Name Z -> A"
+        price_h_l: "<gray>Price High -> Low"
+        price_l_h: "<gray>Price Low -> High"
+        price_per_piece_h_l: "<gray>Price/piece High -> Low"
+        price_per_piece_l_h: "<gray>Price/piece Low -> High"
     items:
+
+      # Supported placeholder:
+      listing:
+        name: ""
       arrow_left:
         material: BARRIER
         amount: 1
@@ -37,9 +56,6 @@ guis:
         material: BARRIER
         amount: 1
         display-name: "<gray>Placeholder"
-        lore:
-          - "<gray>This isA Placeholder"
-          - "<gray>configure at AstrAH/config.yml"
       search:
         material: BARRIER
         amount: 1
@@ -54,9 +70,9 @@ guis:
         lore:
           - "<gray>This isA Placeholder"
           - "<gray>configure at AstrAH/config.yml"
-  # |===========================================|
+  # |============================================|
   # |   /ah -> create Listing GUI - select item  |
-  # |===========================================|
+  # |============================================|
   create_listing_1:
     title: "<dark_gray>Create Listing - Select Item"
     items:
@@ -166,14 +182,6 @@ guis:
         lore:
           - "<gray>This is a Placeholder"
           - "<gray>configure at AstrAH/config.yml"
-
-
-
-
-
-
-
-
 
 
 
