@@ -2,9 +2,9 @@ package dev.veyno.astraAH.storage.listings.provider;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.entity.Listing;
-import dev.veyno.astraAH.storage.listings.StorageProvider;
+import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
 import dev.veyno.astraAH.util.ItemStackUtil;
-import dev.veyno.astraAH.util.YamlStorage;
+import dev.veyno.astraAH.storage.YamlStorage;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class FileStorageProvider implements StorageProvider {
+public class FileAHListingsStorageProvider implements AHListingsStorageProvider {
 
     private final AstraAH plugin;
 
     private final YamlStorage storage;
 
-    public FileStorageProvider(AstraAH plugin) {
+    public FileAHListingsStorageProvider(AstraAH plugin) {
         this.plugin = plugin;
         this.storage = new YamlStorage(plugin, "data", true, 30);
     }

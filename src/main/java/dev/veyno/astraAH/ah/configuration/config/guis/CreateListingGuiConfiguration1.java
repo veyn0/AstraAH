@@ -7,9 +7,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class CreateListingGuiConfiguration1 extends Configurable {
 
-    private Component title;
+    private final Component title;
 
-    private ItemStack cancelIcon;
+    private final ItemStack cancelIcon;
 
 
     public CreateListingGuiConfiguration1(AstraAH plugin, String path) {
@@ -21,4 +21,11 @@ public class CreateListingGuiConfiguration1 extends Configurable {
 
     }
 
+    public Component getTitle() {
+        return title;
+    }
+
+    public ItemStack getCancelIcon() {
+        return cancelIcon.clone();
+    }
 }

@@ -7,11 +7,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerListingsGuiConfiguration extends Configurable {
 
-    private Component title ;
+    private final Component title ;
 
-    private ItemStack backIcon;
-    private ItemStack nextPageIcon;
-    private ItemStack previousPageIcon;
+    private final ItemStack backIcon;
+    private final ItemStack nextPageIcon;
+    private final ItemStack previousPageIcon;
 
     public PlayerListingsGuiConfiguration(String path, AstraAH plugin) {
         super(path, plugin);
@@ -22,5 +22,21 @@ public class PlayerListingsGuiConfiguration extends Configurable {
         this.nextPageIcon = getItem("next_page");
         this.previousPageIcon = getItem("previous_page");
 
+    }
+
+    public Component getTitle() {
+        return title;
+    }
+
+    public ItemStack getBackIcon() {
+        return backIcon.clone();
+    }
+
+    public ItemStack getNextPageIcon() {
+        return nextPageIcon.clone();
+    }
+
+    public ItemStack getPreviousPageIcon() {
+        return previousPageIcon.clone();
     }
 }

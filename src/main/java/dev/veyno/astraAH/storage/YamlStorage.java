@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.util;
+package dev.veyno.astraAH.storage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

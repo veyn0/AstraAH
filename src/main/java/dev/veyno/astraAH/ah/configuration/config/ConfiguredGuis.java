@@ -8,12 +8,13 @@ import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfigurat
 public class ConfiguredGuis extends Configurable {
 
 
-    private CreateListingGuiConfiguration1 createListingGuiConfiguration1;
-    private CreateListingGuiConfiguration2 createListingGuiConfiguration2;
-    private CreateListingGuiConfiguration3 createListingGuiConfiguration3;
-    private MainPageGuiConfiguration mainPageGuiConfiguration;
-    private PlayerListingsGuiConfiguration playerListingsGuiConfiguration;
-    private SettingsGuiConfiguration settingsGuiConfiguration;
+    private final CreateListingGuiConfiguration1 createListingGuiConfiguration1;
+    private final CreateListingGuiConfiguration2 createListingGuiConfiguration2;
+    private final CreateListingGuiConfiguration3 createListingGuiConfiguration3;
+    private final MainPageGuiConfiguration mainPageGuiConfiguration;
+    private final PlayerListingsGuiConfiguration playerListingsGuiConfiguration;
+    private final SettingsGuiConfiguration settingsGuiConfiguration;
+    private final ListingInfoGuiConfiguration listingInfoGuiConfiguration;
 
     public ConfiguredGuis(AstraAH plugin, String path) {
         super(path, plugin);
@@ -24,6 +25,7 @@ public class ConfiguredGuis extends Configurable {
         this.mainPageGuiConfiguration = new MainPageGuiConfiguration(plugin, path + ".main_page");
         this.playerListingsGuiConfiguration = new PlayerListingsGuiConfiguration(path + ".my_listings", plugin);
         this.settingsGuiConfiguration = new SettingsGuiConfiguration(path + ".settings", plugin);
+        this.listingInfoGuiConfiguration = new ListingInfoGuiConfiguration(plugin, path + ".listing_info");
 
     }
 
@@ -49,5 +51,9 @@ public class ConfiguredGuis extends Configurable {
 
     public SettingsGuiConfiguration getSettingsGuiConfiguration() {
         return settingsGuiConfiguration;
+    }
+
+    public ListingInfoGuiConfiguration getListingInfoGuiConfiguration() {
+        return listingInfoGuiConfiguration;
     }
 }

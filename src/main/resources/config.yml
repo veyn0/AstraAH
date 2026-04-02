@@ -195,8 +195,6 @@ guis:
         lore:
           - "<gray>This is a Placeholder"
           - "<gray>configure at AstrAH/config.yml"
-
-
       back:
         material: BARRIER
         amount: 1
@@ -204,13 +202,6 @@ guis:
         lore:
           - "<gray>This is a Placeholder"
           - "<gray>configure at AstrAH/config.yml"
-
-
-
-
-
-
-
 
 categories:
   filter0:
@@ -220,8 +211,6 @@ categories:
       display-name: "<gray>Filter Deaktivieren</gray>"
       lore:
         - "<gray>klicken um Filter zu deaktivieren"
-      unbreakable: true
-      hide-flags: true
     rules:
       - "**"
   filter1:
@@ -231,8 +220,6 @@ categories:
         display-name: "<gray>Baumaterialien</gray>"
         lore:
           - "<gray>klicken um Filter zu aktivieren"
-        unbreakable: true
-        hide-flags: true
       rules:
         - "*STONE*"
         - "*PICKAXE*"
@@ -246,8 +233,6 @@ categories:
       lore:
         - "<gray>Erste Zeile"
         - "<gray>Zweite Zeile"
-      unbreakable: true
-      hide-flags: true
     rules:
       - "*GOLD*"
       - "*IRON*"
@@ -260,19 +245,15 @@ categories:
       display-name: "<gray>Filter Deaktivieren</gray>"
       lore:
         - "<gray>klicken um Filter zu deaktivieren"
-      unbreakable: true
-      hide-flags: true
     rules:
       - "*"
   filter4:
     item:
       material: SANDSTONE
       amount: 1
-      display-name: "<gray>Baumaterialien</gray>"
+      display-name: "<gray>Baumaterialien2</gray>"
       lore:
         - "<gray>klicken um Filter zu aktivieren"
-      unbreakable: true
-      hide-flags: true
     rules:
       - "*STONE*"
       - "*PICKAXE*"
@@ -282,12 +263,10 @@ categories:
     item:
       material: STONE
       amount: 1
-      display-name: "<gold>Filter2</gold>"
+      display-name: "<gold>Filter4</gold>"
       lore:
         - "<gray>Erste Zeile"
         - "<gray>Zweite Zeile"
-      unbreakable: true
-      hide-flags: true
     rules:
       - "*GOLD*"
       - "*IRON*"

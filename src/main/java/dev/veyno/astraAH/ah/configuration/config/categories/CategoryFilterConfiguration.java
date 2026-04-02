@@ -3,6 +3,7 @@ package dev.veyno.astraAH.ah.configuration.config.categories;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.Configurable;
 import dev.veyno.astraAH.entity.ListingsFilter;
+import dev.veyno.astraAH.util.ItemStackParser;
 import dev.veyno.astraAH.util.MaterialPatternParser;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -20,9 +21,7 @@ public class CategoryFilterConfiguration extends Configurable {
         super(path, plugin);
 
         this.id = id;
-        this.previewItem = getPlugin().getConfig().getItemStack(resolvePath("item")) != null
-                ? getPlugin().getConfig().getItemStack(resolvePath("item"))
-                : null;
+        this.previewItem = ItemStackParser.parseSection(getSection("item"), plugin);
         this.rules = List.copyOf(getStringList("rules"));
         this.materials = List.copyOf(MaterialPatternParser.parse(rules));
     }
@@ -32,7 +31,7 @@ public class CategoryFilterConfiguration extends Configurable {
     }
 
     public ItemStack getPreviewItem() {
-        return previewItem == null ? null : previewItem.clone();
+        return previewItem.clone();
     }
 
     public List<String> getRules() {

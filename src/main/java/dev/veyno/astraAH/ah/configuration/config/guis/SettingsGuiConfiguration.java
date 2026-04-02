@@ -7,12 +7,12 @@ import org.bukkit.inventory.ItemStack;
 
 public class SettingsGuiConfiguration extends Configurable {
 
-    private Component title;
+    private final Component title;
 
-    private ItemStack categoryToggleIcon;
-    private ItemStack historyToggleIcon;
-    private ItemStack defaultFilterIcon;
-    private ItemStack defaultCategoryIcon;
+    private final ItemStack categoryToggleIcon;
+    private final ItemStack historyToggleIcon;
+    private final ItemStack defaultFilterIcon;
+    private final ItemStack defaultCategoryIcon;
 
 
 
@@ -26,5 +26,25 @@ public class SettingsGuiConfiguration extends Configurable {
         this.defaultFilterIcon = getItem("default_filter");
         this.defaultCategoryIcon = getItem("default_category");
 
+    }
+
+    public Component getTitle() {
+        return title;
+    }
+
+    public ItemStack getCategoryToggleIcon() {
+        return categoryToggleIcon.clone();
+    }
+
+    public ItemStack getHistoryToggleIcon() {
+        return historyToggleIcon.clone();
+    }
+
+    public ItemStack getDefaultFilterIcon() {
+        return defaultFilterIcon.clone();
+    }
+
+    public ItemStack getDefaultCategoryIcon() {
+        return defaultCategoryIcon.clone();
     }
 }

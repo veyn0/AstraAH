@@ -1,19 +1,18 @@
 package dev.veyno.astraAH.ui;
 
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.SortType;
+import dev.veyno.astraAH.ah.configuration.config.guis.ListingInfoGuiConfiguration;
+import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.ListingsFilter;
 import dev.veyno.astraAH.util.ClickableInventory;
-import dev.veyno.astraAH.util.ItemStackParser;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,44 +22,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UIController {
 
-//    private Map<UUID, UIState> playerUiStates = new HashMap<>();
-
     private Map<UUID, Listing> pendingCreations = new ConcurrentHashMap<>();
 
     private final AstraAH plugin;
 
-    private final Component AH_LISTINGS_TITLE;
-
-    private final String LISTING_DISPLAY_NAME_UNRESOLVED;
-
-    private final Component LISTING_DETAILS_TITLE;
-
-    private final List<Component> LISTING_LORE_HEADER;
-
-    private final List<ListingsFilter> filters;
-
     public UIController(AstraAH plugin) {
         this.plugin = plugin;
-        FileConfiguration configuration = plugin.getConfig();
-        this.AH_LISTINGS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listings.title", "<red>Error 404. Content Not Found")).decoration(TextDecoration.ITALIC, false);
-        this.LISTING_DISPLAY_NAME_UNRESOLVED = configuration.getString("messages.listings.item.display_name", "<red>Error 404. Content Not Found");
-        List<Component> loreHeaders = new ArrayList<>();
-        for(String s : configuration.getStringList("messages.listings.item.lore_header")){
-            loreHeaders.add(MiniMessage.miniMessage().deserialize(s).decoration(TextDecoration.ITALIC, false));
-        }
-        LISTING_LORE_HEADER = loreHeaders;
-        LISTING_DETAILS_TITLE = MiniMessage.miniMessage().deserialize(configuration.getString("messages.listing_info.title", "<red>Error 404. Content Not Found")).decoration(TextDecoration.ITALIC, false);
-        filters = getFilter();
     }
 
     public void onOpenAHUI(Player p){
-//        if(playerUiStates.get(p.getUniqueId())==null||!(playerUiStates.get(p.getUniqueId())==UIState.CLOSED||playerUiStates.get(p.getUniqueId())==UIState.CLOSED)){
-//            plugin.getErrorHandler().onIllegalInventoryView(p);
-//            return;
-//        }
-
         openMainPage(p, null, SortType.NAME_A_Z, false, false);
-
     }
 
     //TODO: move filter, sorting and history/filter option to DTO object
@@ -68,11 +39,7 @@ public class UIController {
     private void openMainPage(Player p, List<Material> filter, SortType sortType, boolean advancedFilter, boolean quickHistory){
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
 
-        //Center: available listings
-
         ClickableInventory.InventoryRegion centerContent = createListingsSection(p, filter, sortType, inventory, advancedFilter, quickHistory);
-
-        //Left side: categories
 
         if(advancedFilter) {
             ClickableInventory.InventoryRegion leftContent = createCategorySection(p, inventory);
@@ -82,8 +49,6 @@ public class UIController {
 
 
 
-
-        //Bottom: navigation + insert + filter
 
         ClickableInventory.InventoryRegion bottomContent = createNavbarSection(p, inventory, advancedFilter, quickHistory, centerContent);
 
@@ -96,12 +61,12 @@ public class UIController {
         ClickableInventory.InventoryRegion leftContent = inventory.createRegion("left", new ClickableInventory.LayoutSide(true));
         leftContent.setStaticItem(
                 0,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_category"), plugin), action -> {
+                mainPageGuiConfiguration.getNavigationArrowLeft(), action -> {
                     leftContent.scrollByAndRefresh(-1);
                 });
         leftContent.setStaticItem(
                 5,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_category"), plugin), action -> {
+                mainPageGuiConfiguration.getNavigationArrowRight(), action -> {
                     leftContent.scrollByAndRefresh(1);
                 });
 
@@ -121,13 +86,13 @@ public class UIController {
 
         rightContent.setStaticItem(
                 0,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_category"), plugin), action -> {
+                mainPageGuiConfiguration.getNavigationArrowLeft(), action -> {
                     rightContent.scrollByAndRefresh(-1);
                 });
 
         rightContent.setStaticItem(
                 5,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_category"), plugin), action -> {
+                mainPageGuiConfiguration.getNavigationArrowRight(), action -> {
                     rightContent.scrollByAndRefresh(1);
                 });
 
@@ -139,7 +104,7 @@ public class UIController {
         ClickableInventory.InventoryRegion bottomContent = inventory.createRegionFromCoords("bottom", advancedFilter ? 1 : 0, 5, quickHistory? 7 : 8, 5);
         bottomContent.setItem(
                 0,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.prev_page"), plugin),
+                mainPageGuiConfiguration.getNavigationArrowLeft(),
                 action ->{
                     centerContent.previousPageAndRefresh();
                 }
@@ -150,7 +115,7 @@ public class UIController {
         if(quickHistory) indexArrow--;
         bottomContent.setItem(
                 indexArrow,
-                ItemStackParser.parseSection(plugin.getConfig().getConfigurationSection("items.buttons.next_page"), plugin),
+                mainPageGuiConfiguration.getNavigationArrowRight(),
                 action ->{
                     centerContent.nextPageAndRefresh();
                 }
@@ -219,9 +184,14 @@ public class UIController {
         ItemStack result = l.content().clone();
         ItemMeta meta = result.getItemMeta();
         String itemName = PlainTextComponentSerializer.plainText().serialize(l.content().displayName());
-        meta.customName(MiniMessage.miniMessage().deserialize(LISTING_DISPLAY_NAME_UNRESOLVED.replace("{PRICE}", NumberFormat.formatGerman(l.price())).replace("{ITEM_NAME}", itemName)).decoration(TextDecoration.ITALIC, false));
+        meta.customName(MiniMessage.miniMessage().deserialize(LISTING_DISPLAY_NAME_TEMPLATE.replace("{PRICE}", NumberFormat.formatGerman(l.price())).replace("{ITEM_NAME}", itemName)).decoration(TextDecoration.ITALIC, false));
         List<Component> lore = new ArrayList<>();
-        lore.addAll(LISTING_LORE_HEADER);
+        for (String line : LISTING_LORE_HEADER_TEMPLATES) {
+            String resolvedLine = line
+                    .replace("{PRICE}", NumberFormat.formatGerman(l.price()))
+                    .replace("{ITEM_NAME}", itemName);
+            lore.add(MiniMessage.miniMessage().deserialize(resolvedLine).decoration(TextDecoration.ITALIC, false));
+        }
         meta.lore(lore);
         result.setItemMeta(meta);
         return result;
@@ -269,61 +239,6 @@ public class UIController {
 
         return listings;
     }
-
-
-
-    private List<ListingsFilter> getFilter(){
-        List<ListingsFilter> result = new ArrayList<>();
-        FileConfiguration config = plugin.getConfig();
-        for(String s : config.getConfigurationSection("categories").getKeys(false)){
-            String path = "categories." + s;
-            ItemStack item = ItemStackParser.parseSection(config.getConfigurationSection(path+".item"), plugin);
-            List<Material> materials = parseMaterialPatterns(config.getStringList(path+".rules"));
-            result.add(new ListingsFilter(materials, item));
-        }
-        return result;
-    }
-
-
-
-    public static List<Material> parseMaterialPatterns(List<String> patterns) {
-        List<Material> result = new ArrayList<>();
-
-        for (String pattern : patterns) {
-            if (pattern == null || pattern.isBlank()) continue;
-
-            String upper = pattern.toUpperCase();
-
-            String core;
-
-            if(upper.equalsIgnoreCase("*")||upper.equalsIgnoreCase("**")){
-                return List.of(Material.values());
-            }
-            boolean startWild = upper.startsWith("*");
-            boolean endWild = upper.endsWith("*");
-            core = upper
-                    .substring(startWild ? 1 : 0, endWild ? upper.length() - 1 : upper.length());
-            if (startWild && endWild) {
-                for (Material m : Material.values())
-                    if (m.name().contains(core)) result.add(m);
-
-            } else if (startWild) {
-                for (Material m : Material.values())
-                    if (m.name().endsWith(core)) result.add(m);
-
-            } else if (endWild) {
-                for (Material m : Material.values())
-                    if (m.name().startsWith(core)) result.add(m);
-
-            } else {
-                Material exact = Material.matchMaterial(upper);
-                if (exact != null) result.add(exact);
-            }
-        }
-
-        return result;
-    }
-
     public List<Listing> sortListings(List<Listing> listings, SortType sortType) {
         if(sortType==null) sortType = SortType.NAME_A_Z;
         return switch (sortType) {
