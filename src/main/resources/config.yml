@@ -289,7 +289,7 @@ settings:
 #    keep in mind that the built in economy is not compatible with other plugins and is intended for small servers where the Auctionhouse is the only way players interact with money
     provider: "auto"
   storage:
-#   Available Storage providers are: "file", "database"
+#   Available Storage providers are: "file"
     provider: "file"
     jdbc: ""
 

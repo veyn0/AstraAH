@@ -37,7 +37,10 @@ public class UIController {
     //TODO: move filter, sorting and history/filter option to DTO object
 
     private void openMainPage(Player p, List<Material> filter, SortType sortType, boolean advancedFilter, boolean quickHistory){
-        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), AH_LISTINGS_TITLE, p);
+
+        MainPageGuiConfiguration mainPageGuiConfiguration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
+
+        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
 
         ClickableInventory.InventoryRegion centerContent = createListingsSection(p, filter, sortType, inventory, advancedFilter, quickHistory);
 
@@ -57,7 +60,7 @@ public class UIController {
 
     }
 
-    private ClickableInventory.InventoryRegion createCategorySection(Player p, ClickableInventory inventory) {
+    private ClickableInventory.InventoryRegion createCategorySection(Player p, ClickableInventory inventory, MainPageGuiConfiguration mainPageGuiConfiguration) {
         ClickableInventory.InventoryRegion leftContent = inventory.createRegion("left", new ClickableInventory.LayoutSide(true));
         leftContent.setStaticItem(
                 0,
@@ -70,7 +73,7 @@ public class UIController {
                     leftContent.scrollByAndRefresh(1);
                 });
 
-        for(ListingsFilter f : filters){
+        for(ListingsFilter f : plugin.getConfiguration().getConfiguredCategories().getListingsFilters()){
             leftContent.addItem(
                     f.preview(),
                     action ->{

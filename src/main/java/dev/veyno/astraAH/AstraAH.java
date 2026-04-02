@@ -38,7 +38,6 @@ TODO:
  - alerts: thresholds /h for money made, specific interactions and all time values.
  - add customizable filters: when joining initially player filters will be set to the default filters and they can edit them afterwards
 
-
  */
 
 public final class AstraAH extends JavaPlugin {
