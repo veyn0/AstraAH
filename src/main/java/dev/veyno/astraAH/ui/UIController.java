@@ -45,7 +45,7 @@ public class UIController {
         ClickableInventory.InventoryRegion centerContent = createListingsSection(p, filter, sortType, inventory, advancedFilter, quickHistory);
 
         if(advancedFilter) {
-            ClickableInventory.InventoryRegion leftContent = createCategorySection(p, inventory);
+            ClickableInventory.InventoryRegion leftContent = createCategorySection(p, inventory, mainPageGuiConfiguration);
         }
 
         //Right side: last bought items
@@ -53,7 +53,7 @@ public class UIController {
 
 
 
-        ClickableInventory.InventoryRegion bottomContent = createNavbarSection(p, inventory, advancedFilter, quickHistory, centerContent);
+        ClickableInventory.InventoryRegion bottomContent = createNavbarSection(p, inventory, advancedFilter, quickHistory, centerContent, mainPageGuiConfiguration);
 
 
         inventory.open();
@@ -84,7 +84,7 @@ public class UIController {
         return leftContent;
     }
 
-    private ClickableInventory.InventoryRegion createTransactionHistorySection(Player p, ClickableInventory inventory, boolean advancedFilter, boolean quickHistory, ClickableInventory.InventoryRegion centerContent) {
+    private ClickableInventory.InventoryRegion createTransactionHistorySection(Player p, ClickableInventory inventory, boolean advancedFilter, boolean quickHistory, ClickableInventory.InventoryRegion centerContent , MainPageGuiConfiguration mainPageGuiConfiguration) {
         ClickableInventory.InventoryRegion rightContent = inventory.createRegionFromCoords("right", 8,0,8,5);
 
         rightContent.setStaticItem(
@@ -102,7 +102,7 @@ public class UIController {
         return rightContent;
     }
 
-    private ClickableInventory.InventoryRegion createNavbarSection(Player p, ClickableInventory inventory, boolean advancedFilter, boolean quickHistory, ClickableInventory.InventoryRegion centerContent) {
+    private ClickableInventory.InventoryRegion createNavbarSection(Player p, ClickableInventory inventory, boolean advancedFilter, boolean quickHistory, ClickableInventory.InventoryRegion centerContent, MainPageGuiConfiguration mainPageGuiConfiguration) {
 
         ClickableInventory.InventoryRegion bottomContent = inventory.createRegionFromCoords("bottom", advancedFilter ? 1 : 0, 5, quickHistory? 7 : 8, 5);
         bottomContent.setItem(
@@ -169,7 +169,8 @@ public class UIController {
     }
 
     private void openListingInfo(Player p, Listing l){
-        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), LISTING_DETAILS_TITLE, p );
+        ListingInfoGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getListingInfoGuiConfiguration();
+        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), p );
 
 
         //TODO
