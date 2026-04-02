@@ -6,6 +6,7 @@ import dev.veyno.astraAH.ah.configuration.config.guis.ListingInfoGuiConfiguratio
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.ListingsFilter;
+import dev.veyno.astraAH.entity.ui.UILayoutState;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
@@ -22,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UIController {
 
+    private Map<UUID, UILayoutState> playerUIStates = new ConcurrentHashMap<>();
+
     private Map<UUID, Listing> pendingCreations = new ConcurrentHashMap<>();
 
     private final AstraAH plugin;
@@ -36,7 +39,7 @@ public class UIController {
 
     //TODO: move filter, sorting and history/filter option to DTO object
 
-    private void openMainPage(Player p, List<Material> filter, SortType sortType, boolean advancedFilter, boolean quickHistory){
+    private void openMainPage(Player p, UILayoutState uiLayoutState){
 
         MainPageGuiConfiguration mainPageGuiConfiguration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
 
@@ -135,7 +138,6 @@ public class UIController {
         int toX = quickHistory ? 7 : 8;
         int toY = 4;
 
-
         List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), sortType);
 
         ClickableInventory.InventoryRegion centerContent = inventory.createRegionFromCoords("center", fromX, fromY, toX, toY);
@@ -150,7 +152,6 @@ public class UIController {
                 }
             });
         }
-
 
         return centerContent;
     }
@@ -243,6 +244,7 @@ public class UIController {
 
         return listings;
     }
+
     public List<Listing> sortListings(List<Listing> listings, SortType sortType) {
         if(sortType==null) sortType = SortType.NAME_A_Z;
         return switch (sortType) {
