@@ -17,12 +17,9 @@ public class MainPage implements Page{
 
     private final AstraAH plugin;
 
-
     public MainPage(AstraAH plugin) {
         this.plugin = plugin;
     }
-
-
 
     @Override
     public void open(Player p, PageLayoutState state, Page previousPage) {
@@ -31,8 +28,6 @@ public class MainPage implements Page{
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
 
         ClickableInventory.InventoryRegion centerContent = buildCenterContent(p, state);
-
-
     }
 
     @Override
@@ -48,7 +43,7 @@ public class MainPage implements Page{
 
         int page = layoutState.getListingsPageIndex();
 
-        List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), );
+        List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), layoutState.getSortType());
 
         return null;
     }

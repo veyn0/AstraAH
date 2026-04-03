@@ -3,9 +3,12 @@ package dev.veyno.astraAH.ah;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
+import dev.veyno.astraAH.entity.AllowedPlayerActions;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.PlayerPreferences;
 import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
+import dev.veyno.astraAH.entity.PreferencesPlayerActions;
+import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
 import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
@@ -25,23 +28,27 @@ public class AuctionHouse {
     private final AHListingsStorageProvider storage;
     private final AHPlayerPreferencesStorageProvider preferencesStorage;
     private final AHTransactionHistoryStorageProvider transactionHistoryStorage;
+    private final AHPlayerActionsStorageProvider playerActionsStorage;
     private final EconomyProvider economy;
 
     private volatile Map<UUID, Listing> listings = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerPreferences> preferences = new ConcurrentHashMap<>();
     private final Map<UUID, List<AHTransactionHistoryEntry>> transactionHistory = new ConcurrentHashMap<>();
+    private final Map<UUID, AllowedPlayerActions> allowedPlayerActions = new ConcurrentHashMap<>();
 
     public AuctionHouse(
             AstraAH plugin,
             AHListingsStorageProvider storage,
             AHPlayerPreferencesStorageProvider preferencesStorage,
             AHTransactionHistoryStorageProvider transactionHistoryStorage,
+            AHPlayerActionsStorageProvider playerActionsStorage,
             EconomyProvider economy
     ) {
         this.plugin = plugin;
         this.storage = storage;
         this.preferencesStorage = preferencesStorage;
         this.transactionHistoryStorage = transactionHistoryStorage;
+        this.playerActionsStorage = playerActionsStorage;
         this.economy = economy;
         startCacheRefreshSchedule();
     }
@@ -118,6 +125,24 @@ public class AuctionHouse {
         }
     }
 
+    public AllowedPlayerActions getAllowedPlayerActionsBlocking(UUID playerId) {
+        synchronized (IDLocks.getLock(playerId)) {
+            AllowedPlayerActions cachedActions = allowedPlayerActions.get(playerId);
+            if (cachedActions != null) {
+                return cachedActions;
+            }
+            return onAllowedPlayerActionsUpdateBlocking(playerId);
+        }
+    }
+
+    public void setAllowedPlayerActionsBlocking(UUID playerId, AllowedPlayerActions playerActions) {
+        synchronized (IDLocks.getLock(playerId)) {
+            AllowedPlayerActions normalizedActions = normalizeAllowedPlayerActions(playerId, playerActions);
+            playerActionsStorage.saveAllowedActions(normalizedActions);
+            allowedPlayerActions.put(playerId, normalizedActions);
+        }
+    }
+
     public boolean isListingAvailableBlocking(UUID listingId){
         synchronized (IDLocks.getLock(listingId)){
             return storage.getListing(listingId) != null;
@@ -190,6 +215,17 @@ public class AuctionHouse {
         }
     }
 
+    public AllowedPlayerActions onAllowedPlayerActionsUpdateBlocking(UUID playerId) {
+        synchronized (IDLocks.getLock(playerId)) {
+            AllowedPlayerActions result = playerActionsStorage.getAllowedActions(playerId);
+            if (result == null) {
+                result = createDefaultAllowedPlayerActions(playerId);
+            }
+            allowedPlayerActions.put(playerId, result);
+            return result;
+        }
+    }
+
     private void startCacheRefreshSchedule(){
         Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task -> {
             refreshCache();
@@ -201,6 +237,7 @@ public class AuctionHouse {
             refreshListingsCache();
             refreshPreferencesCache();
             refreshTransactionHistoryCache();
+            refreshAllowedPlayerActionsCache();
         } catch (Exception e){
             plugin.getLogger().severe("Failed to refresh AuctionHouse caches: " + e.getMessage());
             e.printStackTrace();
@@ -232,12 +269,23 @@ public class AuctionHouse {
         }
     }
 
+    private void refreshAllowedPlayerActionsCache() {
+        for (UUID playerId : new ArrayList<>(allowedPlayerActions.keySet())) {
+            AllowedPlayerActions refreshedActions = playerActionsStorage.getAllowedActions(playerId);
+            allowedPlayerActions.put(playerId, refreshedActions == null ? createDefaultAllowedPlayerActions(playerId) : refreshedActions);
+        }
+    }
+
     private void removeListingFromCache(UUID listingId) {
         listings.remove(listingId);
     }
 
     private PlayerPreferences createDefaultPreferences(UUID playerId) {
         return new PlayerPreferences(playerId);
+    }
+
+    private AllowedPlayerActions createDefaultAllowedPlayerActions(UUID playerId) {
+        return new AllowedPlayerActions(playerId);
     }
 
     private PlayerPreferences normalizePreferences(UUID playerId, PlayerPreferences playerPreferences) {
@@ -249,6 +297,38 @@ public class AuctionHouse {
                 playerPreferences.categoryEntries(),
                 playerPreferences.showCategories(),
                 playerPreferences.showHistory()
+        );
+    }
+
+    private AllowedPlayerActions normalizeAllowedPlayerActions(UUID playerId, AllowedPlayerActions playerActions) {
+        if (playerActions == null) {
+            return createDefaultAllowedPlayerActions(playerId);
+        }
+
+        return new AllowedPlayerActions(
+                playerId,
+                normalizePreferencesPlayerActions(playerActions.getPreferencesPlayerActions()),
+                playerActions.getCategories(),
+                playerActions.getSettings(),
+                playerActions.getMyListings(),
+                playerActions.getRefresh(),
+                playerActions.getSort(),
+                playerActions.getSearch(),
+                playerActions.getHistory()
+        );
+    }
+
+    private PreferencesPlayerActions normalizePreferencesPlayerActions(PreferencesPlayerActions playerActions) {
+        if (playerActions == null) {
+            return new PreferencesPlayerActions();
+        }
+
+        return new PreferencesPlayerActions(
+                playerActions.getShowAdvancedCategories(),
+                playerActions.getShowAdvancedHistory(),
+                playerActions.getReloadOnOpen(),
+                playerActions.getDefaultFilter(),
+                playerActions.getDefaultSort()
         );
     }
 

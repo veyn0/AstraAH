@@ -12,6 +12,8 @@ import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
+import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
+import dev.veyno.astraAH.storage.actions.provider.FileAHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.storage.history.provider.FileAHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
@@ -48,6 +50,7 @@ public final class AstraAH extends JavaPlugin {
     private AHListingsStorageProvider storageProvider;
     private AHPlayerPreferencesStorageProvider playerPreferencesStorageProvider;
     private AHTransactionHistoryStorageProvider transactionHistoryStorageProvider;
+    private AHPlayerActionsStorageProvider playerActionsStorageProvider;
 
     private UIController uiController;
 
@@ -71,7 +74,15 @@ public final class AstraAH extends JavaPlugin {
         storageProvider = new FileAHListingsStorageProvider(this);
         playerPreferencesStorageProvider = new FileAHPlayerPreferencesStorageProvider(this);
         transactionHistoryStorageProvider = new FileAHTransactionHistoryStorageProvider(this);
-        auctionHouse = new AuctionHouse(this, storageProvider, playerPreferencesStorageProvider, transactionHistoryStorageProvider, economy);
+        playerActionsStorageProvider = new FileAHPlayerActionsStorageProvider(this);
+        auctionHouse = new AuctionHouse(
+                this,
+                storageProvider,
+                playerPreferencesStorageProvider,
+                transactionHistoryStorageProvider,
+                playerActionsStorageProvider,
+                economy
+        );
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
         uiController = new UIController(this);
@@ -128,6 +139,10 @@ public final class AstraAH extends JavaPlugin {
 
     public AHTransactionHistoryStorageProvider getTransactionHistoryStorageProvider() {
         return transactionHistoryStorageProvider;
+    }
+
+    public AHPlayerActionsStorageProvider getPlayerActionsStorageProvider() {
+        return playerActionsStorageProvider;
     }
 
     public AstraAHConfiguration getConfiguration() {
