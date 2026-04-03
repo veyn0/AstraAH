@@ -274,10 +274,38 @@ categories:
       - "*AXE*"
 
 settings:
-  gui:
-    default_layout:
-      categories_left: true
-      history_right: true
+  # here you can decide how much players can customize their UI layout and what actions they are allowed to do.
+  # if a preference is disabled it will allways be the default value.
+  # Disabled actions will not appear as buttons on the inventory pages.
+  # you can set the values to "permission", "true" or "false" to set default values for players.
+  # To change these values for individual players visit the ingame admin UI. Changes made in the ingame UI will always Overwrite defaults.
+  actions:
+    manage_preferences:
+      show_advanced_categories: true
+      show_advanced_history: true
+      reload_on_open: true
+      default_filter: true
+      default_sort: true
+    categories: true
+
+
+
+  # The default settings for new players. if not disabled under xx.xx players will be able to change these settings at any time themself.
+  defaults:
+    # should players always see their default settings or get to the last screen they opened when entering the /ah command
+    # if set to true when opening the auctionhouse a player will allways see the first page and their default filter/category when opening the menu
+    # when set to false players will be brought back to their last viewed page when opening the menu to e.g. continue selling an item.
+    reload_on_open: false
+    # The setting "advanced categories" will change how the UI is structured.
+    # If set to true by default players will find all configured categories scrollable in the left row of the page, with the bottom and top item beeing the configured scroll item .
+    # if set to false players will see the configured categories Item which allows them to cycle through categories by lef/right clicking.
+    show_advanced_categories: true
+    # The setting "advanced_history" will change ho the UI is structured.
+    # If set to true by default players will find a scrollable list of their last purchased items on the right side of the main page.
+    # By left clicking they can set their Filters to match the item and auto sort by cheapest price.
+    # if set to false players will see the configured history Item on the bottom of the page which allows the to cycle through the options by left/right clicking.
+    show_advanced_history: true
+
 
   economy:
     tax_percentage: 10

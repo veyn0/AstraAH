@@ -6,7 +6,7 @@ import dev.veyno.astraAH.ah.configuration.config.guis.ListingInfoGuiConfiguratio
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.ListingsFilter;
-import dev.veyno.astraAH.entity.ui.UILayoutState;
+import dev.veyno.astraAH.entity.ui.PageLayoutState;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UIController {
 
-    private Map<UUID, UILayoutState> playerUIStates = new ConcurrentHashMap<>();
+    private Map<UUID, PageLayoutState> playerUIStates = new ConcurrentHashMap<>();
 
     private Map<UUID, Listing> pendingCreations = new ConcurrentHashMap<>();
 
@@ -37,9 +37,7 @@ public class UIController {
         openMainPage(p, null, SortType.NAME_A_Z, false, false);
     }
 
-    //TODO: move filter, sorting and history/filter option to DTO object
-
-    private void openMainPage(Player p, UILayoutState uiLayoutState){
+    private void openMainPage(Player p, PageLayoutState uiLayoutState){
 
         MainPageGuiConfiguration mainPageGuiConfiguration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
 

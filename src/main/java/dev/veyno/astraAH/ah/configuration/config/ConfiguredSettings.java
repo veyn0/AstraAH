@@ -2,13 +2,15 @@ package dev.veyno.astraAH.ah.configuration.config;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.Configurable;
-import dev.veyno.astraAH.ah.configuration.config.settings.GuiSettingsConfiguration;
+import dev.veyno.astraAH.ah.configuration.config.settings.SettingsActionsConfiguration;
+import dev.veyno.astraAH.ah.configuration.config.settings.SettingsDefaultsConfiguration;
 import dev.veyno.astraAH.ah.configuration.config.settings.SettingsEconomyConfiguration;
 import dev.veyno.astraAH.ah.configuration.config.settings.StorageSettingsConfiguration;
 
 public class ConfiguredSettings extends Configurable {
 
-    private final GuiSettingsConfiguration guiSettingsConfiguration;
+    private final SettingsActionsConfiguration actionsConfiguration;
+    private final SettingsDefaultsConfiguration defaultsConfiguration;
     private final SettingsEconomyConfiguration economySettingsConfiguration;
     private final StorageSettingsConfiguration storageSettingsConfiguration;
     private final String language;
@@ -17,15 +19,20 @@ public class ConfiguredSettings extends Configurable {
     public ConfiguredSettings(AstraAH plugin, String path) {
         super(path, plugin);
 
-        this.guiSettingsConfiguration = new GuiSettingsConfiguration(getPlugin(), resolvePath("gui"));
+        this.actionsConfiguration = new SettingsActionsConfiguration(getPlugin(), resolvePath("actions"));
+        this.defaultsConfiguration = new SettingsDefaultsConfiguration(getPlugin(), resolvePath("defaults"));
         this.economySettingsConfiguration = new SettingsEconomyConfiguration(getPlugin(), resolvePath("economy"));
         this.storageSettingsConfiguration = new StorageSettingsConfiguration(getPlugin(), resolvePath("storage"));
         this.language = getString("language", "en_us");
         this.categoriesEnabled = getBoolean("categories", true);
     }
 
-    public GuiSettingsConfiguration getGuiSettingsConfiguration() {
-        return guiSettingsConfiguration;
+    public SettingsActionsConfiguration getActionsConfiguration() {
+        return actionsConfiguration;
+    }
+
+    public SettingsDefaultsConfiguration getDefaultsConfiguration() {
+        return defaultsConfiguration;
     }
 
     public SettingsEconomyConfiguration getEconomySettingsConfiguration() {

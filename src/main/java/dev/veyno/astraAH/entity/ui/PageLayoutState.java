@@ -3,9 +3,10 @@ package dev.veyno.astraAH.entity.ui;
 import dev.veyno.astraAH.ah.SortType;
 import org.bukkit.Material;
 
+import java.sql.ClientInfoStatus;
 import java.util.List;
 
-public class UILayoutState {
+public class PageLayoutState {
     private boolean showAdvancedCategories;
     private boolean showAdvancedHistory;
     private SortType sortType;
@@ -13,14 +14,16 @@ public class UILayoutState {
 
     private int categoryScrollIndex;
     private int historyScrollIndex;
+    private int listingsPageIndex;
 
-    public UILayoutState(boolean showAdvancedCategories, boolean showAdvancedHistory, SortType sortType, List<Material> filter, int categoryScrollIndex, int historyScrollIndex) {
+    public PageLayoutState(boolean showAdvancedCategories, boolean showAdvancedHistory, SortType sortType, List<Material> filter, int categoryScrollIndex, int historyScrollIndex, int listingsPageIndex) {
         this.showAdvancedCategories = showAdvancedCategories;
         this.showAdvancedHistory = showAdvancedHistory;
         this.sortType = sortType;
         this.filter = filter;
         this.categoryScrollIndex = categoryScrollIndex;
         this.historyScrollIndex = historyScrollIndex;
+        this .listingsPageIndex = listingsPageIndex;
     }
 
     public int getCategoryScrollIndex() {
@@ -45,5 +48,9 @@ public class UILayoutState {
 
     public List<Material> getFilter() {
         return filter;
+    }
+
+    public int getListingsPageIndex() {
+        return listingsPageIndex;
     }
 }
