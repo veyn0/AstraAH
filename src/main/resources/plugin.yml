@@ -11,3 +11,20 @@ softdepend:
 
 commands:
   market:
+
+permissions:
+  astraah:
+    actions:
+      sub_setting:
+        showadvancedcategories:
+        showadvancedhistory:
+        reloadonopen:
+        defaultfilter:
+        defaultsort:
+      categories:
+      settings:
+      my_listings:
+      refresh:
+      sort:
+      search:
+      history:

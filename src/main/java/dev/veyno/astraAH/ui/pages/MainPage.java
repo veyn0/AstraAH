@@ -1,11 +1,12 @@
-package dev.veyno.astraAH.ui;
+package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.SortType;
-import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.ui.PageLayoutState;
+import dev.veyno.astraAH.ui.Page;
+import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -13,12 +14,15 @@ import org.bukkit.entity.Player;
 import java.util.Comparator;
 import java.util.List;
 
-public class MainPage implements Page{
+public class MainPage implements Page {
 
     private final AstraAH plugin;
 
-    public MainPage(AstraAH plugin) {
+    private final PageController pageController;
+
+    public MainPage(AstraAH plugin, PageController pageController) {
         this.plugin = plugin;
+        this.pageController = pageController;
     }
 
     @Override
