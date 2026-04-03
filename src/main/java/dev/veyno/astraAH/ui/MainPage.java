@@ -30,7 +30,8 @@ public class MainPage implements Page{
 
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
 
-        ClickableInventory.InventoryRegion centerContent =
+        ClickableInventory.InventoryRegion centerContent = buildCenterContent(p, state);
+
 
     }
 
@@ -49,7 +50,7 @@ public class MainPage implements Page{
 
         List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), );
 
-
+        return null;
     }
 
     public List<Listing> sortListings(List<Listing> listings, SortType sortType) {

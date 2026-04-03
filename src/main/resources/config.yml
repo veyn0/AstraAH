@@ -287,8 +287,12 @@ settings:
       default_filter: true
       default_sort: true
     categories: true
-
-
+    settings: true
+    my_listings: true
+    refresh: true
+    sort: true
+    search: true
+    history: true
 
   # The default settings for new players. if not disabled under xx.xx players will be able to change these settings at any time themself.
   defaults:
