@@ -2,13 +2,9 @@ package dev.veyno.astraAH.ah;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.econ.EconomyProvider;
-import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
-import dev.veyno.astraAH.entity.AllowedPlayerActions;
-import dev.veyno.astraAH.entity.Listing;
-import dev.veyno.astraAH.entity.PlayerPreferences;
-import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
-import dev.veyno.astraAH.entity.PreferencesPlayerActions;
+import dev.veyno.astraAH.entity.*;
 import dev.veyno.astraAH.entity.ui.PageLayoutState;
+import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
@@ -334,12 +330,14 @@ public class AuctionHouse {
     }
 
 
-    public PageLayoutState getDefaultLayoutBlocking(UUID playerId){
-        PlayerPreferences playerPreferences = getPreferencesBlocking(playerId);
-        AllowedPlayerActions allowedActions = getAllowedPlayerActionsBlocking(playerId);
+    public PageLayoutState getDefaultLayoutBlocking(Player p){
+        PlayerPreferences playerPreferences = getPreferencesBlocking(p.getUniqueId());
+        AllowedPlayerActions allowedActions = getAllowedPlayerActionsBlocking(p.getUniqueId());
 
+        PermissionsProvider permissionsProvider = plugin.getPermissionsProvider();
 
-
+        boolean showAdvancedCategories = allowedActions.getCategories()==ActionState.TRUE || (allowedActions.getCategories()== ActionState.UNDEFINED && permissionsProvider.hasPermission(p, "astrah.actions.categories") );
+        boolean showAdvancedHistory = allowedActions.getHistory()==ActionState.TRUE || (allowedActions.getHistory() == ActionState.UNDEFINED && permissionsProvider.hasPermission(p,"astrah.actions.history" ));
     }
 
 

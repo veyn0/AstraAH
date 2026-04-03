@@ -12,6 +12,7 @@ import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
+import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.actions.provider.FileAHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
@@ -61,6 +62,8 @@ public final class AstraAH extends JavaPlugin {
     private AuctionHouse auctionHouse;
 
     private EconomyProvider economy;
+
+    private PermissionsProvider permissionsProvider;
 
 //    private LabelProvider provider;
 
@@ -127,6 +130,10 @@ public final class AstraAH extends JavaPlugin {
 
     public AuctionHouse getAuctionHouse() {
         return auctionHouse;
+    }
+
+    public PermissionsProvider getPermissionsProvider() {
+        return permissionsProvider;
     }
 
     public AHListingsStorageProvider getStorageProvider() {
