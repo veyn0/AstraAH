@@ -6,6 +6,9 @@ authors: [ veyno ]
 website: https://veyno.dev
 folia-supported: true
 
+depend:
+  - packetevents
+
 softdepend:
   - Vault
 
@@ -17,14 +20,26 @@ permissions:
     actions:
       sub_setting:
         showadvancedcategories:
+          default: true
         showadvancedhistory:
+          default: true
         reloadonopen:
+          default: true
         defaultfilter:
+          default: true
         defaultsort:
+          default: true
       categories:
+        default: true
       settings:
+        default: true
       my_listings:
+        default: true
       refresh:
+        default: true
       sort:
+        default: true
       search:
+        default: true
       history:
+        default: true

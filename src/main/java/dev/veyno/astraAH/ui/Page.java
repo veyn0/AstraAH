@@ -1,13 +1,13 @@
 package dev.veyno.astraAH.ui;
 
-import dev.veyno.astraAH.entity.ui.PageLayoutState;
+import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 
 public interface Page {
 
-    void open(Player p, PageLayoutState state, Page previousPage);
+    void open(Player p, MainPageLayoutState state, Page previousPage);
 
     Component getPageTitle();
 

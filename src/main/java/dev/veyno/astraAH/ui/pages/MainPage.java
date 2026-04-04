@@ -4,7 +4,7 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.SortType;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
-import dev.veyno.astraAH.entity.ui.PageLayoutState;
+import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -26,7 +26,7 @@ public class MainPage implements Page {
     }
 
     @Override
-    public void open(Player p, PageLayoutState state, Page previousPage) {
+    public void open(Player p, MainPageLayoutState state, Page previousPage) {
         MainPageGuiConfiguration mainPageGuiConfiguration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
 
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
@@ -39,7 +39,7 @@ public class MainPage implements Page {
         return plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getTitle();
     }
 
-    private ClickableInventory.InventoryRegion buildCenterContent(Player p, PageLayoutState layoutState){
+    private ClickableInventory.InventoryRegion buildCenterContent(Player p, MainPageLayoutState layoutState){
         int fromX = layoutState.isShowAdvancedCategories() ? 1 : 0;
         int fromY = 0;
         int toX = layoutState.isShowAdvancedHistory() ? 7 : 8;

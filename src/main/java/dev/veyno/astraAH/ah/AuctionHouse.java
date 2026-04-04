@@ -1,9 +1,11 @@
 package dev.veyno.astraAH.ah;
 
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.entity.*;
-import dev.veyno.astraAH.entity.ui.PageLayoutState;
+import dev.veyno.astraAH.entity.ui.MainPageButtonLayout;
+import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
 import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
@@ -330,15 +332,80 @@ public class AuctionHouse {
     }
 
 
-    public PageLayoutState getDefaultLayoutBlocking(Player p){
+    public MainPageLayoutState getDefaultLayoutBlocking(Player p){
         PlayerPreferences playerPreferences = getPreferencesBlocking(p.getUniqueId());
         AllowedPlayerActions allowedActions = getAllowedPlayerActionsBlocking(p.getUniqueId());
 
         PermissionsProvider permissionsProvider = plugin.getPermissionsProvider();
 
-        boolean showAdvancedCategories = allowedActions.getCategories()==ActionState.TRUE || (allowedActions.getCategories()== ActionState.UNDEFINED && permissionsProvider.hasPermission(p, "astrah.actions.categories") );
-        boolean showAdvancedHistory = allowedActions.getHistory()==ActionState.TRUE || (allowedActions.getHistory() == ActionState.UNDEFINED && permissionsProvider.hasPermission(p,"astrah.actions.history" ));
+        MainPageLayoutState.ButtonLayout categories = getCategoryLayout(p, playerPreferences, allowedActions);
+
+        MainPageLayoutState.ButtonLayout history = getHistoryLayout(p, playerPreferences, allowedActions);
+
+        SortType sortType = SortType.NAME_A_Z; //TODO: add configurable default sortType for individual palyers
+
+        boolean showSettings = isAllowedSettings(p, allowedActions);
+
+        boolean showMyListings = isAllowedMyListings(p, allowedActions);
+
+        boolean showRefresh = isAllowedRefresh(p, allowedActions);
+
+        boolean showSort = isAllowedSort(p, allowedActions);
+
+        boolean showSearch = isAllowedSearch(p, allowedActions);
+
+        MainPageButtonLayout buttonLayout = new MainPageButtonLayout(showSettings, showMyListings, showRefresh, showSort, showSearch);
+
+        return new MainPageLayoutState(categories, history, sortType, null, 0, 0, 0, )
     }
+
+    //TODO: Methods to Get ButtonLayout alonex
+
+
+    private boolean isAllowedSearch(Player p, AllowedPlayerActions actions){
+        if(actions.getSearch() == ActionState.TRUE) return true;
+        if(actions.getSearch() == ActionState.FALSE) return false;
+        return plugin.getPermissionsProvider().hasPermission(p, "astraah.actions.search");
+    }
+
+    private boolean isAllowedSort(Player p, AllowedPlayerActions actions){
+        if(actions.getSort() == ActionState.TRUE) return true;
+        if(actions.getSort() == ActionState.FALSE) return false;
+        return plugin.getPermissionsProvider().hasPermission(p, "astraah.actions.sort");
+    }
+
+    private boolean isAllowedRefresh(Player p, AllowedPlayerActions actions){
+        if(actions.getRefresh() == ActionState.TRUE) return true;
+        if(actions.getRefresh() == ActionState.FALSE) return false;
+        return plugin.getPermissionsProvider().hasPermission(p, "astraah.actions.refresh");
+    }
+
+    private boolean isAllowedMyListings(Player p, AllowedPlayerActions actions){
+        if(actions.getMyListings() == ActionState.TRUE) return true;
+        if(actions.getMyListings() == ActionState.FALSE) return false;
+        return plugin.getPermissionsProvider().hasPermission(p, "astraah.actions.my_listings");
+    }
+
+    private boolean isAllowedSettings(Player p, AllowedPlayerActions actions){
+        if(actions.getSettings() == ActionState.TRUE) return true;
+        if(actions.getSettings() == ActionState.FALSE) return false;
+        return plugin.getPermissionsProvider().hasPermission(p, "astraah.actions.categories");
+    }
+
+    private MainPageLayoutState.ButtonLayout getCategoryLayout(Player p, PlayerPreferences preferences, AllowedPlayerActions allowedActions){
+        if(allowedActions.getCategories()==ActionState.FALSE || (allowedActions.getCategories()==ActionState.UNDEFINED && !plugin.getPermissionsProvider().hasPermission(p, "astraah.actions.categories"))){
+            return  MainPageLayoutState.ButtonLayout.DISABLED;
+        }
+        return preferences.showCategories()? MainPageLayoutState.ButtonLayout.SIDEBAR : MainPageLayoutState.ButtonLayout.BUTTON;
+    }
+
+    private MainPageLayoutState.ButtonLayout getHistoryLayout(Player p, PlayerPreferences preferences, AllowedPlayerActions allowedActions){
+        if(allowedActions.getHistory()==ActionState.FALSE || (allowedActions.getHistory()==ActionState.UNDEFINED && !plugin.getPermissionsProvider().hasPermission(p, "astraah.actions.history"))){
+            return  MainPageLayoutState.ButtonLayout.DISABLED;
+        }
+        return preferences.showHistory()? MainPageLayoutState.ButtonLayout.SIDEBAR : MainPageLayoutState.ButtonLayout.BUTTON;
+    }
+
 
 
 }

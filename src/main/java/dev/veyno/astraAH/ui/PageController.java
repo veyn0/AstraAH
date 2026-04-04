@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.entity.ui.PageLayoutState;
+import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
 import dev.veyno.astraAH.ui.pages.MainPage;
 import org.bukkit.entity.Player;
 
@@ -13,7 +13,7 @@ public class PageController {
     private final AstraAH plugin;
 
     private MainPage mainPage;
-    private Map<UUID, PageLayoutState> playerPageLayoutStates;
+    private Map<UUID, MainPageLayoutState> playerPageLayoutStates;
 
     public PageController(AstraAH plugin) {
         this.plugin = plugin;
