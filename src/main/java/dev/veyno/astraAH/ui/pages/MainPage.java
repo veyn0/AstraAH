@@ -190,6 +190,8 @@ public class MainPage implements Page {
 
     private void scrollCategory(int offset, int currentIndex, ClickableInventory.InventoryRegion inventoryRegion){
 
+
+        
     }
 
     private ItemStack createCategoryItem(List<PlayerPreferencesCategoryEntry> categories){
