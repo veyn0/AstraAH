@@ -4,6 +4,8 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.SortType;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.entity.PlayerPreferences;
+import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
 import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
@@ -37,11 +39,14 @@ public class MainPage implements Page {
     public void open(Player p, MainPageLayoutState state, Page previousPage) {
         MainPageGuiConfiguration mainPageGuiConfiguration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
 
+        PlayerPreferences preferences = plugin.getPlayerPreferencesStorageProvider().getPreferences(p.getUniqueId());
+
+
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
 
         ClickableInventory.InventoryRegion centerContent = buildCenterContent(p, state, inventory);
 
-
+        ClickableInventory.InventoryRegion navbar = createNavbar(p, inventory, state, centerContent, preferences);
 
 
     }
@@ -112,7 +117,7 @@ public class MainPage implements Page {
         };
     }
 
-    //TODO: add support for all placeholders.
+    //TODO: add support for all placeholders from config.yml
 
     private ItemStack getDisplayItem(Listing l){
         ItemStack result = l.content().clone();
@@ -130,6 +135,73 @@ public class MainPage implements Page {
         meta.lore(lore);
         result.setItemMeta(meta);
         return result;
+    }
+
+    private ClickableInventory.InventoryRegion createNavbar(Player p, ClickableInventory inventory, MainPageLayoutState layoutState, ClickableInventory.InventoryRegion centerContent, PlayerPreferences preferences){
+        int fromX = layoutState.getAdvancedCategories()== MainPageLayoutState.ButtonLayout.SIDEBAR ? 1 : 0;
+        int y = 5;
+        int toX = layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 7 : 8;
+        int highestSlot = toX - fromX;
+
+        MainPageGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
+
+        ClickableInventory.InventoryRegion result = inventory.createRegionFromCoords("navbar", fromX, y, toX, y);
+
+        result.setItem(
+                0,
+                configuration.getNavigationArrowLeft(),
+                action ->{
+                    centerContent.previousPageAndRefresh();
+                }
+        );
+
+        int index = 1;
+
+        if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.BUTTON){
+            result.setItem(
+                    index,
+                    createCategoryItem(preferences.categoryEntries()),
+                    task ->{
+                        if(task.isLeftClick()) scrollCategory(1, 0, result);
+                        if(task.isLeftClick()) scrollCategory(0 ,0, result);
+                    }
+            );
+
+            index++;
+        }
+        else if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.DISABLED){
+            index++;
+        }
+
+
+
+
+        result.setItem(
+                highestSlot,
+                configuration.getNavigationArrowRight(),
+                action ->{
+                    centerContent.nextPageAndRefresh();
+                }
+        );
+
+
+        return result;
+    }
+
+    private void scrollCategory(int offset, int currentIndex, ClickableInventory.InventoryRegion inventoryRegion){
+
+    }
+
+    private ItemStack createCategoryItem(List<PlayerPreferencesCategoryEntry> categories){
+        List<Component> lore = new ArrayList<>();
+        for(PlayerPreferencesCategoryEntry e : categories){
+
+        }
+
+        //TODO: save currently selected Category
+
+
+        return null;
     }
 
 }

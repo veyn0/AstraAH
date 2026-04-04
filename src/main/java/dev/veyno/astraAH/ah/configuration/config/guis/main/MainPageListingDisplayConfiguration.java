@@ -14,7 +14,7 @@ public class MainPageListingDisplayConfiguration extends Configurable {
         super(path, plugin);
 
         this.nameTemplate = getString("listing.name", "{ITEM_NAME}");
-        this.loreHeaderTemplates = List.copyOf(getStringList("lore_header"));
+        this.loreHeaderTemplates = List.copyOf(getStringList("listing.lore_header"));
     }
 
     public String getNameTemplate() {

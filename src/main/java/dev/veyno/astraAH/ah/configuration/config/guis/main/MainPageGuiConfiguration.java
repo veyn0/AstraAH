@@ -13,9 +13,11 @@ public class MainPageGuiConfiguration extends Configurable {
     private final ItemStack navigationArrowRight;
     private final ItemStack settingsIcon;
     private final ItemStack myListingsIcon;
-    private final ItemStack createListingIcon;
+    private final ItemStack refreshIcon;
     private final ItemStack sortIcon;
     private final ItemStack searchIcon;
+    private final ItemStack categoriesIcon;
+    private final ItemStack historyIcon;
 
 
     private final MainPageSortOptionsConfiguration mainPageSortOptionsConfiguration;
@@ -34,9 +36,11 @@ public class MainPageGuiConfiguration extends Configurable {
         this.navigationArrowRight = getItem("arrow_right");
         this.settingsIcon = getItem("settings");
         this.myListingsIcon = getItem("my_listings");
-        this.createListingIcon = getItem("create_listing");
+        this.refreshIcon = getItem("refresh");
         this.sortIcon = getItem("sort");
         this.searchIcon = getItem("search");
+        this.categoriesIcon = getItem("categories");
+        this.historyIcon = getItem("history");
     }
 
     public Component getTitle() {
@@ -59,8 +63,8 @@ public class MainPageGuiConfiguration extends Configurable {
         return myListingsIcon.clone();
     }
 
-    public ItemStack getCreateListingIcon() {
-        return createListingIcon.clone();
+    public ItemStack getRefreshIcon() {
+        return refreshIcon.clone();
     }
 
     public ItemStack getSortIcon() {
@@ -69,6 +73,14 @@ public class MainPageGuiConfiguration extends Configurable {
 
     public ItemStack getSearchIcon() {
         return searchIcon.clone();
+    }
+
+    public ItemStack getCategoriesIcon() {
+        return categoriesIcon.clone();
+    }
+
+    public ItemStack getHistoryIcon() {
+        return historyIcon.clone();
     }
 
     public MainPageSortOptionsConfiguration getMainPageSortOptionsConfiguration() {

@@ -24,10 +24,10 @@ guis:
       # Supported placeholder: {ITEM_NAME}, {PRICE}
       listing:
         name: "{ITEM_NAME}"
-      lore_header:
-        - "<gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray>"
-        - "<gray>LinksKlick zum Kaufen"
-        - "<gray>RechtsKlick für Mehr Informationen"
+        lore_header:
+          - "<gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray>"
+          - "<gray>LinksKlick zum Kaufen"
+          - "<gray>RechtsKlick für Mehr Informationen"
       arrow_left:
         material: BARRIER
         amount: 1
@@ -49,7 +49,7 @@ guis:
         lore:
           - "<gray>This isA Placeholder"
           - "<gray>configure at AstrAH/config.yml"
-      create_listing:
+      refresh:
         material: BARRIER
         amount: 1
         display-name: "<gray>Placeholder"
@@ -61,6 +61,20 @@ guis:
         amount: 1
         display-name: "<gray>Placeholder"
       search:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      categories:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      history:
         material: BARRIER
         amount: 1
         display-name: "<gray>Placeholder"
