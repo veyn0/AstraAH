@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.entity.ui;
+package dev.veyno.astraAH.entity.page.mainpage;
 
 import dev.veyno.astraAH.ah.SortType;
 import org.bukkit.Material;
@@ -66,4 +66,11 @@ public class MainPageLayoutState {
         SIDEBAR
     }
 
+    public ButtonLayout getAdvancedCategories() {
+        return advancedCategories;
+    }
+
+    public ButtonLayout getAdvancedHistory() {
+        return advancedHistory;
+    }
 }

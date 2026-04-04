@@ -6,7 +6,7 @@ import dev.veyno.astraAH.ah.configuration.config.guis.ListingInfoGuiConfiguratio
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.ListingsFilter;
-import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
+import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;

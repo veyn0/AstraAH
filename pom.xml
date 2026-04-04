@@ -6,7 +6,7 @@
 
     <groupId>dev.veyno</groupId>
     <artifactId>AstraAH</artifactId>
-    <version>1.0</version>
+    <version>Alpha-1.0</version>
     <packaging>jar</packaging>
 
     <name>AstraAH</name>

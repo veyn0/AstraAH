@@ -1,11 +1,11 @@
 package dev.veyno.astraAH.ah;
 
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.entity.*;
-import dev.veyno.astraAH.entity.ui.MainPageButtonLayout;
-import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
+import dev.veyno.astraAH.entity.page.*;
+import dev.veyno.astraAH.entity.page.mainpage.MainPageButtonLayout;
+import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
@@ -359,7 +359,7 @@ public class AuctionHouse {
         return new MainPageLayoutState(categories, history, sortType, null, 0, 0, 0, buttonLayout);
     }
 
-    //TODO: Methods to Get ButtonLayout alonex
+    //TODO: Methods to Get ButtonLayout alone
 
 
     private boolean isAllowedSearch(Player p, AllowedPlayerActions actions){

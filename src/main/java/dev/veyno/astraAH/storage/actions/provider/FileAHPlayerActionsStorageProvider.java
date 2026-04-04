@@ -1,9 +1,9 @@
 package dev.veyno.astraAH.storage.actions.provider;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.entity.ActionState;
-import dev.veyno.astraAH.entity.AllowedPlayerActions;
-import dev.veyno.astraAH.entity.PreferencesPlayerActions;
+import dev.veyno.astraAH.entity.page.ActionState;
+import dev.veyno.astraAH.entity.page.AllowedPlayerActions;
+import dev.veyno.astraAH.entity.page.PreferencesPlayerActions;
 import dev.veyno.astraAH.storage.YamlStorage;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import org.bukkit.configuration.file.FileConfiguration;

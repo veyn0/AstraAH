@@ -4,13 +4,21 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.SortType;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.Listing;
-import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
+import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
+import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,7 +39,11 @@ public class MainPage implements Page {
 
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
 
-        ClickableInventory.InventoryRegion centerContent = buildCenterContent(p, state);
+        ClickableInventory.InventoryRegion centerContent = buildCenterContent(p, state, inventory);
+
+
+
+
     }
 
     @Override
@@ -39,17 +51,32 @@ public class MainPage implements Page {
         return plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getTitle();
     }
 
-    private ClickableInventory.InventoryRegion buildCenterContent(Player p, MainPageLayoutState layoutState){
-        int fromX = layoutState.isShowAdvancedCategories() ? 1 : 0;
+    private ClickableInventory.InventoryRegion buildCenterContent(Player p, MainPageLayoutState layoutState, ClickableInventory inventory){
+        int fromX = layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 1 : 0;
         int fromY = 0;
-        int toX = layoutState.isShowAdvancedHistory() ? 7 : 8;
+        int toX = layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 7 : 8;
         int toY = 4;
 
         int page = layoutState.getListingsPageIndex();
 
         List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), layoutState.getSortType());
 
-        return null;
+        List<Material> filter = layoutState.getFilter();
+
+        ClickableInventory.InventoryRegion centerContent = inventory.createRegionFromCoords("center", fromX, fromY, toX, toY);
+        for(Listing l : listings){
+            if(filter != null && !filter.contains(l.content().getType())) continue;
+            centerContent.addItem(getDisplayItem(l), clickContext -> {
+                if(clickContext.isLeftClick()){
+                    plugin.getLogger().info( p.getName()+" Leftclicked Listing.");
+                }
+                else if(clickContext.isRightClick()){
+                    plugin.getLogger().info( p.getName()+" Rightclicked Listing.");
+                }
+            });
+        }
+
+        return centerContent.openPage(page);
     }
 
     public List<Listing> sortListings(List<Listing> listings, SortType sortType) {
@@ -85,5 +112,24 @@ public class MainPage implements Page {
         };
     }
 
+    //TODO: add support for all placeholders.
+
+    private ItemStack getDisplayItem(Listing l){
+        ItemStack result = l.content().clone();
+        ItemMeta meta = result.getItemMeta();
+        String itemName = PlainTextComponentSerializer.plainText().serialize(l.content().displayName());
+        String displayName = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getListingDisplayConfiguration().getNameTemplate();
+        meta.customName(MiniMessage.miniMessage().deserialize(displayName.replace("{PRICE}", NumberFormat.formatGerman(l.price())).replace("{ITEM_NAME}", itemName)).decoration(TextDecoration.ITALIC, false));
+        List<Component> lore = new ArrayList<>();
+        for (String line : plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getListingDisplayConfiguration().getLoreHeaderTemplates()) {
+            String resolvedLine = line
+                    .replace("{PRICE}", NumberFormat.formatGerman(l.price()))
+                    .replace("{ITEM_NAME}", itemName);
+            lore.add(MiniMessage.miniMessage().deserialize(resolvedLine).decoration(TextDecoration.ITALIC, false));
+        }
+        meta.lore(lore);
+        result.setItemMeta(meta);
+        return result;
+    }
 
 }

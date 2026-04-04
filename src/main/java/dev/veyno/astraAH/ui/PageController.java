@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.entity.ui.MainPageLayoutState;
+import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.ui.pages.MainPage;
 import org.bukkit.entity.Player;
 
@@ -29,5 +29,4 @@ public class PageController {
     }
 
 
-    private void getLayout
 }
