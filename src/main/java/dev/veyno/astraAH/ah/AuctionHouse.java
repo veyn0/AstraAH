@@ -356,7 +356,7 @@ public class AuctionHouse {
 
         MainPageButtonLayout buttonLayout = new MainPageButtonLayout(showSettings, showMyListings, showRefresh, showSort, showSearch);
 
-        return new MainPageLayoutState(categories, history, sortType, null, 0, 0, 0, )
+        return new MainPageLayoutState(categories, history, sortType, null, 0, 0, 0, buttonLayout);
     }
 
     //TODO: Methods to Get ButtonLayout alonex
