@@ -1,0 +1,218 @@
+
+guis:
+  # |=======================|
+  # |   /ah - main Page GUI |
+  # |=======================|
+  main_page:
+    title: "<dark_gray>Market - ur-server.de"
+    sort_options:
+      enabled:
+        name_a_z: "<blue>Name A -> Z"
+        name_z_a: "<blue>Name Z -> A"
+        price_h_l: "<blue>Price High -> Low"
+        price_l_h: "<blue>Price Low -> High"
+        price_per_piece_h_l: "<blue>Price/piece High -> Low"
+        price_per_piece_l_h: "<blue>Price/piece Low -> High"
+      disabled:
+        name_a_z: "<gray>Name A -> Z"
+        name_z_a: "<gray>Name Z -> A"
+        price_h_l: "<gray>Price High -> Low"
+        price_l_h: "<gray>Price Low -> High"
+        price_per_piece_h_l: "<gray>Price/piece High -> Low"
+        price_per_piece_l_h: "<gray>Price/piece Low -> High"
+    items:
+      # Supported placeholder: {ITEM_NAME}, {PRICE}
+      listing:
+        name: "{ITEM_NAME}"
+        lore_header:
+          - "<gray>(<b><green>{PRICE}</green></b><yellow>$</yellow>)</gray>"
+          - "<gray>LinksKlick zum Kaufen"
+          - "<gray>RechtsKlick für Mehr Informationen"
+      arrow_left:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      settings:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      my_listings:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      refresh:
+        material: COMPASS
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      sort:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+      search:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      categories:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      history:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      arrow_right:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+  # |============================================|
+  # |   /ah -> create Listing GUI - select item  |
+  # |============================================|
+  create_listing_1:
+    title: "<dark_gray>Create Listing - Select Item"
+    items:
+      cancel:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This isA Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+  # |=====================================|
+  # |   /ah -> create Listing GUI - price  |
+  # |=====================================|
+  create_listing_2:
+    lines:
+      1: "^^^^^^^^^^^^^^^"
+      2: "Set Price"
+      3: "_______________"
+  # |================================================|
+  # |   /ah -> create Listing GUI - preview listing  |
+  # |================================================|
+  create_listing_3:
+    title: "<dark_gray>Create Listing - Confirm"
+    items:
+      confirm:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      cancel:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+  # |==========================|
+  # |   /ah -> settings GUI    |
+  # |==========================|
+  settings:
+    title: "<dark_gray>Settings"
+    items:
+      categories_toggle:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      history_toggle:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      default_filter:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      default_category:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+  # |=================================|
+  # |   /ah -> player listings GUI    |
+  # |=================================|
+  my_listings:
+    title: "<dark_gray>My listings"
+    items:
+      back:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      next_page:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      previous_page:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+  listing_info:
+    title: "<dark_gray>Listing details"
+    show_seller_head: false
+    items:
+      # seller_head and info support the following placeholders: {SELLER_NAME}, {BUYER_BALANCE}, {ITEM_PRICE}, {ITEM_NAME}, {ITEM_DISPLAY_NAME}, {ITEM_COUNT}, {PRICE_PER_PIECE}
+      seller_head:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      info:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
+      back:
+        material: BARRIER
+        amount: 1
+        display-name: "<gray>Placeholder"
+        lore:
+          - "<gray>This is a Placeholder"
+          - "<gray>configure at AstrAH/config.yml"
