@@ -50,7 +50,7 @@ guis:
           - "<gray>This isA Placeholder"
           - "<gray>configure at AstrAH/config.yml"
       refresh:
-        material: BARRIER
+        material: COMPASS
         amount: 1
         display-name: "<gray>Placeholder"
         lore:

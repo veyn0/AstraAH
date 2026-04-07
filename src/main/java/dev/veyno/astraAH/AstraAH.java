@@ -7,6 +7,7 @@ package dev.veyno.astraAH;
 //import de.leycm.i18label4j.serializer.KyoriAdventureSerializer;
 //import de.leycm.i18label4j.source.FileSource;
 //import de.leycm.init4j.instance.Instanceable;
+
 import dev.veyno.astraAH.ah.AuctionHouse;
 import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
@@ -44,7 +45,6 @@ TODO:
  */
 
 public final class AstraAH extends JavaPlugin {
-
 
     private AstraAHConfiguration configuration;
 

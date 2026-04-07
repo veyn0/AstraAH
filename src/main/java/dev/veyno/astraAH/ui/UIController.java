@@ -53,7 +53,6 @@ public class UIController {
 
 
 
-
         ClickableInventory.InventoryRegion bottomContent = createNavbarSection(p, inventory, advancedFilter, quickHistory, centerContent, mainPageGuiConfiguration);
 
 
