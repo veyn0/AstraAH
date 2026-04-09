@@ -31,7 +31,7 @@ guis:
           - "<dark_gray>Navigate to the"
           - "<dark_gray>previous page."
       settings:
-        material: CRAFTING_TABLE
+        material: CRAFTER
         amount: 1
         display-name: "<gray><b>Settings</b>"
         lore:
