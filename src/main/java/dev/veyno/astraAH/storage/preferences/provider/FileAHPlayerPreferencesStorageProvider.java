@@ -75,7 +75,7 @@ public class FileAHPlayerPreferencesStorageProvider implements AHPlayerPreferenc
             FileConfiguration config = storage.getFileConfiguration();
             String path = "preferences." + playerId;
             if (!config.contains(path + ".playerId")) {
-                return null;
+                return new PlayerPreferences(playerId);
             }
 
             boolean showCategories = config.getBoolean(path + ".showCategories");

@@ -3,6 +3,7 @@ package dev.veyno.astraAH.ui.pages;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.SortType;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
+import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.PlayerPreferences;
 import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
@@ -41,14 +42,13 @@ public class MainPage implements Page {
 
         PlayerPreferences preferences = plugin.getPlayerPreferencesStorageProvider().getPreferences(p.getUniqueId());
 
-
         ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
 
         ClickableInventory.InventoryRegion centerContent = buildCenterContent(p, state, inventory);
 
         ClickableInventory.InventoryRegion navbar = createNavbar(p, inventory, state, centerContent, preferences);
 
-
+        inventory.open();
     }
 
     @Override
@@ -173,6 +173,75 @@ public class MainPage implements Page {
             index++;
         }
 
+        if(layoutState.getButtonLayout().isShowSettings()){
+            result.setItem(
+                    index,
+                    configuration.getSettingsIcon(),
+                    action ->{
+                        p.sendMessage("Clicked Settings icon");
+                    }
+            );
+        }
+        index++;
+
+        if(layoutState.getButtonLayout().isShowMyListings()){
+            result.setItem(
+                    index,
+                    configuration.getMyListingsIcon(),
+                    action ->{
+                        p.sendMessage("Clicked My Listings icon");
+                    }
+            );
+        }
+        index++;
+
+        if(layoutState.getButtonLayout().isShowRefresh()){
+            result.setItem(
+                    index,
+                    configuration.getRefreshIcon(),
+                    action ->{
+                        p.sendMessage("Clicked Refresh icon");
+                    }
+            );
+        }
+        index++;
+
+        if(layoutState.getButtonLayout().isShowSort()){
+            result.setItem(
+                    index,
+                    configuration.getSortIcon(),
+                    action ->{
+                        p.sendMessage("Clicked Sort icon");
+                    }
+            );
+        }
+        index++;
+
+
+        if(layoutState.getButtonLayout().isShowSearch()){
+            result.setItem(
+                    index,
+                    configuration.getMyListingsIcon(),
+                    action ->{
+                        p.sendMessage("Clicked Search icon");
+                    }
+            );
+        }
+        index++;
+
+        if(layoutState.getAdvancedHistory()== MainPageLayoutState.ButtonLayout.DISABLED){
+
+        }
+        else if(layoutState.getAdvancedHistory()== MainPageLayoutState.ButtonLayout.BUTTON){
+            result.setItem(
+                    index,
+                    createHistoryItem(null),
+                    action ->{
+                        p.sendMessage("Clicked History icon");
+                    }
+            );
+
+        }
 
 
 
@@ -202,8 +271,13 @@ public class MainPage implements Page {
 
         //TODO: save currently selected Category
 
-
-        return null;
+        return new ItemStack(Material.BOOKSHELF);
     }
 
+    private ItemStack createHistoryItem(List<AHTransactionHistoryEntry> historyEntries){
+
+        //TODO: implement
+
+        return new ItemStack(Material.CLOCK);
+    }
 }

@@ -14,6 +14,7 @@ import dev.veyno.astraAH.command.AuctionHouseCommand;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
 import dev.veyno.astraAH.permissions.PermissionsProvider;
+import dev.veyno.astraAH.permissions.provider.DefaultPermissionsProvider;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.actions.provider.FileAHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
@@ -22,6 +23,7 @@ import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
 import dev.veyno.astraAH.storage.listings.provider.FileAHListingsStorageProvider;
 import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.storage.preferences.provider.FileAHPlayerPreferencesStorageProvider;
+import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -53,7 +55,7 @@ public final class AstraAH extends JavaPlugin {
     private AHTransactionHistoryStorageProvider transactionHistoryStorageProvider;
     private AHPlayerActionsStorageProvider playerActionsStorageProvider;
 
-    private UIController uiController;
+    private PageController pageController;
 
     private ErrorHandler errorHandler;
 
@@ -88,7 +90,12 @@ public final class AstraAH extends JavaPlugin {
         );
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
-        uiController = new UIController(this);
+
+        permissionsProvider = new DefaultPermissionsProvider();
+
+        pageController = new PageController(this);
+
+
 //        FileSource source = FileSource.yaml(new File(getDataFolder(), "lang").toURI());
 //        provider = CommonLabelProvider.builder()
 //                .defaultMappingRule(MappingRule.CURLY)
@@ -124,8 +131,8 @@ public final class AstraAH extends JavaPlugin {
         return errorHandler;
     }
 
-    public UIController getUiController() {
-        return uiController;
+    public PageController getPageController() {
+        return pageController;
     }
 
     public AuctionHouse getAuctionHouse() {

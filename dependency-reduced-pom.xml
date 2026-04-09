@@ -4,7 +4,7 @@
   <groupId>dev.veyno</groupId>
   <artifactId>AstraAH</artifactId>
   <name>AstraAH</name>
-  <version>1.0</version>
+  <version>Alpha-1.0</version>
   <build>
     <defaultGoal>clean package</defaultGoal>
     <resources>
@@ -87,6 +87,12 @@
       <groupId>de.leycm</groupId>
       <artifactId>i18label4j-api</artifactId>
       <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.luckperms</groupId>
+      <artifactId>api</artifactId>
+      <version>5.4</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

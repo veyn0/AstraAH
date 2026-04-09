@@ -7,13 +7,14 @@ import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PageController {
 
     private final AstraAH plugin;
 
     private MainPage mainPage;
-    private Map<UUID, MainPageLayoutState> playerPageLayoutStates;
+    private Map<UUID, MainPageLayoutState> playerPageLayoutStates = new ConcurrentHashMap<>();
 
     public PageController(AstraAH plugin) {
         this.plugin = plugin;
@@ -22,7 +23,9 @@ public class PageController {
 
     public void openMainPage(Player p){
 
-        mainPage.open();
+        MainPageLayoutState layoutState = plugin.getAuctionHouse().getDefaultLayoutBlocking(p);
+
+        mainPage.open(p, layoutState, null);
 
 
 

@@ -16,6 +16,9 @@ public record PlayerPreferences(
     }
 
     public PlayerPreferences(UUID playerId) {
+
+        //TODO: use configured defaults
+
         this(playerId, List.of(), false, false);
     }
 
