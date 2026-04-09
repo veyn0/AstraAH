@@ -73,4 +73,8 @@ public class MainPageLayoutState {
     public ButtonLayout getAdvancedHistory() {
         return advancedHistory;
     }
+
+    public void setFilter(List<Material> filter) {
+        this.filter = filter;
+    }
 }

@@ -48,12 +48,54 @@ public class MainPage implements Page {
 
         ClickableInventory.InventoryRegion navbar = createNavbar(p, inventory, state, centerContent, preferences);
 
+        if(state.getAdvancedHistory()== MainPageLayoutState.ButtonLayout.SIDEBAR){
+            buildCategorySidebar(p, state, inventory, mainPageGuiConfiguration, preferences);
+        }
+
+        if(state.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.SIDEBAR){
+
+        }
+
         inventory.open();
     }
 
     @Override
     public Component getPageTitle() {
         return plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getTitle();
+    }
+
+
+    private ClickableInventory.InventoryRegion buildCategorySidebar(Player p, MainPageLayoutState layoutState, ClickableInventory inventory, MainPageGuiConfiguration configuration, PlayerPreferences preferences){
+        ClickableInventory.InventoryRegion result = inventory.createRegionFromCoords("categories", 0, 0, 0,5);
+
+        result.setStaticItem(
+                0,
+                new ItemStack(Material.SPECTRAL_ARROW),
+                action ->{
+                    result.scrollByAndRefresh(-1);
+                }
+        );
+
+        result.setStaticItem(
+                5,
+                new ItemStack(Material.SPECTRAL_ARROW),
+                action ->{
+                    result.scrollByAndRefresh(1);
+                }
+        );
+
+        for(PlayerPreferencesCategoryEntry entry : preferences.categoryEntries()){
+            result.addItem(
+                    entry.preview(),
+                    action ->{
+                        layoutState.setFilter(entry.filter());
+                        open(p, layoutState, null);
+                    }
+            );
+        }
+
+
+        return result;
     }
 
     private ClickableInventory.InventoryRegion buildCenterContent(Player p, MainPageLayoutState layoutState, ClickableInventory inventory){

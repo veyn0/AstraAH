@@ -19,7 +19,7 @@ public record PlayerPreferences(
 
         //TODO: use configured defaults
 
-        this(playerId, List.of(), false, false);
+        this(playerId, List.of(), true, true);
     }
 
     public PlayerPreferences withCategoryEntries(List<PlayerPreferencesCategoryEntry> categoryEntries) {
