@@ -161,9 +161,10 @@ public class MainPage implements Page {
             result.setItem(
                     index,
                     createCategoryItem(preferences.categoryEntries()),
-                    task ->{
-                        if(task.isLeftClick()) scrollCategory(1, 0, result);
-                        if(task.isLeftClick()) scrollCategory(0 ,0, result);
+                    action ->{
+                        p.sendMessage("Clicked Categories icon");
+                        if(action.isLeftClick()) scrollCategory(1, 0, result);
+                        if(action.isLeftClick()) scrollCategory(0 ,0, result);
                     }
             );
 
@@ -221,7 +222,7 @@ public class MainPage implements Page {
         if(layoutState.getButtonLayout().isShowSearch()){
             result.setItem(
                     index,
-                    configuration.getMyListingsIcon(),
+                    configuration.getSearchIcon(),
                     action ->{
                         p.sendMessage("Clicked Search icon");
                     }
