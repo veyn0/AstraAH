@@ -18,6 +18,10 @@ public class MainPageGuiConfiguration extends Configurable {
     private final ItemStack searchIcon;
     private final ItemStack categoriesIcon;
     private final ItemStack historyIcon;
+    private final ItemStack scrollUpCategoriesIcon;
+    private final ItemStack scrollDownCategoriesIcon;
+    private final ItemStack scrollUpHistoryIcon;
+    private final ItemStack scrollDownHistoryIcon;
 
 
     private final MainPageSortOptionsConfiguration mainPageSortOptionsConfiguration;
@@ -41,6 +45,10 @@ public class MainPageGuiConfiguration extends Configurable {
         this.searchIcon = getItem("search");
         this.categoriesIcon = getItem("categories");
         this.historyIcon = getItem("history");
+        this.scrollUpCategoriesIcon = getItem("scroll_up_categories");
+        this.scrollDownCategoriesIcon = getItem("scroll_down_categories");
+        this.scrollUpHistoryIcon = getItem("scroll_up_history");
+        this.scrollDownHistoryIcon = getItem("scroll_down_history");
     }
 
     public Component getTitle() {
@@ -89,5 +97,21 @@ public class MainPageGuiConfiguration extends Configurable {
 
     public MainPageListingDisplayConfiguration getListingDisplayConfiguration() {
         return listingDisplayConfiguration;
+    }
+
+    public ItemStack getScrollUpCategoriesIcon() {
+        return scrollUpCategoriesIcon;
+    }
+
+    public ItemStack getScrollDownCategoriesIcon() {
+        return scrollDownCategoriesIcon;
+    }
+
+    public ItemStack getScrollUpHistoryIcon() {
+        return scrollUpHistoryIcon;
+    }
+
+    public ItemStack getScrollDownHistoryIcon() {
+        return scrollDownHistoryIcon;
     }
 }

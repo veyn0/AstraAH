@@ -86,6 +86,34 @@ guis:
         lore:
           - "<dark_gray>Navigate to the"
           - "<dark_gray>next page."
+      scroll_up_categories:
+        material: SPECTRAL_ARROW
+        amount: 1
+        display-name: "<gray><b>Scroll Up</b>"
+        lore:
+          - "<dark_gray>Click to Scroll"
+          - "<dark_gray>the Categories."
+      scroll_down_categories:
+        material: SPECTRAL_ARROW
+        amount: 1
+        display-name: "<gray><b>Scroll Down</b>"
+        lore:
+          - "<dark_gray>Click to Scroll"
+          - "<dark_gray>the Categories."
+      scroll_up_history:
+        material: SPECTRAL_ARROW
+        amount: 1
+        display-name: "<gray><b>Scroll Up</b>"
+        lore:
+          - "<dark_gray>Click to Scroll"
+          - "<dark_gray>the History."
+      scroll_down_history:
+        material: SPECTRAL_ARROW
+        amount: 1
+        display-name: "<gray><b>Scroll Down</b>"
+        lore:
+          - "<dark_gray>Click to Scroll"
+          - "<dark_gray>the History."
   create_listing_1:
     title: "<dark_gray>Create Listing - Select Item"
     items:
