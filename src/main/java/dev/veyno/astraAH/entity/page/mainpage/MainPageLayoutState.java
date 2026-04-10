@@ -11,13 +11,15 @@ public class MainPageLayoutState {
     private SortType sortType;
     private List<Material> filter;
 
+    private int selectedCategoryIndex;
+
     private int categoryScrollIndex;
     private int historyScrollIndex;
     private int listingsPageIndex;
 
     private MainPageButtonLayout buttonLayout;
 
-    public MainPageLayoutState(ButtonLayout advancedCategories, ButtonLayout advancedHistory, SortType sortType, List<Material> filter, int categoryScrollIndex, int historyScrollIndex, int listingsPageIndex, MainPageButtonLayout buttonLayout) {
+    public MainPageLayoutState(ButtonLayout advancedCategories, ButtonLayout advancedHistory, SortType sortType, List<Material> filter, int categoryScrollIndex, int historyScrollIndex, int listingsPageIndex, MainPageButtonLayout buttonLayout, int selectedCategoryIndex) {
         this.advancedCategories = advancedCategories;
         this.advancedHistory = advancedHistory;
         this.sortType = sortType;
@@ -26,6 +28,7 @@ public class MainPageLayoutState {
         this.historyScrollIndex = historyScrollIndex;
         this.listingsPageIndex = listingsPageIndex;
         this.buttonLayout = buttonLayout;
+        this.selectedCategoryIndex = selectedCategoryIndex;
     }
 
     public int getCategoryScrollIndex() {
@@ -85,5 +88,13 @@ public class MainPageLayoutState {
 
     public void setAdvancedCategories(ButtonLayout advancedCategories) {
         this.advancedCategories = advancedCategories;
+    }
+
+    public void setSelectedCategoryIndex(int selectedCategoryIndex) {
+        this.selectedCategoryIndex = selectedCategoryIndex;
+    }
+
+    public int getSelectedCategoryIndex() {
+        return selectedCategoryIndex;
     }
 }

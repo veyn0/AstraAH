@@ -359,7 +359,7 @@ public class AuctionHouse {
 
         MainPageButtonLayout buttonLayout = new MainPageButtonLayout(showSettings, showMyListings, showRefresh, showSort, showSearch);
 
-        return new MainPageLayoutState(categories, history, sortType, null, 0, 0, 0, buttonLayout);
+        return new MainPageLayoutState(categories, history, sortType, null, 0, 0, 0, buttonLayout, 0);
     }
 
     //TODO: Methods to Get ButtonLayout alone

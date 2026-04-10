@@ -35,11 +35,13 @@ public class SettingsPage implements Page {
         content.addItem(
                 configuration.getCategoryToggleIcon(),
                 action ->{
+                    Bukkit.getLogger().info("clicked toggle categories");
                     MainPageLayoutState.ButtonLayout layout = state.getAdvancedCategories();
                     if(layout== MainPageLayoutState.ButtonLayout.DISABLED){
                     }
                     else {
                         PlayerPreferences preferences = plugin.getAuctionHouse().getPreferencesBlocking(p.getUniqueId());
+                        Bukkit.getLogger().info("Categories: " + preferences.showCategories());
                         plugin.getAuctionHouse().setPreferencesBlocking(p.getUniqueId(), new PlayerPreferences(p.getUniqueId(), preferences.categoryEntries(), !preferences.showCategories(), preferences.showHistory() ));
                     }
                 }

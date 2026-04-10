@@ -32,6 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 /*
 
 TODO:
+ - Improve storage occupation when
  - Exclude specific items, including being able to match names
  - save transaction history in transactions.yml and
  - add quick filter section at right side of screen based on the last 4 items that were purchased. click -> filter by material and lowest price automatically

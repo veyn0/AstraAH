@@ -12,11 +12,13 @@ import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
+import net.kyori.adventure.text.BuildableComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -49,11 +51,11 @@ public class MainPage implements Page {
 
         ClickableInventory.InventoryRegion navbar = createNavbar(p, inventory, state, centerContent, preferences);
 
-        if(state.getAdvancedHistory()== MainPageLayoutState.ButtonLayout.SIDEBAR){
+        if(state.getAdvancedCategories()== MainPageLayoutState.ButtonLayout.SIDEBAR){
             buildCategorySidebar(p, state, inventory, mainPageGuiConfiguration, preferences);
         }
 
-        if(state.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.SIDEBAR){
+        if(state.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR){
 
         }
 
@@ -210,17 +212,7 @@ public class MainPage implements Page {
         int index = 1;
 
         if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.BUTTON){
-            result.setItem(
-                    index,
-                    createCategoryItem(preferences.categoryEntries(), layoutState.getCategoryScrollIndex()),
-                    action ->{
-                        p.sendMessage("Clicked Categories icon");
-                        if(action.isLeftClick()){
-
-                        }
-                    }
-            );
-
+            createCategoryItem(p, preferences, layoutState, result, index);
             index++;
         }
         else if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.DISABLED){
@@ -307,16 +299,48 @@ public class MainPage implements Page {
         return result;
     }
 
+
+    private void createCategoryItem(Player p, PlayerPreferences preferences, MainPageLayoutState layoutState, ClickableInventory.InventoryRegion inventoryRegion, int index) {
+        inventoryRegion.setItem(
+                index,
+                createCategoryItem(preferences.categoryEntries(), layoutState.getSelectedCategoryIndex()),
+                action ->{
+                    p.sendMessage("Category " + layoutState.getSelectedCategoryIndex());
+                    p.sendMessage("Category size: " + preferences.categoryEntries().size());
+                    if(action.isLeftClick()){
+                        if(preferences.categoryEntries().size()>layoutState.getSelectedCategoryIndex()+1){
+                            p.sendMessage("mmm");
+                            layoutState.setSelectedCategoryIndex(layoutState.getSelectedCategoryIndex()+1);
+                            layoutState.setFilter(preferences.categoryEntries().get(layoutState.getSelectedCategoryIndex()).filter());
+                            createCategoryItem(p, preferences, layoutState, inventoryRegion, index);
+                            inventoryRegion.refresh();
+                        }
+                    }
+                    else if(action.isRightClick()){
+                        if(layoutState.getSelectedCategoryIndex()> 0){
+                            layoutState.setSelectedCategoryIndex(layoutState.getSelectedCategoryIndex()-1);
+                            layoutState.setFilter(preferences.categoryEntries().get(layoutState.getSelectedCategoryIndex()).filter());
+                            createCategoryItem(p, preferences, layoutState, inventoryRegion, index);
+                            inventoryRegion.refresh();
+                        }
+                    }
+                }
+        );
+    }
+
     private ItemStack createCategoryItem(List<PlayerPreferencesCategoryEntry> categories, int index){
+        Bukkit.getLogger().info("inder: "+index);
         List<Component> lore = new ArrayList<>(categories.size());
         for(int i = 0; i < categories.size(); i++){
             if(i==index) {
-                lore.add(i, categories.get(i).preview().displayName().color(TextColor.color(32, 32, 254)));
+                lore.add(i, categories.get(i).preview().getItemMeta().displayName().color(TextColor.color(32, 32, 254)));
             }
             else {
-                lore.add(i, categories.get(i).preview().displayName());
+                lore.add(i, categories.get(i).preview().getItemMeta().displayName());
             }
         }
+
+        lore.add(MiniMessage.miniMessage().deserialize("<red> Test"));
 
         ItemStack result = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getCategoriesIcon();
         result.lore(lore);
