@@ -23,9 +23,10 @@ public class PageController {
 
     public void openMainPage(Player p){
 
-        MainPageLayoutState layoutState = plugin.getAuctionHouse().getDefaultLayoutBlocking(p);
-
-        mainPage.open(p, layoutState, null);
+        if(!playerPageLayoutStates.containsKey(p.getUniqueId())) {
+            playerPageLayoutStates.put(p.getUniqueId(), plugin.getAuctionHouse().getDefaultLayoutBlocking(p));
+        }
+        mainPage.open(p, playerPageLayoutStates.get(p.getUniqueId()), null);
 
 
 

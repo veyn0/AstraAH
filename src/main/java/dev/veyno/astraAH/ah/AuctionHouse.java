@@ -331,12 +331,15 @@ public class AuctionHouse {
         );
     }
 
+    public MainPageLayoutState getLayout(Player p){
+
+
+        return null;
+    }
 
     public MainPageLayoutState getDefaultLayoutBlocking(Player p){
         PlayerPreferences playerPreferences = getPreferencesBlocking(p.getUniqueId());
         AllowedPlayerActions allowedActions = getAllowedPlayerActionsBlocking(p.getUniqueId());
-
-        PermissionsProvider permissionsProvider = plugin.getPermissionsProvider();
 
         MainPageLayoutState.ButtonLayout categories = getCategoryLayout(p, playerPreferences, allowedActions);
 
@@ -360,7 +363,6 @@ public class AuctionHouse {
     }
 
     //TODO: Methods to Get ButtonLayout alone
-
 
     private boolean isAllowedSearch(Player p, AllowedPlayerActions actions){
         if(actions.getSearch() == ActionState.TRUE) return true;
@@ -405,7 +407,5 @@ public class AuctionHouse {
         }
         return preferences.showHistory()? MainPageLayoutState.ButtonLayout.SIDEBAR : MainPageLayoutState.ButtonLayout.BUTTON;
     }
-
-
 
 }

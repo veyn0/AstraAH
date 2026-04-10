@@ -11,11 +11,14 @@ import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
+import dev.veyno.astraAH.util.InteractionCooldown;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -64,7 +67,6 @@ public class MainPage implements Page {
         return plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getTitle();
     }
 
-
     private ClickableInventory.InventoryRegion buildCategorySidebar(Player p, MainPageLayoutState layoutState, ClickableInventory inventory, MainPageGuiConfiguration configuration, PlayerPreferences preferences){
         ClickableInventory.InventoryRegion result = inventory.createRegionFromCoords("categories", 0, 0, 0,5);
 
@@ -72,6 +74,8 @@ public class MainPage implements Page {
                 0,
                 new ItemStack(Material.SPECTRAL_ARROW),
                 action ->{
+                    if(!action.isLeftClick()) return;
+                    layoutState.setCategoryScrollIndex(layoutState.getCategoryScrollIndex()-1);
                     result.scrollByAndRefresh(-1);
                 }
         );
@@ -80,7 +84,15 @@ public class MainPage implements Page {
                 5,
                 new ItemStack(Material.SPECTRAL_ARROW),
                 action ->{
-                    result.scrollByAndRefresh(1);
+                    if(!action.isLeftClick()) return;
+                    layoutState.setCategoryScrollIndex(layoutState.getCategoryScrollIndex()+1);
+
+                    if(result.getItemCount() <= layoutState.getCategoryScrollIndex()){
+                        layoutState.setCategoryScrollIndex(result.getItemCount()-1);
+                    }
+                    else {
+                        result.scrollByAndRefresh(1);
+                    }
                 }
         );
 
@@ -88,13 +100,13 @@ public class MainPage implements Page {
             result.addItem(
                     entry.preview(),
                     action ->{
+                        if(!action.isLeftClick()) return;
                         layoutState.setFilter(entry.filter());
                         open(p, layoutState, null);
                     }
             );
         }
-
-
+        result.scrollBy(layoutState.getCategoryScrollIndex());
         return result;
     }
 
@@ -202,11 +214,12 @@ public class MainPage implements Page {
         if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.BUTTON){
             result.setItem(
                     index,
-                    createCategoryItem(preferences.categoryEntries()),
+                    createCategoryItem(preferences.categoryEntries(), layoutState.getCategoryScrollIndex()),
                     action ->{
                         p.sendMessage("Clicked Categories icon");
-                        if(action.isLeftClick()) scrollCategory(1, 0, result);
-                        if(action.isLeftClick()) scrollCategory(0 ,0, result);
+                        if(action.isLeftClick()){
+
+                        }
                     }
             );
 
@@ -272,10 +285,9 @@ public class MainPage implements Page {
         }
         index++;
 
-        if(layoutState.getAdvancedHistory()== MainPageLayoutState.ButtonLayout.DISABLED){
-
+        if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.DISABLED){
         }
-        else if(layoutState.getAdvancedHistory()== MainPageLayoutState.ButtonLayout.BUTTON){
+        else if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.BUTTON){
             result.setItem(
                     index,
                     createHistoryItem(null),
@@ -283,10 +295,7 @@ public class MainPage implements Page {
                         p.sendMessage("Clicked History icon");
                     }
             );
-
         }
-
-
 
         result.setItem(
                 highestSlot,
@@ -296,25 +305,23 @@ public class MainPage implements Page {
                 }
         );
 
-
         return result;
     }
 
-    private void scrollCategory(int offset, int currentIndex, ClickableInventory.InventoryRegion inventoryRegion){
-
-
-        
-    }
-
-    private ItemStack createCategoryItem(List<PlayerPreferencesCategoryEntry> categories){
-        List<Component> lore = new ArrayList<>();
-        for(PlayerPreferencesCategoryEntry e : categories){
-
+    private ItemStack createCategoryItem(List<PlayerPreferencesCategoryEntry> categories, int index){
+        List<Component> lore = new ArrayList<>(categories.size());
+        for(int i = 0; i < categories.size(); i++){
+            if(i==index) {
+                lore.set(i, categories.get(i).preview().displayName().color(TextColor.color(32, 32, 254)));
+            }
+            else {
+                lore.set(i, categories.get(i).preview().displayName());
+            }
         }
 
-        //TODO: save currently selected Category
-
-        return new ItemStack(Material.BOOKSHELF);
+        ItemStack result = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getCategoriesIcon();
+        result.lore(lore);
+        return result;
     }
 
     private ItemStack createHistoryItem(List<AHTransactionHistoryEntry> historyEntries){

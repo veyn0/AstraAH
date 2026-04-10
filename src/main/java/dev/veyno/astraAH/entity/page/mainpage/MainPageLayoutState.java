@@ -77,4 +77,9 @@ public class MainPageLayoutState {
     public void setFilter(List<Material> filter) {
         this.filter = filter;
     }
+
+    public void setCategoryScrollIndex(int categoryScrollIndex) {
+        if(categoryScrollIndex<0) categoryScrollIndex = 0;
+        this.categoryScrollIndex = categoryScrollIndex;
+    }
 }

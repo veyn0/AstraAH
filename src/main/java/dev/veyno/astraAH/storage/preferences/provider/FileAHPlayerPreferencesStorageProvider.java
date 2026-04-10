@@ -1,6 +1,7 @@
 package dev.veyno.astraAH.storage.preferences.provider;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.entity.ListingsFilter;
 import dev.veyno.astraAH.entity.PlayerPreferences;
 import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
 import dev.veyno.astraAH.storage.YamlStorage;
@@ -75,7 +76,11 @@ public class FileAHPlayerPreferencesStorageProvider implements AHPlayerPreferenc
             FileConfiguration config = storage.getFileConfiguration();
             String path = "preferences." + playerId;
             if (!config.contains(path + ".playerId")) {
-                return new PlayerPreferences(playerId);
+                List<PlayerPreferencesCategoryEntry> categories = new ArrayList<>();
+                for(ListingsFilter f : plugin.getConfiguration().getConfiguredCategories().getListingsFilters()){
+                    categories.add(new PlayerPreferencesCategoryEntry(f.preview(), f.materials()));
+                }
+                return new PlayerPreferences(playerId).withCategoryEntries(categories);
             }
 
             boolean showCategories = config.getBoolean(path + ".showCategories");
