@@ -31,4 +31,6 @@ public record PlayerPreferences(
         updatedEntries.add(categoryEntry);
         return withCategoryEntries(updatedEntries);
     }
+
+
 }

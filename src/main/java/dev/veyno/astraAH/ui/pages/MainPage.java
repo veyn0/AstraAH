@@ -11,14 +11,12 @@ import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
-import dev.veyno.astraAH.util.InteractionCooldown;
 import dev.veyno.astraAH.util.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -235,6 +233,7 @@ public class MainPage implements Page {
                     configuration.getSettingsIcon(),
                     action ->{
                         p.sendMessage("Clicked Settings icon");
+                        pageController.openSettingsPage(p, this);
                     }
             );
         }
@@ -312,10 +311,10 @@ public class MainPage implements Page {
         List<Component> lore = new ArrayList<>(categories.size());
         for(int i = 0; i < categories.size(); i++){
             if(i==index) {
-                lore.set(i, categories.get(i).preview().displayName().color(TextColor.color(32, 32, 254)));
+                lore.add(i, categories.get(i).preview().displayName().color(TextColor.color(32, 32, 254)));
             }
             else {
-                lore.set(i, categories.get(i).preview().displayName());
+                lore.add(i, categories.get(i).preview().displayName());
             }
         }
 

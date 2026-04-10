@@ -82,4 +82,8 @@ public class MainPageLayoutState {
         if(categoryScrollIndex<0) categoryScrollIndex = 0;
         this.categoryScrollIndex = categoryScrollIndex;
     }
+
+    public void setAdvancedCategories(ButtonLayout advancedCategories) {
+        this.advancedCategories = advancedCategories;
+    }
 }
