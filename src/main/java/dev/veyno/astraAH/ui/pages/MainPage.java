@@ -12,7 +12,6 @@ import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.NumberFormat;
-import net.kyori.adventure.text.BuildableComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -27,115 +26,130 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public class MainPage implements Page {
+
+    /*
+    TODO: pro spieler instanzieren, verwerfen das nicht persistente dinge in layoutstate gespeichert werden, alles soll auf basis des Clickableinventory objekts passieren und nciht doppelt gespeichert werden.
+     */
 
     private final AstraAH plugin;
 
     private final PageController pageController;
 
-    public MainPage(AstraAH plugin, PageController pageController) {
+    private List<Material> filter;
+
+    private UUID playerID;
+
+    private int categoryItemSelectedIndex = 0;
+    private int historySelectedIndex = 0;
+
+    private ClickableInventory inventory;
+    private ClickableInventory.InventoryRegion center;
+    private ClickableInventory.InventoryRegion sidebarLeft;
+    private ClickableInventory.InventoryRegion sidebarRight;
+    private ClickableInventory.InventoryRegion bottom;
+
+    private MainPageLayoutState layoutState;
+
+    private MainPageGuiConfiguration configuration;
+
+    public MainPageLayoutState getLayoutState() {
+        return layoutState;
+    }
+
+    public MainPage(AstraAH plugin, PageController pageController, UUID playerID, MainPageLayoutState layoutState) {
         this.plugin = plugin;
         this.pageController = pageController;
+        this.playerID = playerID;
+        this.configuration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
+        this.layoutState = layoutState;
+        rebuild();
     }
 
     @Override
-    public void open(Player p, MainPageLayoutState state, Page previousPage) {
-        MainPageGuiConfiguration mainPageGuiConfiguration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
-
-        PlayerPreferences preferences = plugin.getPlayerPreferencesStorageProvider().getPreferences(p.getUniqueId());
-
-        ClickableInventory inventory = new ClickableInventory(plugin.getInventoryManager(), mainPageGuiConfiguration.getTitle(), p);
-
-        ClickableInventory.InventoryRegion centerContent = buildCenterContent(p, state, inventory);
-
-        ClickableInventory.InventoryRegion navbar = createNavbar(p, inventory, state, centerContent, preferences);
-
-        if(state.getAdvancedCategories()== MainPageLayoutState.ButtonLayout.SIDEBAR){
-            buildCategorySidebar(p, state, inventory, mainPageGuiConfiguration, preferences);
-        }
-
-        if(state.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR){
-
-        }
-
+    public void open(Page previousPage) {
         inventory.open();
     }
 
     @Override
     public Component getPageTitle() {
-        return plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getTitle();
+        return configuration.getTitle();
     }
 
-    private ClickableInventory.InventoryRegion buildCategorySidebar(Player p, MainPageLayoutState layoutState, ClickableInventory inventory, MainPageGuiConfiguration configuration, PlayerPreferences preferences){
-        ClickableInventory.InventoryRegion result = inventory.createRegionFromCoords("categories", 0, 0, 0,5);
+    @Override
+    public void rebuild() {
+        inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID) );
+        createNavbar();
+        buildCenterContent();
+        if(layoutState.getAdvancedCategories()== MainPageLayoutState.ButtonLayout.SIDEBAR) {
+            buildCategorySidebar();
+        }
+    }
 
-        result.setStaticItem(
+    @Override
+    public void refresh() {
+        //TODO
+    }
+
+    private void buildCategorySidebar(){
+        sidebarLeft = inventory.createRegionFromCoords("categories", 0, 0, 0,5);
+
+        sidebarLeft.setStaticItem(
                 0,
                 new ItemStack(Material.SPECTRAL_ARROW),
                 action ->{
                     if(!action.isLeftClick()) return;
-                    layoutState.setCategoryScrollIndex(layoutState.getCategoryScrollIndex()-1);
-                    result.scrollByAndRefresh(-1);
+                    sidebarLeft.scrollByAndRefresh(-1);
                 }
         );
 
-        result.setStaticItem(
+        sidebarLeft.setStaticItem(
                 5,
                 new ItemStack(Material.SPECTRAL_ARROW),
                 action ->{
                     if(!action.isLeftClick()) return;
-                    layoutState.setCategoryScrollIndex(layoutState.getCategoryScrollIndex()+1);
-
-                    if(result.getItemCount() <= layoutState.getCategoryScrollIndex()){
-                        layoutState.setCategoryScrollIndex(result.getItemCount()-1);
-                    }
-                    else {
-                        result.scrollByAndRefresh(1);
-                    }
+                    sidebarLeft.scrollByAndRefresh(1);
                 }
         );
 
-        for(PlayerPreferencesCategoryEntry entry : preferences.categoryEntries()){
-            result.addItem(
+        for(PlayerPreferencesCategoryEntry entry : plugin.getAuctionHouse().getPreferencesBlocking(playerID).categoryEntries()){
+            sidebarLeft.addItem(
                     entry.preview(),
                     action ->{
                         if(!action.isLeftClick()) return;
-                        layoutState.setFilter(entry.filter());
-                        open(p, layoutState, null);
+                        filter = entry.filter();
+                        buildCenterContent();
+                        center.refresh();
+                        //open(Bukkit.getPlayer(playerID), layoutState, null);
                     }
             );
         }
-        result.scrollBy(layoutState.getCategoryScrollIndex());
-        return result;
     }
 
-    private ClickableInventory.InventoryRegion buildCenterContent(Player p, MainPageLayoutState layoutState, ClickableInventory inventory){
+    private void buildCenterContent(){
         int fromX = layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 1 : 0;
         int fromY = 0;
         int toX = layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 7 : 8;
         int toY = 4;
 
-        int page = layoutState.getListingsPageIndex();
-
         List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), layoutState.getSortType());
 
-        List<Material> filter = layoutState.getFilter();
+        if(center!=null) inventory.removeRegion("center");
+        center = inventory.createRegionFromCoords("center", fromX, fromY, toX, toY);
 
-        ClickableInventory.InventoryRegion centerContent = inventory.createRegionFromCoords("center", fromX, fromY, toX, toY);
         for(Listing l : listings){
             if(filter != null && !filter.contains(l.content().getType())) continue;
-            centerContent.addItem(getDisplayItem(l), clickContext -> {
+            center.addItem(getDisplayItem(l), clickContext -> {
                 if(clickContext.isLeftClick()){
-                    plugin.getLogger().info( p.getName()+" Leftclicked Listing.");
+                    plugin.getLogger().info( Bukkit.getPlayer(playerID).getName()+" Leftclicked Listing.");
                 }
                 else if(clickContext.isRightClick()){
-                    plugin.getLogger().info( p.getName()+" Rightclicked Listing.");
+                    plugin.getLogger().info( Bukkit.getPlayer(playerID).getName() +" Rightclicked Listing.");
                 }
             });
         }
-
-        return centerContent.openPage(page);
     }
 
     public List<Listing> sortListings(List<Listing> listings, SortType sortType) {
@@ -191,7 +205,7 @@ public class MainPage implements Page {
         return result;
     }
 
-    private ClickableInventory.InventoryRegion createNavbar(Player p, ClickableInventory inventory, MainPageLayoutState layoutState, ClickableInventory.InventoryRegion centerContent, PlayerPreferences preferences){
+    private void createNavbar(){
         int fromX = layoutState.getAdvancedCategories()== MainPageLayoutState.ButtonLayout.SIDEBAR ? 1 : 0;
         int y = 5;
         int toX = layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 7 : 8;
@@ -199,20 +213,21 @@ public class MainPage implements Page {
 
         MainPageGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
 
-        ClickableInventory.InventoryRegion result = inventory.createRegionFromCoords("navbar", fromX, y, toX, y);
+        bottom = inventory.createRegionFromCoords("navbar", fromX, y, toX, y);
 
-        result.setItem(
+        bottom.setItem(
                 0,
                 configuration.getNavigationArrowLeft(),
                 action ->{
-                    centerContent.previousPageAndRefresh();
+                    if(!action.isDoubleClick()) return;
+                    center.previousPageAndRefresh();
                 }
         );
 
         int index = 1;
 
         if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.BUTTON){
-            createCategoryItem(p, preferences, layoutState, result, index);
+            createCategoryItem(index);
             index++;
         }
         else if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.DISABLED){
@@ -220,45 +235,45 @@ public class MainPage implements Page {
         }
 
         if(layoutState.getButtonLayout().isShowSettings()){
-            result.setItem(
+            bottom.setItem(
                     index,
                     configuration.getSettingsIcon(),
                     action ->{
-                        p.sendMessage("Clicked Settings icon");
-                        pageController.openSettingsPage(p, this);
+                        Bukkit.getPlayer(playerID).sendMessage("Clicked Settings icon");
+                        pageController.openSettingsPage(playerID);
                     }
             );
         }
         index++;
 
         if(layoutState.getButtonLayout().isShowMyListings()){
-            result.setItem(
+            bottom.setItem(
                     index,
                     configuration.getMyListingsIcon(),
                     action ->{
-                        p.sendMessage("Clicked My Listings icon");
+                        Bukkit.getPlayer(playerID).sendMessage("Clicked My Listings icon");
                     }
             );
         }
         index++;
 
         if(layoutState.getButtonLayout().isShowRefresh()){
-            result.setItem(
+            bottom.setItem(
                     index,
                     configuration.getRefreshIcon(),
                     action ->{
-                        p.sendMessage("Clicked Refresh icon");
+                        Bukkit.getPlayer(playerID).sendMessage("Clicked Refresh icon");
                     }
             );
         }
         index++;
 
         if(layoutState.getButtonLayout().isShowSort()){
-            result.setItem(
+            bottom.setItem(
                     index,
                     configuration.getSortIcon(),
                     action ->{
-                        p.sendMessage("Clicked Sort icon");
+                        Bukkit.getPlayer(playerID).sendMessage("Clicked Sort icon");
                     }
             );
         }
@@ -266,11 +281,11 @@ public class MainPage implements Page {
 
 
         if(layoutState.getButtonLayout().isShowSearch()){
-            result.setItem(
+            bottom.setItem(
                     index,
                     configuration.getSearchIcon(),
                     action ->{
-                        p.sendMessage("Clicked Search icon");
+                        Bukkit.getPlayer(playerID).sendMessage("Clicked Search icon");
                     }
             );
         }
@@ -279,49 +294,49 @@ public class MainPage implements Page {
         if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.DISABLED){
         }
         else if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.BUTTON){
-            result.setItem(
+            bottom.setItem(
                     index,
                     createHistoryItem(null),
                     action ->{
-                        p.sendMessage("Clicked History icon");
+                        Bukkit.getPlayer(playerID).sendMessage("Clicked History icon");
                     }
             );
         }
 
-        result.setItem(
+        bottom.setItem(
                 highestSlot,
                 configuration.getNavigationArrowRight(),
                 action ->{
-                    centerContent.nextPageAndRefresh();
+                    if(!action.isDoubleClick()) return;
+                    center.nextPageAndRefresh();
                 }
         );
-
-        return result;
     }
 
-
-    private void createCategoryItem(Player p, PlayerPreferences preferences, MainPageLayoutState layoutState, ClickableInventory.InventoryRegion inventoryRegion, int index) {
-        inventoryRegion.setItem(
+    private void createCategoryItem(int index) {
+        bottom.setItem(
                 index,
-                createCategoryItem(preferences.categoryEntries(), layoutState.getSelectedCategoryIndex()),
+                createCategoryItem(plugin.getAuctionHouse().getPreferencesBlocking(playerID).categoryEntries(), categoryItemSelectedIndex),
                 action ->{
-                    p.sendMessage("Category " + layoutState.getSelectedCategoryIndex());
-                    p.sendMessage("Category size: " + preferences.categoryEntries().size());
+                    PlayerPreferences preferences = plugin.getAuctionHouse().getPreferencesBlocking(playerID);
                     if(action.isLeftClick()){
-                        if(preferences.categoryEntries().size()>layoutState.getSelectedCategoryIndex()+1){
-                            p.sendMessage("mmm");
-                            layoutState.setSelectedCategoryIndex(layoutState.getSelectedCategoryIndex()+1);
-                            layoutState.setFilter(preferences.categoryEntries().get(layoutState.getSelectedCategoryIndex()).filter());
-                            createCategoryItem(p, preferences, layoutState, inventoryRegion, index);
-                            inventoryRegion.refresh();
+                        if(preferences.categoryEntries().size()>categoryItemSelectedIndex+1){
+                            categoryItemSelectedIndex = (categoryItemSelectedIndex+1);
+                            filter = (preferences.categoryEntries().get(categoryItemSelectedIndex).filter());
+                            createCategoryItem(index);
+                            buildCenterContent();
+                            center.refresh();
+                            bottom.refresh();
                         }
                     }
                     else if(action.isRightClick()){
-                        if(layoutState.getSelectedCategoryIndex()> 0){
-                            layoutState.setSelectedCategoryIndex(layoutState.getSelectedCategoryIndex()-1);
-                            layoutState.setFilter(preferences.categoryEntries().get(layoutState.getSelectedCategoryIndex()).filter());
-                            createCategoryItem(p, preferences, layoutState, inventoryRegion, index);
-                            inventoryRegion.refresh();
+                        if(categoryItemSelectedIndex> 0){
+                            categoryItemSelectedIndex = (categoryItemSelectedIndex-1);
+                            filter = (preferences.categoryEntries().get(categoryItemSelectedIndex).filter());
+                            createCategoryItem(index);
+                            buildCenterContent();
+                            center.refresh();
+                            bottom.refresh();
                         }
                     }
                 }

@@ -7,8 +7,11 @@ import org.bukkit.entity.Player;
 
 public interface Page {
 
-    void open(Player p, MainPageLayoutState state, Page previousPage);
+    void open(Page previousPage);
 
     Component getPageTitle();
 
+    void rebuild();
+
+    void refresh();
 }

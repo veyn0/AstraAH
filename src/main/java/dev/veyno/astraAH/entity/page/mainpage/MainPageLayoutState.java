@@ -11,11 +11,6 @@ public class MainPageLayoutState {
     private SortType sortType;
     private List<Material> filter;
 
-    private int selectedCategoryIndex;
-
-    private int categoryScrollIndex;
-    private int historyScrollIndex;
-    private int listingsPageIndex;
 
     private MainPageButtonLayout buttonLayout;
 
@@ -24,20 +19,9 @@ public class MainPageLayoutState {
         this.advancedHistory = advancedHistory;
         this.sortType = sortType;
         this.filter = filter;
-        this.categoryScrollIndex = categoryScrollIndex;
-        this.historyScrollIndex = historyScrollIndex;
-        this.listingsPageIndex = listingsPageIndex;
         this.buttonLayout = buttonLayout;
-        this.selectedCategoryIndex = selectedCategoryIndex;
     }
 
-    public int getCategoryScrollIndex() {
-        return categoryScrollIndex;
-    }
-
-    public int getHistoryScrollIndex() {
-        return historyScrollIndex;
-    }
 
     public ButtonLayout isShowAdvancedCategories() {
         return advancedCategories;
@@ -55,14 +39,11 @@ public class MainPageLayoutState {
         return filter;
     }
 
-    public int getListingsPageIndex() {
-        return listingsPageIndex;
-    }
-
     public MainPageButtonLayout getButtonLayout() {
         return buttonLayout;
     }
 
+    @Deprecated
     public enum ButtonLayout {
         DISABLED,
         BUTTON,
@@ -81,20 +62,4 @@ public class MainPageLayoutState {
         this.filter = filter;
     }
 
-    public void setCategoryScrollIndex(int categoryScrollIndex) {
-        if(categoryScrollIndex<0) categoryScrollIndex = 0;
-        this.categoryScrollIndex = categoryScrollIndex;
-    }
-
-    public void setAdvancedCategories(ButtonLayout advancedCategories) {
-        this.advancedCategories = advancedCategories;
-    }
-
-    public void setSelectedCategoryIndex(int selectedCategoryIndex) {
-        this.selectedCategoryIndex = selectedCategoryIndex;
-    }
-
-    public int getSelectedCategoryIndex() {
-        return selectedCategoryIndex;
-    }
 }
