@@ -6,7 +6,6 @@ import dev.veyno.astraAH.entity.*;
 import dev.veyno.astraAH.entity.page.*;
 import dev.veyno.astraAH.entity.page.mainpage.MainPageButtonLayout;
 import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
-import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
@@ -337,7 +336,7 @@ public class AuctionHouse {
         return null;
     }
 
-    public MainPageLayoutState getDefaultLayoutBlocking(Player p){
+    public MainPageLayoutState getLayoutBlocking(Player p){
         PlayerPreferences playerPreferences = getPreferencesBlocking(p.getUniqueId());
         AllowedPlayerActions allowedActions = getAllowedPlayerActionsBlocking(p.getUniqueId());
 
@@ -359,7 +358,7 @@ public class AuctionHouse {
 
         MainPageButtonLayout buttonLayout = new MainPageButtonLayout(showSettings, showMyListings, showRefresh, showSort, showSearch);
 
-        return new MainPageLayoutState(categories, history, sortType, null, 0, 0, 0, buttonLayout, 0);
+        return new MainPageLayoutState(categories, history, sortType, null, buttonLayout);
     }
 
     //TODO: Methods to Get ButtonLayout alone

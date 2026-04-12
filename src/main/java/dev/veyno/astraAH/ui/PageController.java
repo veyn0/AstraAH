@@ -1,11 +1,9 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.ui.pages.MainPage;
 import dev.veyno.astraAH.ui.pages.SettingsPage;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +22,9 @@ public class PageController {
     }
 
     public void openMainPage(UUID playerId, boolean reload){
-        mainPages.get(playerId).open(null);
+        MainPage page = getMainPage(playerId);
+        if(reload) page.rebuild();
+        page.open(null);
     }
 
     public void openSettingsPage(UUID playerId){
@@ -39,7 +39,7 @@ public class PageController {
     }
 
     public MainPage getMainPage(UUID playerId){
-        if(!mainPages.containsKey(playerId)) mainPages.put(playerId, new MainPage(plugin, this, playerId, plugin.getAuctionHouse().getDefaultLayoutBlocking(Bukkit.getPlayer(playerId))) );
+        if(!mainPages.containsKey(playerId)) mainPages.put(playerId, new MainPage(plugin, this, playerId, plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId))) );
         return mainPages.get(playerId);
     }
 

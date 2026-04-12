@@ -14,7 +14,7 @@ public class MainPageLayoutState {
 
     private MainPageButtonLayout buttonLayout;
 
-    public MainPageLayoutState(ButtonLayout advancedCategories, ButtonLayout advancedHistory, SortType sortType, List<Material> filter, int categoryScrollIndex, int historyScrollIndex, int listingsPageIndex, MainPageButtonLayout buttonLayout, int selectedCategoryIndex) {
+    public MainPageLayoutState(ButtonLayout advancedCategories, ButtonLayout advancedHistory, SortType sortType, List<Material> filter, MainPageButtonLayout buttonLayout) {
         this.advancedCategories = advancedCategories;
         this.advancedHistory = advancedHistory;
         this.sortType = sortType;

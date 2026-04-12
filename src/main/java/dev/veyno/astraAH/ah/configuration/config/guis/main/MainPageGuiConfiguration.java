@@ -9,6 +9,9 @@ public class MainPageGuiConfiguration extends Configurable {
 
     private final Component title;
 
+    private String categoryEnabled;
+    private String categoryDisabled;
+
     private final ItemStack navigationArrowLeft;
     private final ItemStack navigationArrowRight;
     private final ItemStack settingsIcon;
@@ -49,6 +52,8 @@ public class MainPageGuiConfiguration extends Configurable {
         this.scrollDownCategoriesIcon = getItem("scroll_down_categories");
         this.scrollUpHistoryIcon = getItem("scroll_up_history");
         this.scrollDownHistoryIcon = getItem("scroll_down_history");
+        this.categoryEnabled = getString("category_enabled");
+        this.categoryDisabled = getString("category_disabled");
     }
 
     public Component getTitle() {
@@ -113,5 +118,14 @@ public class MainPageGuiConfiguration extends Configurable {
 
     public ItemStack getScrollDownHistoryIcon() {
         return scrollDownHistoryIcon;
+    }
+
+
+    public String getCategoryDisabled() {
+        return categoryDisabled;
+    }
+
+    public String getCategoryEnabled() {
+        return categoryEnabled;
     }
 }

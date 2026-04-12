@@ -3,7 +3,6 @@ package dev.veyno.astraAH.ui.pages;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.config.guis.SettingsGuiConfiguration;
 import dev.veyno.astraAH.entity.PlayerPreferences;
-import dev.veyno.astraAH.entity.page.AllowedPlayerActions;
 import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
@@ -11,9 +10,7 @@ import dev.veyno.astraAH.util.ClickableInventory;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 import java.util.UUID;
 
@@ -27,7 +24,6 @@ public class SettingsPage implements Page {
 
     private ClickableInventory inventory;
     private ClickableInventory.InventoryRegion content;
-
 
     public SettingsPage(AstraAH plugin, PageController pageController, UUID playerId) {
         this.plugin = plugin;
@@ -53,19 +49,18 @@ public class SettingsPage implements Page {
 
 //        AllowedPlayerActions allowedPlayerActions = plugin.getAuctionHouse().getAllowedPlayerActionsBlocking(playerId);
 
-
         content.setItem(
                 10,
                 configuration.getCategoryToggleIcon(),
                 action ->{
-                    Bukkit.getLogger().info("clicked toggle categories");
-                    MainPageLayoutState.ButtonLayout layout = plugin.getAuctionHouse().getLayout(Bukkit.getPlayer(playerId)).getAdvancedCategories();
-                    if(layout== MainPageLayoutState.ButtonLayout.DISABLED){
-                    }
-                    else {
+                    MainPageLayoutState.ButtonLayout layout = plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId)).getAdvancedCategories();
+                    if(layout!= MainPageLayoutState.ButtonLayout.DISABLED){
                         PlayerPreferences preferences = plugin.getAuctionHouse().getPreferencesBlocking(playerId);
-                        Bukkit.getLogger().info("Categories: " + preferences.showCategories());
                         plugin.getAuctionHouse().setPreferencesBlocking(playerId, new PlayerPreferences(playerId, preferences.categoryEntries(), !preferences.showCategories(), preferences.showHistory() ));
+                        MainPage mainPage = pageController.getMainPage(playerId);
+                        mainPage.setLayoutState(plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId)));
+                        mainPage.resetFilter();
+                        mainPage.rebuild();
                     }
                 }
         );
@@ -74,14 +69,14 @@ public class SettingsPage implements Page {
                 12,
                 configuration.getHistoryToggleIcon(),
                 action ->{
-                    Bukkit.getLogger().info("clicked toggle history");
-                    MainPageLayoutState.ButtonLayout layout = plugin.getAuctionHouse().getLayout(Bukkit.getPlayer(playerId)).getAdvancedHistory();
-                    if(layout== MainPageLayoutState.ButtonLayout.DISABLED){
-                    }
-                    else {
+                    MainPageLayoutState.ButtonLayout layout = plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId)).getAdvancedHistory();
+                    if(layout!= MainPageLayoutState.ButtonLayout.DISABLED){
                         PlayerPreferences preferences = plugin.getAuctionHouse().getPreferencesBlocking(playerId);
-                        Bukkit.getLogger().info("History: " + preferences.showHistory());
                         plugin.getAuctionHouse().setPreferencesBlocking(playerId, new PlayerPreferences(playerId, preferences.categoryEntries(), preferences.showCategories(), !preferences.showHistory() ));
+                        MainPage mainPage = pageController.getMainPage(playerId);
+                        mainPage.setLayoutState(plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId)));
+                        mainPage.resetFilter();
+                        mainPage.rebuild();
                     }
                 }
         );

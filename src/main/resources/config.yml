@@ -1,6 +1,8 @@
 guis:
   main_page:
     title: "<dark_gray>Market - ur-server.de"
+    category_enabled: "<b><gray>><blue> {NAME}"
+    category_disabled: "<gray>| <white>{NAME}"
     sort_options:
       enabled:
         name_a_z: "<blue>Name A -> Z"
@@ -29,91 +31,93 @@ guis:
         display-name: "<gray><b>Previous Page</b>"
         lore:
           - "<dark_gray>Navigate to the"
-          - "<dark_gray>previous page."
+          - "<dark_gray>previous page"
       settings:
         material: CRAFTER
         amount: 1
         display-name: "<gray><b>Settings</b>"
         lore:
           - "<dark_gray>Adjust your personal"
-          - "<dark_gray>market preferences."
+          - "<dark_gray>market preferences"
       my_listings:
         material: CHEST
         amount: 1
         display-name: "<gray><b>My Listings</b>"
         lore:
           - "<dark_gray>View and manage"
-          - "<dark_gray>your active listings."
+          - "<dark_gray>your active listings"
       refresh:
         material: COMPASS
         amount: 1
         display-name: "<gray><b>Refresh</b>"
         lore:
           - "<dark_gray>Reload the current"
-          - "<dark_gray>market listings."
+          - "<dark_gray>market listings"
       sort:
         material: HOPPER
         amount: 1
         display-name: "<gray><b>Sort</b>"
         lore:
           - "<dark_gray>Change the sorting"
-          - "<dark_gray>order of listings."
+          - "<dark_gray>order of listings"
       search:
         material: SPYGLASS
         amount: 1
         display-name: "<gray><b>Search</b>"
         lore:
           - "<dark_gray>Search for a specific"
-          - "<dark_gray>item in the market."
+          - "<dark_gray>item in the market"
       categories:
         material: BOOKSHELF
         amount: 1
         display-name: "<gray><b>Categories</b>"
         lore:
-          - "<dark_gray>Browse listings"
-          - "<dark_gray>by category."
+          - " "
+          - "<dark_gray>Left Click to scroll up"
+          - "<dark_gray>Right click to scroll down"
+          - " "
       history:
         material: CLOCK
         amount: 1
         display-name: "<gray><b>History</b>"
         lore:
           - "<dark_gray>View your past"
-          - "<dark_gray>purchases and sales."
+          - "<dark_gray>purchases and sales"
       arrow_right:
         material: ARROW
         amount: 1
         display-name: "<gray><b>Next Page</b>"
         lore:
           - "<dark_gray>Navigate to the"
-          - "<dark_gray>next page."
+          - "<dark_gray>next page"
       scroll_up_categories:
         material: SPECTRAL_ARROW
         amount: 1
         display-name: "<gray><b>Scroll Up</b>"
         lore:
           - "<dark_gray>Click to Scroll"
-          - "<dark_gray>the Categories."
+          - "<dark_gray>the Categories"
       scroll_down_categories:
         material: SPECTRAL_ARROW
         amount: 1
         display-name: "<gray><b>Scroll Down</b>"
         lore:
           - "<dark_gray>Click to Scroll"
-          - "<dark_gray>the Categories."
+          - "<dark_gray>the Categories"
       scroll_up_history:
         material: SPECTRAL_ARROW
         amount: 1
         display-name: "<gray><b>Scroll Up</b>"
         lore:
           - "<dark_gray>Click to Scroll"
-          - "<dark_gray>the History."
+          - "<dark_gray>the History"
       scroll_down_history:
         material: SPECTRAL_ARROW
         amount: 1
         display-name: "<gray><b>Scroll Down</b>"
         lore:
           - "<dark_gray>Click to Scroll"
-          - "<dark_gray>the History."
+          - "<dark_gray>the History"
   create_listing_1:
     title: "<dark_gray>Create Listing - Select Item"
     items:
@@ -123,7 +127,7 @@ guis:
         display-name: "<gray><b>Cancel</b>"
         lore:
           - "<dark_gray>Abort and return"
-          - "<dark_gray>to the market."
+          - "<dark_gray>to the market"
   create_listing_2:
     lines:
       1: "^^^^^^^^^^^^^^^"
@@ -138,14 +142,14 @@ guis:
         display-name: "<gray><b>Confirm Listing</b>"
         lore:
           - "<dark_gray>Create this listing"
-          - "<dark_gray>on the market."
+          - "<dark_gray>on the market"
       cancel:
         material: BARRIER
         amount: 1
         display-name: "<gray><b>Cancel</b>"
         lore:
           - "<dark_gray>Abort and return"
-          - "<dark_gray>to the market."
+          - "<dark_gray>to the market"
   settings:
     title: "<dark_gray>Settings"
     items:
@@ -155,28 +159,28 @@ guis:
         display-name: "<gray><b>Toggle Categories</b>"
         lore:
           - "<dark_gray>Enable or disable the"
-          - "<dark_gray>categories bar."
+          - "<dark_gray>categories bar"
       history_toggle:
         material: CLOCK
         amount: 1
         display-name: "<gray><b>Toggle History</b>"
         lore:
           - "<dark_gray>Enable or disable your"
-          - "<dark_gray>transaction history."
+          - "<dark_gray>transaction history"
       default_filter:
         material: HOPPER
         amount: 1
         display-name: "<gray><b>Default Filter</b>"
         lore:
           - "<dark_gray>Set your preferred"
-          - "<dark_gray>default sort filter."
+          - "<dark_gray>default sort filter"
       default_category:
         material: CHEST
         amount: 1
         display-name: "<gray><b>Default Category</b>"
         lore:
           - "<dark_gray>Set your preferred"
-          - "<dark_gray>default category."
+          - "<dark_gray>default category"
   my_listings:
     title: "<dark_gray>My Listings"
     items:
@@ -186,21 +190,21 @@ guis:
         display-name: "<gray><b>Back</b>"
         lore:
           - "<dark_gray>Return to"
-          - "<dark_gray>the market."
+          - "<dark_gray>the market"
       next_page:
         material: ARROW
         amount: 1
         display-name: "<gray><b>Next Page</b>"
         lore:
           - "<dark_gray>Navigate to the"
-          - "<dark_gray>next page."
+          - "<dark_gray>next page"
       previous_page:
         material: ARROW
         amount: 1
         display-name: "<gray><b>Previous Page</b>"
         lore:
           - "<dark_gray>Navigate to the"
-          - "<dark_gray>previous page."
+          - "<dark_gray>previous page"
   listing_info:
     title: "<dark_gray>Listing Details"
     show_seller_head: false
@@ -227,7 +231,7 @@ guis:
         display-name: "<gray><b>Back</b>"
         lore:
           - "<dark_gray>Return to"
-          - "<dark_gray>the market."
+          - "<dark_gray>the market"
 
 categories:
   filter0:
