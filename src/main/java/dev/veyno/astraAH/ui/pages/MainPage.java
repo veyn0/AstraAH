@@ -239,7 +239,7 @@ public class MainPage implements Page {
                 0,
                 configuration.getNavigationArrowLeft(),
                 action ->{
-                    if(!action.isDoubleClick()) return;
+                    if(action.isDoubleClick()) return;
                     center.previousPageAndRefresh();
                 }
         );
@@ -322,7 +322,7 @@ public class MainPage implements Page {
                 highestSlot,
                 configuration.getNavigationArrowRight(),
                 action ->{
-                    if(!action.isDoubleClick()) return;
+                    if(action.isDoubleClick()) return;
                     center.nextPageAndRefresh();
                 }
         );
