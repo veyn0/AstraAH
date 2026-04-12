@@ -240,6 +240,13 @@ guis:
         lore:
           - "<dark_gray>Return to"
           - "<dark_gray>the market"
+      delete:
+        material: RED_CONCRETE
+        amount: 1
+        display-name: "<gray><b>DELETE</b>"
+        lore:
+          - "<dark_gray>Click to"
+          - "<dark_gray>delete your listing"
 
 categories:
   filter0:

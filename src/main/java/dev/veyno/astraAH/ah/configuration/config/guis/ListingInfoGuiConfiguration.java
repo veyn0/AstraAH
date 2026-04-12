@@ -12,6 +12,7 @@ public class ListingInfoGuiConfiguration extends Configurable {
     private final ItemStack sellerHeadIcon;
     private final ItemStack infoIcon;
     private final ItemStack backIcon;
+    private final ItemStack deleteIcon;
 
     public ListingInfoGuiConfiguration(AstraAH plugin, String path) {
         super(path, plugin);
@@ -21,6 +22,7 @@ public class ListingInfoGuiConfiguration extends Configurable {
         this.sellerHeadIcon = getItem("seller_head");
         this.infoIcon = getItem("info");
         this.backIcon = getItem("back");
+        this.deleteIcon = getItem("delete");
     }
 
     public Component getTitle() {
@@ -41,5 +43,9 @@ public class ListingInfoGuiConfiguration extends Configurable {
 
     public ItemStack getBackIcon() {
         return backIcon.clone();
+    }
+
+    public ItemStack getDeleteIcon() {
+        return deleteIcon;
     }
 }

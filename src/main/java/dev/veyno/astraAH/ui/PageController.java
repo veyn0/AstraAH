@@ -1,9 +1,10 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ui.pages.MainPage;
-import dev.veyno.astraAH.ui.pages.SettingsPage;
+import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.ui.pages.*;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,12 @@ public class PageController {
     private Map<UUID, MainPage> mainPages = new ConcurrentHashMap<>();
 
     private Map<UUID, SettingsPage> settingsPages = new ConcurrentHashMap<>();
+
+    private Map<UUID, CreateListingsPage> createListingsPages = new ConcurrentHashMap<>();
+
+    private Map<UUID, MyListingsPage> myListingsPages = new ConcurrentHashMap<>();
+
+    private Map<UUID, ListingInfoPage> listingInfoPages = new ConcurrentHashMap<>();
 
     public PageController(AstraAH plugin) {
         this.plugin = plugin;
@@ -33,6 +40,12 @@ public class PageController {
         page.open(getMainPage(playerId));
     }
 
+    public void openCreateListingsPage(UUID playerID){
+        CreateListingsPage page = getCreateListingsPage(playerID);
+        page.open(getMyListingsPage(playerID));
+    }
+
+
     public SettingsPage getSettingsPage(UUID playerId){
         if(!settingsPages.containsKey(playerId)) settingsPages.put(playerId, new SettingsPage(plugin, this, playerId) );
         return settingsPages.get(playerId);
@@ -43,7 +56,19 @@ public class PageController {
         return mainPages.get(playerId);
     }
 
+    public CreateListingsPage getCreateListingsPage(UUID playerID){
+        if(!createListingsPages.containsKey(playerID)) createListingsPages.put(playerID, new CreateListingsPage(plugin, playerID, this));
+        return createListingsPages.get(playerID);
+    }
 
+    public MyListingsPage getMyListingsPage(UUID playerID){
+        if(!myListingsPages.containsKey(playerID)) myListingsPages.put(playerID, new MyListingsPage(playerID, plugin, this));
+        return myListingsPages.get(playerID);
+    }
 
+    public ListingInfoPage getListingInfoPage(UUID playerID){
+        if(!listingInfoPages.containsKey(playerID))listingInfoPages.put(playerID, new ListingInfoPage(playerID,this, plugin ));
+        return listingInfoPages.get(playerID);
+    }
 
 }

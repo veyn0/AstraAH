@@ -270,16 +270,7 @@ public class MainPage implements Page {
                     index,
                     configuration.getMyListingsIcon(),
                     action ->{
-
-                        Dialog dialog = InteractiveDialogGui.create(Component.text("Hinweis"))
-                                .message(Component.text("Das hier hat keine funktion lol"))
-                                .notice(
-                                        Component.text("OK"),
-                                        Component.text("Dialog schließen"),
-                                        () -> {}
-                                )
-                                .build();
-                        action.getPlayer().showDialog(dialog);
+                        pageController.getMyListingsPage(playerID).open(this);
                         Bukkit.getPlayer(playerID).sendMessage("Clicked My Listings icon");
                     }
             );

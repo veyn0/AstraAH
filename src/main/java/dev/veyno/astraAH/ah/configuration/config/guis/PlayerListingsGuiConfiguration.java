@@ -12,7 +12,7 @@ public class PlayerListingsGuiConfiguration extends Configurable {
     private final ItemStack backIcon;
     private final ItemStack nextPageIcon;
     private final ItemStack previousPageIcon;
-    private final ItemStack createListing;
+    private final ItemStack createListingIcon;
 
     public PlayerListingsGuiConfiguration(String path, AstraAH plugin) {
         super(path, plugin);
@@ -22,7 +22,7 @@ public class PlayerListingsGuiConfiguration extends Configurable {
         this.backIcon = getItem("back");
         this.nextPageIcon = getItem("next_page");
         this.previousPageIcon = getItem("previous_page");
-        this.createListing = getItem("create_listing");
+        this.createListingIcon = getItem("create_listing");
     }
 
     public Component getTitle() {
@@ -41,7 +41,7 @@ public class PlayerListingsGuiConfiguration extends Configurable {
         return previousPageIcon.clone();
     }
 
-    public ItemStack getCreateListing() {
-        return createListing;
+    public ItemStack getCreateListingIcon() {
+        return createListingIcon;
     }
 }
