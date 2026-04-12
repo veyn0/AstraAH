@@ -205,6 +205,14 @@ guis:
         lore:
           - "<dark_gray>Navigate to the"
           - "<dark_gray>previous page"
+      create_listing:
+        material: CRAFTING_TABLE
+        amount: 1
+        display-name: "<gray><b>Create Listing</b>"
+        lore:
+          - "<dark_gray>Sell an Item"
+          - "<dark_gray>on the AuctionHouse"
+
   listing_info:
     title: "<dark_gray>Listing Details"
     show_seller_head: false

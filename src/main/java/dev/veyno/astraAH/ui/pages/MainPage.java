@@ -14,6 +14,7 @@ import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.InteractiveDialogGui;
 import dev.veyno.astraAH.util.NumberFormat;
 import io.papermc.paper.dialog.Dialog;
+import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class MainPage implements Page {
 
@@ -270,11 +272,11 @@ public class MainPage implements Page {
                     action ->{
 
                         Dialog dialog = InteractiveDialogGui.create(Component.text("Hinweis"))
-                                .message(Component.text("Dies ist eine einfache Nachricht."))
+                                .message(Component.text("Das hier hat keine funktion lol"))
                                 .notice(
                                         Component.text("OK"),
                                         Component.text("Dialog schließen"),
-                                        () -> System.out.println("Spieler hat bestätigt.")
+                                        () -> {}
                                 )
                                 .build();
                         action.getPlayer().showDialog(dialog);
@@ -307,8 +309,7 @@ public class MainPage implements Page {
                     index,
                     configuration.getSearchIcon(),
                     action ->{
-                        Bukkit.getPlayer(playerID).sendMessage("Clicked Search icon");
-
+                        openSearchDialog(action.getPlayer());
                     }
             );
         }
@@ -334,6 +335,44 @@ public class MainPage implements Page {
                     center.nextPageAndRefresh();
                 }
         );
+    }
+
+    private void openSearchDialog(Player p){
+        Bukkit.getPlayer(playerID).sendMessage("Clicked Search icon");
+        Dialog dialog = InteractiveDialogGui.create(Component.text("Search"))
+                .input(
+                        DialogInput.text(
+                                "value",
+                                Component.text("Search term:")
+                        ).build()
+                )
+                .confirmation(
+                        Component.text("OK"),
+                        null,
+                        ctx -> {
+                            String value = ctx.getText("value");
+                            onSearch(value);
+                        },
+                        Component.text("Cancel"),
+                        null,
+                        (Consumer<InteractiveDialogGui.DialogContext>) null
+                )
+                .build();
+        p.showDialog(dialog);
+    }
+
+    private void onSearch(String searchTerm){
+        searchTerm = searchTerm.replace(" ", "_");
+        List<Material> result = new ArrayList<>();
+        for(Material m : Material.values()){
+            if(m.name().toLowerCase().contains(searchTerm)){
+                result.add(m);
+            }
+        }
+        refresh();
+        filter = result;
+        rebuild();
+        open(null);
     }
 
     private void createSortItem(int index) {
