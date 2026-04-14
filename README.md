@@ -4,6 +4,9 @@ Packet-based Auction House plugin for Paper/Folia servers.
 
 This repository is currently an alpha/work-in-progress branch: the packet GUI framework, YAML-backed storage, configuration model, and core auction domain classes already exist, but several player-facing flows are still only partially wired or are mid-refactor.
 
+
+
+
 ## Current Implementation Status
 
 | Area | Status | Notes |
@@ -22,6 +25,51 @@ This repository is currently an alpha/work-in-progress branch: the packet GUI fr
 | Permissions integration | Partial | Permission nodes and provider abstractions exist, but provider setup is incomplete |
 | JDBC storage | Stub | Class exists, methods are empty |
 | Language / i18n | Partial | `settings.language` exists, active bundled language resources are not finished |
+
+| Feature                                                    | AstraAH | AxAuctions | zAuctionHouse | DonutAuction | AuctionHouse | auction-house-plugin | NexusAuctionHouse |
+|------------------------------------------------------------|---------|------------|---------------|--------------|--------------|----------------------|-------------------|
+|                                                            | ✅❌🟡    |            |               |              |              |                      |                   |
+| All GUI Items configurable                                 | ✅       |            |               |              |              |                      |                   |
+| Folia Support                                              | ✅       |            |               |              |              |                      |                   |
+| Keep UI state between sessions                             | ✅       |            |               |              |              |                      |                   |
+| custom categories                                          | ✅       |            |               |              |              |                      |                   |
+| players can create personal Filters                        | 🟡      |            |               |              |              |                      |                   |
+| quickly filter by last bought items lowest price           | 🟡      |            |               |              |              |                      |                   |
+| Supports PlaceholderAPI placeholders                       | 🟡      |            |               |              |              |                      |                   |
+| search function                                            | ✅       |            |               |              |              |                      |                   |
+| Advanced Search: price range, include enchantments         | 🟡      |            |               |              |              |                      |                   |
+| Fast GUI navigation                                        | ✅       |            |               |              |              |                      |                   |
+| Low resource consumption                                   |         |            |               |              |              |                      |                   |
+| Packet based Dupe safe GUI                                 | ✅       |            |               |              |              |                      |                   |
+| all features can be disabled                               | ✅       |            |               |              |              |                      |                   |
+| set features per player or with permission                 | ✅       |            |               |              |              |                      |                   |
+| individually configurable GUI layout                       | ✅       |            |               |              |              |                      |                   |
+| multi currency support                                     | 🟡      |            |               |              |              |                      |                   |
+| File Storage Support                                       | ✅       |            |               |              |              |                      |                   |
+| mysql Database Storage and Multi Server Sync               | 🟡      |            |               |              |              |                      |                   |
+| Optional Redis for Highest performance                     | 🟡      |            |               |              |              |                      |                   |
+| works on Proxy                                             | 🟡      |            |               |              |              |                      |                   |
+| intigrated translation for en/de                           | 🟡      |            |               |              |              |                      |                   |
+| built in economy for standalone use without Economy plugin | 🟡      |            |               |              |              |                      |                   |
+| Blacklist Items, descriptions or properties                | 🟡      |            |               |              |              |                      |                   |
+| Supports custom Textures                                   |         |            |               |              |              |                      |                   |
+| Admin UI                                                   | 🟡      |            |               |              |              |                      |                   |
+| Admin UI features per player or with permission            | 🟡      |            |               |              |              |                      |                   |
+| public Discord / Ingame Notifications                      | 🟡      |            |               |              |              |                      |                   |
+| Discord / Ingame Alerts for suspicous behavior             | 🟡      |            |               |              |              |                      |                   |
+| Notifications for missed purchases                         |         |            |               |              |              |                      |                   |
+| Limits configurable per player or with permissions         |         |            |               |              |              |                      |                   |
+| Taxes and/or fees when listing a item                      | 🟡      |            |               |              |              |                      |                   |
+| Taxes and/or fees when listing is purchased                | 🟡      |            |               |              |              |                      |                   |
+| Java API for Developer                                     | 🟡      |            |               |              |              |                      |                   |
+| HTTP API for Developer                                     | 🟡      |            |               |              |              |                      |                   |
+| Collect AuctionHouse statistics                            | 🟡      |            |               |              |              |                      |                   |
+| Fully customizable Inventory layout                        | 🟡      |            |               |              |              |                      |                   |
+| import from other plugins                                  |         |            |               |              |              |                      |                   |
+| can be imported into AstraAH                               |         | planned    | planned       | planned      | planned      | planned              | planned           |
+
+
+
 
 ## What Is Already Built Into The Repository
 

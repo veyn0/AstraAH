@@ -178,6 +178,18 @@ public class AuctionHouse {
         }
     }
 
+    public boolean createListingBlocking(Listing l){
+        synchronized (IDLocks.getLock(l.listingId())){
+            try {
+                storage.saveListing(l);
+            }catch (Exception e){
+                return false;
+            }
+        }
+        onListingUpdateBlocking(l.listingId());
+        return true;
+    }
+
     public Listing onListingUpdateBlocking(UUID listingId){
         synchronized (IDLocks.getLock(listingId)) {
             Listing result = storage.getListing(listingId);

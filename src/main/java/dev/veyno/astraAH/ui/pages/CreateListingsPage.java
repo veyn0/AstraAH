@@ -2,9 +2,11 @@ package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.config.guis.CreateListingGuiConfiguration1;
+import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
+import dev.veyno.astraAH.util.IDLocks;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.dialog.DialogResponseView;
 import io.papermc.paper.registry.data.dialog.ActionButton;
@@ -41,8 +43,7 @@ public class CreateListingsPage implements Page {
     int step = 0;
 
     private ItemStack selectedItem;
-    private String priceText = "";
-    private String descriptionText = "";
+    private double price;
 
     public CreateListingsPage(AstraAH plugin, UUID playerID, PageController pageController) {
         this.plugin = plugin;
@@ -165,7 +166,6 @@ public class CreateListingsPage implements Page {
                                                 Bukkit.getLogger().info("input: " + parsed);
 
 
-
                                             } catch (NumberFormatException e) {
                                                 p.sendMessage(Component.text("Keine Zahl"));
                                             }
@@ -174,13 +174,24 @@ public class CreateListingsPage implements Page {
                                 ))
                                 .build(),
 
-                        ActionButton.builder(Component.text("Abbrechen"))
+                        ActionButton.builder(Component.text("Cancel"))
                                 .action(null)
                                 .build()
                 ))
         );
 
         Bukkit.getPlayer(playerID).showDialog(dialog);
+    }
+
+    private void createListing(){
+        synchronized (IDLocks.getLock(playerID)) {
+            if (selectedItem == null || price <= 0) return;
+            Player p = Bukkit.getPlayer(playerID);
+
+            Listing l = new Listing(UUID.randomUUID(), p.getUniqueId(), price, selectedItem);
+
+            plugin.getAuctionHouse().createListingBlocking(l);
+        }
     }
 
 
