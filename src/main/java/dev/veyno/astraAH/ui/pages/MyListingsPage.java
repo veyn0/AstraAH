@@ -69,7 +69,7 @@ public class MyListingsPage implements Page {
             content.addItem(
                     l.content(),
                     action ->{
-                        pageController.getListingInfoPage(playerID).openListingInfo(l, this);
+                        pageController.getListingInfoPage().openListingInfo(l, this);
                     }
                     );
         }
@@ -99,7 +99,7 @@ public class MyListingsPage implements Page {
                 2,
                 configuration.getBackIcon(),
                 action ->{
-                    pageController.openMainPage(playerID, false);
+                    pageController.openMainPage(false);
                 }
         );
 
@@ -107,7 +107,7 @@ public class MyListingsPage implements Page {
                 4,
                 configuration.getCreateListingIcon(),
                 action ->{
-                    pageController.openCreateListingsPage(playerID);
+                    pageController.openCreateListingsPage();
                 }
         );
     }

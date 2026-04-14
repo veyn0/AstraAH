@@ -25,9 +25,12 @@ import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.storage.preferences.provider.FileAHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
-import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /*
 
@@ -56,9 +59,9 @@ public final class AstraAH extends JavaPlugin {
     private AHTransactionHistoryStorageProvider transactionHistoryStorageProvider;
     private AHPlayerActionsStorageProvider playerActionsStorageProvider;
 
-    private PageController pageController;
-
     private ErrorHandler errorHandler;
+
+    private Map<UUID, PageController> pageControllers = new ConcurrentHashMap<>();
 
     private ClickableInventory.InventoryManager inventoryManager;
 
@@ -94,7 +97,6 @@ public final class AstraAH extends JavaPlugin {
 
         permissionsProvider = new DefaultPermissionsProvider();
 
-        pageController = new PageController(this);
 
 
 //        FileSource source = FileSource.yaml(new File(getDataFolder(), "lang").toURI());
@@ -132,10 +134,6 @@ public final class AstraAH extends JavaPlugin {
         return errorHandler;
     }
 
-    public PageController getPageController() {
-        return pageController;
-    }
-
     public AuctionHouse getAuctionHouse() {
         return auctionHouse;
     }
@@ -154,6 +152,11 @@ public final class AstraAH extends JavaPlugin {
 
     public AHTransactionHistoryStorageProvider getTransactionHistoryStorageProvider() {
         return transactionHistoryStorageProvider;
+    }
+
+    public PageController getPageController(UUID playerID){
+        if(!pageControllers.containsKey(playerID)) pageControllers.put(playerID, new PageController(this, playerID));
+        return pageControllers.get(playerID);
     }
 
     public AHPlayerActionsStorageProvider getPlayerActionsStorageProvider() {
