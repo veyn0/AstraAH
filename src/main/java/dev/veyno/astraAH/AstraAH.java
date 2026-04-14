@@ -28,6 +28,10 @@ import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.util.ClickableInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 /*
 
 TODO:
@@ -56,6 +60,8 @@ public final class AstraAH extends JavaPlugin {
     private AHPlayerActionsStorageProvider playerActionsStorageProvider;
 
     private ErrorHandler errorHandler;
+
+    private Map<UUID, PageController> pageControllers = new ConcurrentHashMap<>();
 
     private ClickableInventory.InventoryManager inventoryManager;
 
@@ -146,6 +152,11 @@ public final class AstraAH extends JavaPlugin {
 
     public AHTransactionHistoryStorageProvider getTransactionHistoryStorageProvider() {
         return transactionHistoryStorageProvider;
+    }
+
+    public PageController getPageController(UUID playerID){
+        if(!pageControllers.containsKey(playerID)) pageControllers.put(playerID, new PageController(this, playerID));
+        return pageControllers.get(playerID);
     }
 
     public AHPlayerActionsStorageProvider getPlayerActionsStorageProvider() {

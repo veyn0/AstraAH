@@ -34,10 +34,6 @@ import java.util.function.Consumer;
 
 public class MainPage implements Page {
 
-    /*
-    TODO: pro spieler instanzieren, verwerfen das nicht persistente dinge in layoutstate gespeichert werden, alles soll auf basis des Clickableinventory objekts passieren und nciht doppelt gespeichert werden.
-     */
-
     private final AstraAH plugin;
 
     private final PageController pageController;
@@ -259,7 +255,7 @@ public class MainPage implements Page {
                     index,
                     configuration.getSettingsIcon(),
                     action ->{
-                        pageController.openSettingsPage(playerID);
+                        pageController.openSettingsPage();
                     }
             );
         }
@@ -270,7 +266,7 @@ public class MainPage implements Page {
                     index,
                     configuration.getMyListingsIcon(),
                     action ->{
-                        pageController.getMyListingsPage(playerID).open(this);
+                        pageController.getMyListingsPage().open(this);
                         Bukkit.getPlayer(playerID).sendMessage("Clicked My Listings icon");
                     }
             );
@@ -309,13 +305,7 @@ public class MainPage implements Page {
         if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.DISABLED){
         }
         else if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.BUTTON){
-            bottom.setItem(
-                    index,
-                    createHistoryItem(null),
-                    action ->{
-                        Bukkit.getPlayer(playerID).sendMessage("Clicked History icon");
-                    }
-            );
+            createHistoryItem(index);
         }
 
         bottom.setItem(
@@ -514,10 +504,69 @@ public class MainPage implements Page {
         return result;
     }
 
+    private void createHistoryItem(int index) {
+        bottom.setItem(
+                index,
+                createHistoryItem(plugin.getAuctionHouse().getTransactionHistoryBlocking(playerID)),
+                action ->{
+                    List<AHTransactionHistoryEntry> historyEntries = plugin.getAuctionHouse().getTransactionHistoryBlocking(playerID);
+                    if(action.isLeftClick()){
+                        if(historyEntries.size() > historySelectedIndex + 1){
+                            historySelectedIndex++;
+                            createHistoryItem(index);
+                            bottom.refresh();
+                        }
+                    }
+                    else if(action.isRightClick()){
+                        if(historySelectedIndex > 0){
+                            historySelectedIndex--;
+                            createHistoryItem(index);
+                            bottom.refresh();
+                        }
+                    }
+                }
+        );
+    }
+
     private ItemStack createHistoryItem(List<AHTransactionHistoryEntry> historyEntries){
+        if(historyEntries == null){
+            historyEntries = plugin.getAuctionHouse().getTransactionHistoryBlocking(playerID);
+        }
 
-        //TODO: implement
+        ItemStack result = configuration.getHistoryIcon();
+        List<Component> lore = new ArrayList<>(historyEntries.size() + 1);
 
-        return new ItemStack(Material.CLOCK);
+        lore.add(Component.text(" "));
+
+        if(historyEntries.isEmpty()){
+            lore.add(Component.text("No history available", TextColor.color(0xAAAAAA)).decoration(TextDecoration.ITALIC, false));
+        }
+        else{
+            if(historySelectedIndex >= historyEntries.size()){
+                historySelectedIndex = historyEntries.size() - 1;
+            }
+
+            for(int i = 0; i < historyEntries.size(); i++){
+                AHTransactionHistoryEntry entry = historyEntries.get(i);
+                String itemName = PlainTextComponentSerializer.plainText().serialize(entry.content().displayName());
+                boolean selected = i == historySelectedIndex;
+
+                Component line = Component.text(selected ? "> " : "| ", TextColor.color(0xAAAAAA))
+                        .append(Component.text(itemName, TextColor.color(selected ? 0x5555FF : 0xFFFFFF)))
+                        .append(Component.text(" (" + NumberFormat.formatGerman(entry.price()) + "$)", TextColor.color(0x555555)))
+                        .decoration(TextDecoration.ITALIC, false);
+
+                lore.add(line);
+            }
+        }
+
+        if(result.lore() != null){
+            for(Component c : result.lore()){
+                lore.add(c.decoration(TextDecoration.ITALIC, false));
+            }
+        }
+
+        result.lore(lore);
+        return result;
     }
 }

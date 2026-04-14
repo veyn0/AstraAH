@@ -78,7 +78,7 @@ public class CreateListingsPage implements Page {
                 9,
                 configuration.getCancelIcon(),
                 action ->{
-                    pageController.getMyListingsPage(playerID).open(null);
+                    pageController.getMyListingsPage().open(null);
                 }
                 );
 

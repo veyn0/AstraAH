@@ -57,7 +57,7 @@ public class SettingsPage implements Page {
                     if(layout!= MainPageLayoutState.ButtonLayout.DISABLED){
                         PlayerPreferences preferences = plugin.getAuctionHouse().getPreferencesBlocking(playerId);
                         plugin.getAuctionHouse().setPreferencesBlocking(playerId, new PlayerPreferences(playerId, preferences.categoryEntries(), !preferences.showCategories(), preferences.showHistory() ));
-                        MainPage mainPage = pageController.getMainPage(playerId);
+                        MainPage mainPage = pageController.getMainPage();
                         mainPage.setLayoutState(plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId)));
                         mainPage.resetFilter();
                         mainPage.rebuild();
@@ -73,7 +73,7 @@ public class SettingsPage implements Page {
                     if(layout!= MainPageLayoutState.ButtonLayout.DISABLED){
                         PlayerPreferences preferences = plugin.getAuctionHouse().getPreferencesBlocking(playerId);
                         plugin.getAuctionHouse().setPreferencesBlocking(playerId, new PlayerPreferences(playerId, preferences.categoryEntries(), preferences.showCategories(), !preferences.showHistory() ));
-                        MainPage mainPage = pageController.getMainPage(playerId);
+                        MainPage mainPage = pageController.getMainPage();
                         mainPage.setLayoutState(plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId)));
                         mainPage.resetFilter();
                         mainPage.rebuild();
@@ -85,7 +85,7 @@ public class SettingsPage implements Page {
                 45,
                 new ItemStack(Material.ARROW),
                 actio ->{
-                    pageController.openMainPage(playerId, true);
+                    pageController.openMainPage(true);
                 }
         );
 

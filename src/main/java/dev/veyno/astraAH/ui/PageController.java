@@ -57,8 +57,16 @@ public class PageController {
         createListingsPage.open(null);
     }
 
+    public MyListingsPage getMyListingsPage() {
+        return myListingsPage;
+    }
 
+    public ListingInfoPage getListingInfoPage() {
+        return listingInfoPage;
+    }
 
-
+    public MainPage getMainPage() {
+        return mainPage;
+    }
 
 }
