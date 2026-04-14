@@ -25,7 +25,6 @@ import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.storage.preferences.provider.FileAHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
-import dev.veyno.astraAH.ui.UIController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -55,8 +54,6 @@ public final class AstraAH extends JavaPlugin {
     private AHPlayerPreferencesStorageProvider playerPreferencesStorageProvider;
     private AHTransactionHistoryStorageProvider transactionHistoryStorageProvider;
     private AHPlayerActionsStorageProvider playerActionsStorageProvider;
-
-    private PageController pageController;
 
     private ErrorHandler errorHandler;
 
@@ -94,7 +91,6 @@ public final class AstraAH extends JavaPlugin {
 
         permissionsProvider = new DefaultPermissionsProvider();
 
-        pageController = new PageController(this);
 
 
 //        FileSource source = FileSource.yaml(new File(getDataFolder(), "lang").toURI());
@@ -130,10 +126,6 @@ public final class AstraAH extends JavaPlugin {
 
     public ErrorHandler getErrorHandler() {
         return errorHandler;
-    }
-
-    public PageController getPageController() {
-        return pageController;
     }
 
     public AuctionHouse getAuctionHouse() {
