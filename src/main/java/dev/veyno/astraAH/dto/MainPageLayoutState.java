@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.entity.page.mainpage;
+package dev.veyno.astraAH.dto;
 
 import dev.veyno.astraAH.ah.SortType;
 import org.bukkit.Material;
@@ -43,7 +43,7 @@ public class MainPageLayoutState {
         return buttonLayout;
     }
 
-    @Deprecated
+    
     public enum ButtonLayout {
         DISABLED,
         BUTTON,

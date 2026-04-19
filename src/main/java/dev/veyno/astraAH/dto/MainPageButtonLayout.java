@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.entity.page.mainpage;
+package dev.veyno.astraAH.dto;
 
 public class MainPageButtonLayout {
     private boolean showSettings;

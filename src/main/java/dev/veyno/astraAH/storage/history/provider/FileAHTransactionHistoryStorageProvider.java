@@ -2,7 +2,7 @@ package dev.veyno.astraAH.storage.history.provider;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
-import dev.veyno.astraAH.storage.YamlStorage;
+import dev.veyno.astraAH.data.YamlStorage;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.util.ItemStackUtil;
 import org.bukkit.configuration.ConfigurationSection;

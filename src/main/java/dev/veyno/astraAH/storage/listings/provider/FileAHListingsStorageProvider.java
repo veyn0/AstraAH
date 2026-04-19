@@ -4,7 +4,7 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
 import dev.veyno.astraAH.util.ItemStackUtil;
-import dev.veyno.astraAH.storage.YamlStorage;
+import dev.veyno.astraAH.data.YamlStorage;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 

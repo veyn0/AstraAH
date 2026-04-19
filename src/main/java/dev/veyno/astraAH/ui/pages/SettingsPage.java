@@ -3,7 +3,7 @@ package dev.veyno.astraAH.ui.pages;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.config.guis.SettingsGuiConfiguration;
 import dev.veyno.astraAH.entity.PlayerPreferences;
-import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
+import dev.veyno.astraAH.dto.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;

@@ -1,11 +1,13 @@
 package dev.veyno.astraAH.ah;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.dto.ActionState;
+import dev.veyno.astraAH.dto.AllowedPlayerActions;
+import dev.veyno.astraAH.dto.PreferencesPlayerActions;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.entity.*;
-import dev.veyno.astraAH.entity.page.*;
-import dev.veyno.astraAH.entity.page.mainpage.MainPageButtonLayout;
-import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
+import dev.veyno.astraAH.dto.MainPageButtonLayout;
+import dev.veyno.astraAH.dto.MainPageLayoutState;
 import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;

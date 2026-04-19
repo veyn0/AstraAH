@@ -7,7 +7,7 @@ import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.entity.PlayerPreferences;
 import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
-import dev.veyno.astraAH.entity.page.mainpage.MainPageLayoutState;
+import dev.veyno.astraAH.dto.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;

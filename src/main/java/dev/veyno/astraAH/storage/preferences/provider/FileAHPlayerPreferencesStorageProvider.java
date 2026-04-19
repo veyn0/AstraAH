@@ -4,7 +4,7 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.entity.ListingsFilter;
 import dev.veyno.astraAH.entity.PlayerPreferences;
 import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
-import dev.veyno.astraAH.storage.YamlStorage;
+import dev.veyno.astraAH.data.YamlStorage;
 import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.util.ItemStackUtil;
 import org.bukkit.Material;

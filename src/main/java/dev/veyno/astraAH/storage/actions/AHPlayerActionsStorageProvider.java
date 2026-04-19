@@ -1,6 +1,6 @@
 package dev.veyno.astraAH.storage.actions;
 
-import dev.veyno.astraAH.entity.page.AllowedPlayerActions;
+import dev.veyno.astraAH.dto.AllowedPlayerActions;
 
 import java.util.UUID;
 

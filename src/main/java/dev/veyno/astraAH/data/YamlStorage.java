@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.storage;
+package dev.veyno.astraAH.data;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,12 +29,14 @@ public class YamlStorage {
         this.file = new File(plugin.getDataFolder(), fileName + ".yml");
         createFileIfNotExists(copyFromResourceIfEmpty);
         this.fileConfiguration = YamlConfiguration.loadConfiguration(file);
-        startSaveSchedule(saveIntervalSeconds);
+        if(saveIntervalSeconds>0) {
+            startSaveSchedule(saveIntervalSeconds);
+        }
     }
 
     private void createFileIfNotExists(boolean copy) {
         synchronized (fileLocks.get(fileName)) {
-            if (copy) plugin.saveResource(file.getName(), false);
+            if (copy) plugin.saveResource(file.getPath(), false);
             if (!file.exists()) {
                 try {
                     plugin.getDataFolder().mkdirs();
@@ -46,7 +48,7 @@ public class YamlStorage {
         }
     }
 
-    private void saveFile() {
+    public void saveFile() {
         synchronized (fileLocks.get(fileName)) {
             try {
                 fileConfiguration.save(file);

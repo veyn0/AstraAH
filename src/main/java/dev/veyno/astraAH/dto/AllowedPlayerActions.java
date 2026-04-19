@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.entity.page;
+package dev.veyno.astraAH.dto;
 
 import java.util.UUID;
 
