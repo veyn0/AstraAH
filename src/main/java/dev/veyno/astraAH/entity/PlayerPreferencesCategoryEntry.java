@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+@Deprecated(forRemoval = true)
 public record PlayerPreferencesCategoryEntry(
         ItemStack preview,
         List<Material> filter

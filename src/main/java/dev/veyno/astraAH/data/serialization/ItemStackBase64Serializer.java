@@ -8,7 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
-public class ItemStackBase64Serializer {
+public final class ItemStackBase64Serializer {
 
     public static ItemStack itemFromBase64(String data) throws Exception {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));

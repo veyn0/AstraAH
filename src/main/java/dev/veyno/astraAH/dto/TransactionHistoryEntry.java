@@ -1,6 +1,5 @@
 package dev.veyno.astraAH.dto;
 
-import dev.veyno.astraAH.storage.DataEntry;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.DataInputStream;
