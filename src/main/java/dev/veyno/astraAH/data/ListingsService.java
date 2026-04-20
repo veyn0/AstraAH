@@ -1,6 +1,7 @@
 package dev.veyno.astraAH.data;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.data.dto.CachedListing;
 import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.data.repository.ListingsRepository;
 import dev.veyno.astraAH.util.IDLocks;
@@ -17,30 +18,37 @@ public class ListingsService {
     private AstraAH plugin;
     private ListingsRepository listingsRepository;
 
-    private Map<UUID, Listing> listingCache = new ConcurrentHashMap<>();
+    private Map<UUID, CachedListing> listingCache = new ConcurrentHashMap<>();
 
-    public ListingsService(AstraAH plugin, ListingsRepository listingsRepository) {
+    private int cacheRefreshMillis;
+    private int cacheTTLMillis;
+
+    public ListingsService(AstraAH plugin, ListingsRepository listingsRepository, int cacheRefreshMillis, int cacheTTLMillis) {
         this.plugin = plugin;
         this.listingsRepository = listingsRepository;
+        this.cacheRefreshMillis = cacheRefreshMillis;
+        this.cacheTTLMillis = cacheTTLMillis;
+        refreshCache();
+        startRefreshSchedule();
     }
 
     private void refreshCache(){
-        Map<UUID, Listing> result = new ConcurrentHashMap<>();
         for(Listing l : listingsRepository.getAllListings()){
-            result.put(l.getListingId(), l);
+            renderToCache(l);
         }
-        listingCache = result;
+        long cutoff = System.currentTimeMillis() - cacheTTLMillis;
+        listingCache.entrySet().removeIf(e -> e.getValue().getLoadedAtMillis() < cutoff);
     }
 
-    private void startRefreshSchedule(int seconds){
+    private void startRefreshSchedule(){
         Bukkit.getAsyncScheduler().runAtFixedRate(
                 plugin,
                 task ->{
                     refreshCache();
                 },
                 1,
-                seconds,
-                TimeUnit.SECONDS
+                cacheRefreshMillis,
+                TimeUnit.MILLISECONDS
         );
 
     }
@@ -48,12 +56,7 @@ public class ListingsService {
     public boolean removeListingBlocking(UUID listingId){
         synchronized (IDLocks.getLock(listingId)) {
             if (listingsRepository.removeIfPresent(listingId)){
-                try {
-                    listingCache.remove(listingId);
-                }catch (Exception e){
-                    plugin.getLogger().warning("Error while updating listings Cache");
-                    e.printStackTrace();
-                }
+                listingCache.remove(listingId);
                 return true;
             }
             else {
@@ -62,21 +65,33 @@ public class ListingsService {
         }
     }
 
-    public List<Listing> getCachedListings(){
+    public List<CachedListing> getCachedListings(){
         return listingCache.values().stream().toList();
     }
 
-    public Listing getListingBypassCache(UUID listingId){
+    public CachedListing getCachedListing(UUID listingId){
+        return listingCache.get(listingId);
+    }
+
+    public Listing getListing(UUID listingId){
         synchronized (IDLocks.getLock(listingId)) {
-            return listingsRepository.getListing(listingId);
+            Listing result = listingsRepository.getListing(listingId);
+            if(result==null) return null;
+            renderToCache(result);
+            return result;
         }
     }
 
     public void createListing(Listing listing){
         synchronized (IDLocks.getLock(listing.getListingId())) {
             listingsRepository.createListing(listing);
-            listingCache.put(listing.getListingId(), listing);
+            renderToCache(listing);
         }
+    }
+
+    private void renderToCache(Listing l){
+        CachedListing listing = new CachedListing(System.currentTimeMillis(), l);
+        listingCache.put(l.getListingId(), listing);
     }
 
 }
