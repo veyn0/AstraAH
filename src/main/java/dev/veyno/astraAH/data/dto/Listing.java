@@ -12,14 +12,20 @@ public class Listing {
     private final long createdAt;
     private final double price;
     private final String currency;
+    private int status;
 
-    public Listing(UUID listingId, UUID sellerId, ItemStack content, long createdAt, double price, String currency) {
+    public Listing(UUID listingId, UUID sellerId, ItemStack content, long createdAt, double price, String currency, int status) {
         this.listingId = listingId;
         this.sellerId = sellerId;
         this.content = content;
         this.createdAt = createdAt;
         this.price = price;
         this.currency = currency;
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     public UUID getListingId() {

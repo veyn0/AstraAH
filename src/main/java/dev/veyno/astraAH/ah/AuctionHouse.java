@@ -22,7 +22,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
+@Deprecated(forRemoval = true)
 public class AuctionHouse {
 
     private final AstraAH plugin;

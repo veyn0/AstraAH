@@ -47,7 +47,7 @@ TODO:
  - Admin UI: transaction history, per player, stats e.g. total money made
  - alerts: thresholds /h for money made, specific interactions and all time values.
  - add customizable filters: when joining initially player filters will be set to the default filters and they can edit them afterwards
-
+ - Backups: full backups or backups of partial stuff and actions, custom triggers where it can be specified what should be backed up
  */
 
 public final class AstraAH extends JavaPlugin {
