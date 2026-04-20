@@ -1,6 +1,6 @@
 package dev.veyno.astraAH.dto;
 
-import dev.veyno.astraAH.ah.SortType;
+import dev.veyno.astraAH.ui.SortType;
 import org.bukkit.Material;
 
 import java.util.List;

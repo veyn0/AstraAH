@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.ah;
+package dev.veyno.astraAH.ui;
 
 public enum SortType {
     NAME_A_Z(0),

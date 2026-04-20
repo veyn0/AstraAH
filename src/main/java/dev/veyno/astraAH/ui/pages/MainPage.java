@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.SortType;
+import dev.veyno.astraAH.ui.SortType;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
 import dev.veyno.astraAH.entity.Listing;

@@ -4,7 +4,7 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
 import dev.veyno.astraAH.data.YamlStorage;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
-import dev.veyno.astraAH.util.ItemStackUtil;
+import dev.veyno.astraAH.data.serialization.ItemStackBase64Serializer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +40,7 @@ public class FileAHTransactionHistoryStorageProvider implements AHTransactionHis
                 config.set(path + ".sellerId", entry.sellerID().toString());
                 config.set(path + ".price", entry.price());
                 config.set(path + ".timestamp", entry.timeStamp().toEpochMilli());
-                config.set(path + ".content", ItemStackUtil.itemToBase64(entry.content()));
+                config.set(path + ".content", ItemStackBase64Serializer.itemToBase64(entry.content()));
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to save transaction history entry " + entry.entryId() + ": " + e.getMessage());
                 e.printStackTrace();
@@ -84,7 +84,7 @@ public class FileAHTransactionHistoryStorageProvider implements AHTransactionHis
             UUID sellerId = UUID.fromString(config.getString(path + ".sellerId"));
             double price = config.getDouble(path + ".price");
             long timestamp = config.getLong(path + ".timestamp");
-            ItemStack content = ItemStackUtil.itemFromBase64(config.getString(path + ".content"));
+            ItemStack content = ItemStackBase64Serializer.itemFromBase64(config.getString(path + ".content"));
 
             return new AHTransactionHistoryEntry(
                     entryId,

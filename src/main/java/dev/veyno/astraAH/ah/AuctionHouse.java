@@ -12,6 +12,7 @@ import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
 import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
 import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
+import dev.veyno.astraAH.ui.SortType;
 import dev.veyno.astraAH.util.IDLocks;
 import dev.veyno.astraAH.util.PurchaseResult;
 import org.bukkit.Bukkit;

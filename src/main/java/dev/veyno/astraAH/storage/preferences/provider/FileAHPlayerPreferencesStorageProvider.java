@@ -6,7 +6,7 @@ import dev.veyno.astraAH.entity.PlayerPreferences;
 import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
 import dev.veyno.astraAH.data.YamlStorage;
 import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
-import dev.veyno.astraAH.util.ItemStackUtil;
+import dev.veyno.astraAH.data.serialization.ItemStackBase64Serializer;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -108,7 +108,7 @@ public class FileAHPlayerPreferencesStorageProvider implements AHPlayerPreferenc
     private PlayerPreferencesCategoryEntry getCategoryEntry(String path) throws Exception {
         FileConfiguration config = storage.getFileConfiguration();
         String previewData = config.getString(path + ".preview");
-        ItemStack preview = previewData == null ? null : ItemStackUtil.itemFromBase64(previewData);
+        ItemStack preview = previewData == null ? null : ItemStackBase64Serializer.itemFromBase64(previewData);
         List<Material> filter = new ArrayList<>();
         for (String materialKey : config.getStringList(path + ".filter")) {
             Material material = Material.matchMaterial(materialKey);
@@ -131,7 +131,7 @@ public class FileAHPlayerPreferencesStorageProvider implements AHPlayerPreferenc
         for (PlayerPreferencesCategoryEntry categoryEntry : preferences.categoryEntries()) {
             String categoryPath = path + ".categories." + categoryIndex;
             ItemStack preview = categoryEntry.preview();
-            config.set(categoryPath + ".preview", preview == null ? null : ItemStackUtil.itemToBase64(preview));
+            config.set(categoryPath + ".preview", preview == null ? null : ItemStackBase64Serializer.itemToBase64(preview));
             config.set(categoryPath + ".filter", categoryEntry.filter().stream().map(Material::name).toList());
             categoryIndex++;
         }

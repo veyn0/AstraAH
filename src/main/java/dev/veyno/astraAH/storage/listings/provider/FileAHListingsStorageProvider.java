@@ -3,7 +3,7 @@ package dev.veyno.astraAH.storage.listings.provider;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.entity.Listing;
 import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
-import dev.veyno.astraAH.util.ItemStackUtil;
+import dev.veyno.astraAH.data.serialization.ItemStackBase64Serializer;
 import dev.veyno.astraAH.data.YamlStorage;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +31,7 @@ public class FileAHListingsStorageProvider implements AHListingsStorageProvider 
             config.set(path+".listingId", listing.listingId().toString());
             config.set(path+".price", listing.price());
             config.set(path+".playerId", listing.playerId().toString());
-            config.set(path+".content", ItemStackUtil.itemToBase64(listing.content()));
+            config.set(path+".content", ItemStackBase64Serializer.itemToBase64(listing.content()));
         }
     }
 
@@ -69,7 +69,7 @@ public class FileAHListingsStorageProvider implements AHListingsStorageProvider 
             FileConfiguration config = storage.getFileConfiguration();
             double price = config.getDouble(path+".price");
             UUID playerId = UUID.fromString(config.getString(path+".playerId"));
-            ItemStack content = ItemStackUtil.itemFromBase64(config.getString(path+".content"));
+            ItemStack content = ItemStackBase64Serializer.itemFromBase64(config.getString(path+".content"));
             return new Listing(listingId, playerId, price, content);
         }
         catch (Exception e){

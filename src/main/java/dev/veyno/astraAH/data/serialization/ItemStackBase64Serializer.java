@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.util;
+package dev.veyno.astraAH.data.serialization;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -8,7 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
-public class ItemStackUtil {
+public class ItemStackBase64Serializer {
 
     public static ItemStack itemFromBase64(String data) throws Exception {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
