@@ -3,8 +3,10 @@ package dev.veyno.astraAH.data;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.data.repository.ListingsRepository;
+import dev.veyno.astraAH.util.IDLocks;
 import org.bukkit.Bukkit;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,9 +46,37 @@ public class ListingsService {
     }
 
     public boolean removeListingBlocking(UUID listingId){
-
+        synchronized (IDLocks.getLock(listingId)) {
+            if (listingsRepository.removeIfPresent(listingId)){
+                try {
+                    listingCache.remove(listingId);
+                }catch (Exception e){
+                    plugin.getLogger().warning("Error while updating listings Cache");
+                    e.printStackTrace();
+                }
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
     }
 
+    public List<Listing> getCachedListings(){
+        return listingCache.values().stream().toList();
+    }
 
+    public Listing getListingBypassCache(UUID listingId){
+        synchronized (IDLocks.getLock(listingId)) {
+            return listingsRepository.getListing(listingId);
+        }
+    }
+
+    public void createListing(Listing listing){
+        synchronized (IDLocks.getLock(listing.getListingId())) {
+            listingsRepository.createListing(listing);
+            listingCache.put(listing.getListingId(), listing);
+        }
+    }
 
 }
