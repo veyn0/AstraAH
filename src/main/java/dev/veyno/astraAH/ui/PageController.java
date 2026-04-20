@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /*
-//TODO: move controlling last pages to this class. add e.g. stack to allow navigation back multiple pages.
+TODO: move controlling last pages to this class. add e.g. stack to allow navigation back multiple pages.
  */
 
 public class PageController {
