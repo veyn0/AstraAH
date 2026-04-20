@@ -6,11 +6,43 @@ import java.util.UUID;
 
 public class Listing {
 
-    private UUID listingId;
-    private UUID sellerId;
-    private ItemStack content;
-    private long createdAt;
-    private double price;
-    private String currency;
+    private final UUID listingId;
+    private final UUID sellerId;
+    private final ItemStack content;
+    private final long createdAt;
+    private final double price;
+    private final String currency;
 
+    public Listing(UUID listingId, UUID sellerId, ItemStack content, long createdAt, double price, String currency) {
+        this.listingId = listingId;
+        this.sellerId = sellerId;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.price = price;
+        this.currency = currency;
+    }
+
+    public UUID getListingId() {
+        return listingId;
+    }
+
+    public UUID getSellerId() {
+        return sellerId;
+    }
+
+    public ItemStack getContent() {
+        return content;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
 }
