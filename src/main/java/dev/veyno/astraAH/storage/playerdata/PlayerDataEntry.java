@@ -1,6 +1,5 @@
 package dev.veyno.astraAH.storage.playerdata;
 
-import dev.veyno.astraAH.dto.TransactionHistory;
 import dev.veyno.astraAH.dto.AllowedPlayerActions;
 
 import java.io.DataInputStream;

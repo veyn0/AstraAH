@@ -1,6 +1,5 @@
 package dev.veyno.astraAH.app;
 
-import dev.veyno.astraAH.entity.Listing;
 
 import java.util.List;
 
@@ -12,8 +11,5 @@ public class AuctionHouseApplication {
      -
      */
 
-    public List<Listing> getListings(){
-
-    }
 
 }

@@ -67,6 +67,8 @@ public final class AstraAH extends JavaPlugin {
 
     private AuctionHouse auctionHouse;
 
+    private
+
     private EconomyProvider economy;
 
     private PermissionsProvider permissionsProvider;
