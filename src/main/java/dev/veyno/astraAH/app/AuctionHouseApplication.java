@@ -1,14 +1,20 @@
 package dev.veyno.astraAH.app;
 
 
+import dev.veyno.astraAH.app.dto.DefaultLayout;
+import dev.veyno.astraAH.app.dto.Taxes;
+
 import java.util.List;
+import java.util.UUID;
 
 public class AuctionHouseApplication {
 
-    /*
-    TODO: better structured version of AuctionHouse class.
-     - Struktur unterteilen in: ReadKlasse, Transaktion klasse, berechnugns klasse (für ui layout später taxes)
-     */
+    public DefaultLayout getDefaultlayout(UUID playerId){
 
+    }
+
+    public Taxes getConfiguredTaxes(UUID playerId){
+
+    }
 
 }
