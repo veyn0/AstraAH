@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 
 public class PlayerDataService {
 
+    //TODO: add default values
+
     private PlayerDataRepository playerDataRepository;
     private AstraAH plugin;
 
