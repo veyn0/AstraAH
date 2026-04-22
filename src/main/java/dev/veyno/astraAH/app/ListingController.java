@@ -2,9 +2,10 @@ package dev.veyno.astraAH.app;
 
 import dev.veyno.astraAH.data.dto.Listing;
 
+import java.util.List;
 import java.util.UUID;
 
-public class AuctionHouseCommandsService {
+public class ListingController {
 
     public boolean purchaseListing(UUID listingId, UUID playerId){
 
@@ -18,6 +19,12 @@ public class AuctionHouseCommandsService {
 
     }
 
-    //TODO: add toggle methods for preferences
+    public List<Listing> getListings(){
+
+    }
+
+    public Listing getListing(UUID listingId){
+
+    }
 
 }
