@@ -1,16 +1,16 @@
 package dev.veyno.astraAH.dto;
 
-import dev.veyno.astraAH.ui.SortType;
+import dev.veyno.astraAH.app.dto.SortType;
 import org.bukkit.Material;
 
 import java.util.List;
 
+@Deprecated(forRemoval = true)
 public class MainPageLayoutState {
     private ButtonLayout advancedCategories;
     private ButtonLayout advancedHistory;
     private SortType sortType;
     private List<Material> filter;
-
 
     private MainPageButtonLayout buttonLayout;
 
@@ -42,7 +42,6 @@ public class MainPageLayoutState {
     public MainPageButtonLayout getButtonLayout() {
         return buttonLayout;
     }
-
     
     public enum ButtonLayout {
         DISABLED,

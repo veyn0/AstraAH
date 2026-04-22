@@ -4,7 +4,7 @@ import dev.veyno.astraAH.data.dto.Listing;
 
 import java.util.UUID;
 
-public class AuctionHouseCommandService {
+public class AuctionHouseCommandsService {
 
     public boolean purchaseListing(UUID listingId, UUID playerId){
 

@@ -1,14 +1,13 @@
 package dev.veyno.astraAH.app;
 
-
-import dev.veyno.astraAH.app.dto.DefaultLayout;
+import dev.veyno.astraAH.app.dto.LayoutTemplate;
 import dev.veyno.astraAH.app.dto.Taxes;
 
 import java.util.UUID;
 
 public class AuctionHouseResolver {
 
-    public DefaultLayout getDefaultlayout(UUID playerId){
+    public LayoutTemplate getDefaultlayout(UUID playerId){
 
     }
 

@@ -1,5 +1,6 @@
 package dev.veyno.astraAH.dto;
 
+@Deprecated(forRemoval = true)
 public class MainPageButtonLayout {
     private boolean showSettings;
     private boolean showMyListings;
