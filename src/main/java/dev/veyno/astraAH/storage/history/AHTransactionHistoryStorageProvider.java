@@ -5,6 +5,7 @@ import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 public interface AHTransactionHistoryStorageProvider {
 
     void addEntry(AHTransactionHistoryEntry entry);

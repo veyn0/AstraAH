@@ -4,6 +4,7 @@ import dev.veyno.astraAH.dto.AllowedPlayerActions;
 
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 public interface AHPlayerActionsStorageProvider {
 
     AllowedPlayerActions getAllowedActions(UUID playerId);

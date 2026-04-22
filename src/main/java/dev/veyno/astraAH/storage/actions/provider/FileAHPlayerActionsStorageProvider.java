@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.storage.actions.provider;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.dto.ActionState;
+import dev.veyno.astraAH.app.dto.ActionState;
 import dev.veyno.astraAH.dto.AllowedPlayerActions;
 import dev.veyno.astraAH.dto.PreferencesPlayerActions;
 import dev.veyno.astraAH.data.YamlStorage;

@@ -5,6 +5,7 @@ import dev.veyno.astraAH.entity.Listing;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 public interface AHListingsStorageProvider {
     void saveListing(Listing listing) throws Exception;
     Listing getListing(UUID listingId);

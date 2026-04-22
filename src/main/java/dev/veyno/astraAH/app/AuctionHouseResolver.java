@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public class AuctionHouseResolver {
 
-    public LayoutTemplate getDefaultlayout(UUID playerId){
+    public LayoutTemplate getDefaultLayout(UUID playerId){
 
     }
 
-    public Taxes getConfiguredTaxes(UUID playerId){
+    public Taxes getTaxes(UUID playerId){
 
     }
 

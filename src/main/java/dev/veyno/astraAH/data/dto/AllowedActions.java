@@ -1,6 +1,6 @@
 package dev.veyno.astraAH.data.dto;
 
-import dev.veyno.astraAH.dto.ActionState;
+import dev.veyno.astraAH.app.dto.ActionState;
 
 import java.util.UUID;
 

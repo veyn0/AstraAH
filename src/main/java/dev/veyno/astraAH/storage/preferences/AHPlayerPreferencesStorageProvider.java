@@ -5,6 +5,7 @@ import dev.veyno.astraAH.entity.PlayerPreferencesCategoryEntry;
 
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 public interface AHPlayerPreferencesStorageProvider {
 
     PlayerPreferences getPreferences(UUID playerId);

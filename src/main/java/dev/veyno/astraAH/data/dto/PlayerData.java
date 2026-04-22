@@ -21,7 +21,6 @@ public class PlayerData {
         return data;
     }
 
-
     public long getLoadedAt() {
         return loadedAt;
     }

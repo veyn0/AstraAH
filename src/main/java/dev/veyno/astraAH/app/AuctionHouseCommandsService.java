@@ -13,4 +13,11 @@ public class AuctionHouseCommandsService {
     public boolean postListing(Listing l){
 
     }
+
+    public boolean removeListingIfPresent(UUID listingId){
+
+    }
+
+    //TODO: add toggle methods for preferences
+
 }

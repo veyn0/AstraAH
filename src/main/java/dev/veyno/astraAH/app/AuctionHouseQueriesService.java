@@ -12,6 +12,10 @@ public class AuctionHouseQueriesService {
 
     }
 
+    public Listing getListing(UUID listingId){
+
+    }
+
     public PlayerData getPlayerData(UUID playerId){
 
     }

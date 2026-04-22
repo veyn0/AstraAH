@@ -5,7 +5,7 @@ import dev.veyno.astraAH.data.dto.Category;
 import dev.veyno.astraAH.data.dto.PlayerData;
 import dev.veyno.astraAH.data.dto.Preferences;
 import dev.veyno.astraAH.data.dto.Transaction;
-import dev.veyno.astraAH.dto.ActionState;
+import dev.veyno.astraAH.app.dto.ActionState;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.ByteArrayInputStream;

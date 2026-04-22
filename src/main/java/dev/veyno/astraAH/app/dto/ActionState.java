@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.dto;
+package dev.veyno.astraAH.app.dto;
 
 public enum ActionState {
     UNDEFINED,
