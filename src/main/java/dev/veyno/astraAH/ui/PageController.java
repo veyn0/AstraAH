@@ -1,15 +1,14 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.app.dto.ButtonLayout;
+import dev.veyno.astraAH.app.dto.LayoutTemplate;
+import dev.veyno.astraAH.app.dto.SortType;
 import dev.veyno.astraAH.ui.pages.*;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.C;
+import org.bukkit.Material;
 
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 /*
@@ -17,7 +16,6 @@ TODO: move controlling last pages to this class. add e.g. stack to allow navigat
  */
 
 public class PageController {
-
 
 
     private final AstraAH plugin;
@@ -35,25 +33,38 @@ public class PageController {
         createPages();
     }
 
-    public void createPages(){
-        mainPage = new MainPage(plugin, this, playerId, plugin.getAuctionHouse().getLayoutBlocking(Bukkit.getPlayer(playerId)));
+    public void createPages() {
+        // TODO: replace null with a future controller method that returns the LayoutTemplate for a player,
+        //       e.g. plugin.getXxxController().getLayoutTemplate(playerId).
+        LayoutTemplate layoutTemplate = new LayoutTemplate(
+                ButtonLayout.BUTTON,
+                ButtonLayout.BUTTON,
+                SortType.NAME_A_Z,
+                List.of(Material.values()),
+                true,
+                true,
+                true,
+                true,
+                true
+        );
+        mainPage = new MainPage(plugin, this, playerId, layoutTemplate);
         settingsPage = new SettingsPage(plugin, this, playerId);
         createListingsPage = new CreateListingsPage(plugin, playerId, this);
         myListingsPage = new MyListingsPage(playerId, plugin, this);
         listingInfoPage = new ListingInfoPage(playerId, this, plugin);
     }
 
-    public void openMainPage(boolean reload){
-        if(reload) mainPage.rebuild();
+    public void openMainPage(boolean reload) {
+        if (reload) mainPage.rebuild();
         mainPage.open(null);
     }
 
-    public void openSettingsPage(){
+    public void openSettingsPage() {
         settingsPage.rebuild();
         settingsPage.open(null);
     }
 
-    public void openCreateListingsPage(){
+    public void openCreateListingsPage() {
         createListingsPage.open(null);
     }
 

@@ -5,15 +5,15 @@ import dev.veyno.astraAH.app.dto.ButtonLayout;
 import dev.veyno.astraAH.app.dto.LayoutTemplate;
 import dev.veyno.astraAH.app.dto.SortType;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
+import dev.veyno.astraAH.data.dto.CachedListing;
 import dev.veyno.astraAH.data.dto.Category;
 import dev.veyno.astraAH.data.dto.Listing;
-import dev.veyno.astraAH.data.dto.Preferences;
-import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
-import dev.veyno.astraAH.dto.MainPageLayoutState;
+import dev.veyno.astraAH.data.dto.Transaction;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.InteractiveDialogGui;
+import dev.veyno.astraAH.util.MaterialPatternParser;
 import dev.veyno.astraAH.util.NumberFormat;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
@@ -42,7 +42,7 @@ public class MainPage implements Page {
 
     private List<Material> filter;
 
-    private SortType sortType;
+    private SortType sortType = SortType.NAME_A_Z;
 
     private UUID playerID;
 
@@ -58,13 +58,8 @@ public class MainPage implements Page {
 
 
     private LayoutTemplate layoutTemplate;
-//    private MainPageLayoutState layoutState;
 
     private MainPageGuiConfiguration configuration;
-
-//    public MainPageLayoutState getLayoutState() {
-//        return layoutState;
-//    }
 
     public MainPage(AstraAH plugin, PageController pageController, UUID playerID, LayoutTemplate layoutTemplate) {
         this.plugin = plugin;
@@ -91,11 +86,11 @@ public class MainPage implements Page {
 
     @Override
     public void rebuild() {
-        sortType = layoutTemplate.getSortType();
-        inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID) );
+        //sortType = layoutTemplate.getSortType();
+        inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID));
         createNavbar();
         buildCenterContent();
-        if(layoutTemplate.getAdvancedCategories()== ButtonLayout.SIDEBAR) {
+        if (layoutTemplate.getAdvancedCategories() == ButtonLayout.SIDEBAR) {
             buildCategorySidebar();
         }
     }
@@ -113,14 +108,14 @@ public class MainPage implements Page {
         this.filter = layoutTemplate.getFilter();
     }
 
-    private void buildCategorySidebar(){
-        sidebarLeft = inventory.createRegionFromCoords("categories", 0, 0, 0,5);
+    private void buildCategorySidebar() {
+        sidebarLeft = inventory.createRegionFromCoords("categories", 0, 0, 0, 5);
 
         sidebarLeft.setStaticItem(
                 0,
                 configuration.getScrollUpCategoriesIcon(),
-                action ->{
-                    if(!action.isLeftClick()) return;
+                action -> {
+                    if (!action.isLeftClick()) return;
                     sidebarLeft.scrollByAndRefresh(-1);
                 }
         );
@@ -128,78 +123,80 @@ public class MainPage implements Page {
         sidebarLeft.setStaticItem(
                 5,
                 configuration.getScrollDownCategoriesIcon(),
-                action ->{
-                    if(!action.isLeftClick()) return;
+                action -> {
+                    if (!action.isLeftClick()) return;
                     sidebarLeft.scrollByAndRefresh(1);
                 }
         );
 
-        for(Category entry : plugin.getPlayerDataController().getPlayerData(playerID).getPreferences().getCategories()){
+        for (Category entry : plugin.getPlayerDataController().getPlayerData(playerID).getPreferences().getCategories()) {
             sidebarLeft.addItem(
                     entry.getPreview(),
-                    action ->{
-                        if(!action.isLeftClick()) return;
-                        filter = entry.getFilter();
+                    action -> {
+                        if (!action.isLeftClick()) return;
+                        filter = MaterialPatternParser.parse(entry.getFilter());
                         buildCenterContent();
                         center.refresh();
-                        //open(Bukkit.getPlayer(playerID), layoutState, null);
                     }
             );
         }
     }
 
-    private void buildCenterContent(){
-        int fromX = layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 1 : 0;
+    private void buildCenterContent() {
+        int fromX = layoutTemplate.getAdvancedCategories() == ButtonLayout.SIDEBAR ? 1 : 0;
         int fromY = 0;
-        int toX = layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 7 : 8;
+        int toX = layoutTemplate.getAdvancedHistory() == ButtonLayout.SIDEBAR ? 7 : 8;
         int toY = 4;
 
-        List<Listing> listings = sortListings(plugin.getAuctionHouse().getListings(), sortType);
+        List<Listing> cachedListings = new ArrayList<>();
+        for (CachedListing cached : plugin.getListingController().getListings()) {
+            cachedListings.add(cached.getListing());
+        }
+        List<Listing> listings = sortListings(cachedListings, sortType);
 
-        if(center!=null) inventory.removeRegion("center");
+        if (center != null) inventory.removeRegion("center");
         center = inventory.createRegionFromCoords("center", fromX, fromY, toX, toY);
 
-        for(Listing l : listings){
-            if(filter != null && !filter.contains(l.content().getType())) continue;
+        for (Listing l : listings) {
+            if (filter != null && !filter.contains(l.getContent().getType())) continue;
             center.addItem(getDisplayItem(l), clickContext -> {
-                if(clickContext.isLeftClick()){
-                    plugin.getLogger().info( Bukkit.getPlayer(playerID).getName()+" Leftclicked Listing.");
-                }
-                else if(clickContext.isRightClick()){
-                    plugin.getLogger().info( Bukkit.getPlayer(playerID).getName() +" Rightclicked Listing.");
+                if (clickContext.isLeftClick()) {
+                    plugin.getLogger().info(Bukkit.getPlayer(playerID).getName() + " Leftclicked Listing.");
+                } else if (clickContext.isRightClick()) {
+                    plugin.getLogger().info(Bukkit.getPlayer(playerID).getName() + " Rightclicked Listing.");
                 }
             });
         }
     }
 
     public List<Listing> sortListings(List<Listing> listings, SortType sortType) {
-        if(sortType==null) return listings;
+        if (sortType == null) return listings;
         return switch (sortType) {
             case NAME_A_Z -> listings.stream()
-                    .sorted(Comparator.comparing(l -> l.content().getType().name()))
+                    .sorted(Comparator.comparing(l -> l.getContent().getType().name()))
                     .toList();
 
             case NAME_Z_A -> listings.stream()
-                    .sorted(Comparator.comparing((Listing l) -> l.content().getType().name()).reversed())
+                    .sorted(Comparator.comparing((Listing l) -> l.getContent().getType().name()).reversed())
                     .toList();
 
             case PRICE_H_L -> listings.stream()
-                    .sorted(Comparator.comparingDouble(Listing::price).reversed())
+                    .sorted(Comparator.comparingDouble(Listing::getPrice).reversed())
                     .toList();
 
             case PRICE_L_H -> listings.stream()
-                    .sorted(Comparator.comparingDouble(Listing::price))
+                    .sorted(Comparator.comparingDouble(Listing::getPrice))
                     .toList();
 
             case PRICE_PER_PIECE_H_L -> listings.stream()
                     .sorted(Comparator.comparingDouble((Listing l) ->
-                            -(l.price() / l.content().getAmount()))
+                            -(l.getPrice() / l.getContent().getAmount()))
                     )
                     .toList();
 
             case PRICE_PER_PICE_L_H -> listings.stream()
                     .sorted(Comparator.comparingDouble(l ->
-                            l.price() / l.content().getAmount())
+                            l.getPrice() / l.getContent().getAmount())
                     )
                     .toList();
         };
@@ -207,16 +204,16 @@ public class MainPage implements Page {
 
     //TODO: add support for all placeholders from config.yml
 
-    private ItemStack getDisplayItem(Listing l){
-        ItemStack result = l.content().clone();
+    private ItemStack getDisplayItem(Listing l) {
+        ItemStack result = l.getContent().clone();
         ItemMeta meta = result.getItemMeta();
-        String itemName = PlainTextComponentSerializer.plainText().serialize(l.content().displayName());
+        String itemName = PlainTextComponentSerializer.plainText().serialize(l.getContent().displayName());
         String displayName = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getListingDisplayConfiguration().getNameTemplate();
-        meta.customName(MiniMessage.miniMessage().deserialize(displayName.replace("{PRICE}", NumberFormat.formatGerman(l.price())).replace("{ITEM_NAME}", itemName)).decoration(TextDecoration.ITALIC, false));
+        meta.customName(MiniMessage.miniMessage().deserialize(displayName.replace("{PRICE}", NumberFormat.formatGerman(l.getPrice())).replace("{ITEM_NAME}", itemName)).decoration(TextDecoration.ITALIC, false));
         List<Component> lore = new ArrayList<>();
         for (String line : plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getListingDisplayConfiguration().getLoreHeaderTemplates()) {
             String resolvedLine = line
-                    .replace("{PRICE}", NumberFormat.formatGerman(l.price()))
+                    .replace("{PRICE}", NumberFormat.formatGerman(l.getPrice()))
                     .replace("{ITEM_NAME}", itemName);
             lore.add(MiniMessage.miniMessage().deserialize(resolvedLine).decoration(TextDecoration.ITALIC, false));
         }
@@ -225,10 +222,10 @@ public class MainPage implements Page {
         return result;
     }
 
-    private void createNavbar(){
-        int fromX = layoutState.getAdvancedCategories()== MainPageLayoutState.ButtonLayout.SIDEBAR ? 1 : 0;
+    private void createNavbar() {
+        int fromX = layoutTemplate.getAdvancedCategories() == ButtonLayout.SIDEBAR ? 1 : 0;
         int y = 5;
-        int toX = layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.SIDEBAR ? 7 : 8;
+        int toX = layoutTemplate.getAdvancedHistory() == ButtonLayout.SIDEBAR ? 7 : 8;
         int highestSlot = toX - fromX;
 
         MainPageGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
@@ -238,38 +235,37 @@ public class MainPage implements Page {
         bottom.setItem(
                 0,
                 configuration.getNavigationArrowLeft(),
-                action ->{
-                    if(action.isDoubleClick()) return;
+                action -> {
+                    if (action.isDoubleClick()) return;
                     center.previousPageAndRefresh();
                 }
         );
 
         int index = 1;
 
-        if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.BUTTON){
+        if (layoutTemplate.getAdvancedCategories() == ButtonLayout.BUTTON) {
             createCategoryItem(index);
             index++;
-        }
-        else if(layoutState.getAdvancedCategories() == MainPageLayoutState.ButtonLayout.DISABLED){
+        } else if (layoutTemplate.getAdvancedCategories() == ButtonLayout.DISABLED) {
             index++;
         }
 
-        if(layoutState.getButtonLayout().isShowSettings()){
+        if (layoutTemplate.isShowSettings()) {
             bottom.setItem(
                     index,
                     configuration.getSettingsIcon(),
-                    action ->{
+                    action -> {
                         pageController.openSettingsPage();
                     }
             );
         }
         index++;
 
-        if(layoutState.getButtonLayout().isShowMyListings()){
+        if (layoutTemplate.isShowMyListings()) {
             bottom.setItem(
                     index,
                     configuration.getMyListingsIcon(),
-                    action ->{
+                    action -> {
                         pageController.getMyListingsPage().open(this);
                         Bukkit.getPlayer(playerID).sendMessage("Clicked My Listings icon");
                     }
@@ -277,11 +273,11 @@ public class MainPage implements Page {
         }
         index++;
 
-        if(layoutState.getButtonLayout().isShowRefresh()){
+        if (layoutTemplate.isShowRefresh()) {
             bottom.setItem(
                     index,
                     configuration.getRefreshIcon(),
-                    action ->{
+                    action -> {
                         refresh();
                         open(null);
                     }
@@ -289,40 +285,39 @@ public class MainPage implements Page {
         }
         index++;
 
-        if(layoutState.getButtonLayout().isShowSort()){
+        if (layoutTemplate.isShowSort()) {
             createSortItem(index);
         }
         index++;
 
 
-        if(layoutState.getButtonLayout().isShowSearch()){
+        if (layoutTemplate.isShowSearch()) {
             bottom.setItem(
                     index,
                     configuration.getSearchIcon(),
-                    action ->{
+                    action -> {
                         openSearchDialog(action.getPlayer());
                     }
             );
         }
         index++;
 
-        if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.DISABLED){
-        }
-        else if(layoutState.getAdvancedHistory() == MainPageLayoutState.ButtonLayout.BUTTON){
+        if (layoutTemplate.getAdvancedHistory() == ButtonLayout.DISABLED) {
+        } else if (layoutTemplate.getAdvancedHistory() == ButtonLayout.BUTTON) {
             createHistoryItem(index);
         }
 
         bottom.setItem(
                 highestSlot,
                 configuration.getNavigationArrowRight(),
-                action ->{
-                    if(action.isDoubleClick()) return;
+                action -> {
+                    if (action.isDoubleClick()) return;
                     center.nextPageAndRefresh();
                 }
         );
     }
 
-    private void openSearchDialog(Player p){
+    private void openSearchDialog(Player p) {
         Bukkit.getPlayer(playerID).sendMessage("Clicked Search icon");
         Dialog dialog = InteractiveDialogGui.create(Component.text("Search"))
                 .input(
@@ -346,11 +341,11 @@ public class MainPage implements Page {
         p.showDialog(dialog);
     }
 
-    private void onSearch(String searchTerm){
+    private void onSearch(String searchTerm) {
         searchTerm = searchTerm.replace(" ", "_");
         List<Material> result = new ArrayList<>();
-        for(Material m : Material.values()){
-            if(m.name().toLowerCase().contains(searchTerm)){
+        for (Material m : Material.values()) {
+            if (m.name().toLowerCase().contains(searchTerm)) {
                 result.add(m);
             }
         }
@@ -364,9 +359,9 @@ public class MainPage implements Page {
         bottom.setItem(
                 index,
                 createSortItem(sortType),
-                action ->{
-                    if(action.isLeftClick()){
-                        if(sortTypeSelectedIndex<5){
+                action -> {
+                    if (action.isLeftClick()) {
+                        if (sortTypeSelectedIndex < 5) {
                             sortTypeSelectedIndex++;
                             sortType = getSortType(sortTypeSelectedIndex);
                             createSortItem(index);
@@ -374,9 +369,8 @@ public class MainPage implements Page {
                             center.refresh();
                             bottom.refresh();
                         }
-                    }
-                    else if(action.isRightClick()){
-                        if(sortTypeSelectedIndex> 0){
+                    } else if (action.isRightClick()) {
+                        if (sortTypeSelectedIndex > 0) {
                             sortTypeSelectedIndex--;
                             sortType = getSortType(sortTypeSelectedIndex);
                             createSortItem(index);
@@ -389,62 +383,62 @@ public class MainPage implements Page {
         );
     }
 
-    private SortType getSortType(int index){
-        for(SortType t : SortType.values()){
-            if(t.getIndex()==index) return t;
+    private SortType getSortType(int index) {
+        for (SortType t : SortType.values()) {
+            if (t.getIndex() == index) return t;
         }
         return null;
     }
 
-    private ItemStack createSortItem(SortType type){
+    private ItemStack createSortItem(SortType type) {
         MainPageGuiConfiguration guiConfiguration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
         ItemStack result = guiConfiguration.getSortIcon();
 
         List<Component> lore = new ArrayList<>();
         lore.add(
                 (
-                type==SortType.NAME_A_Z ?
-                        guiConfiguration.getMainPageSortOptionsConfiguration().getNameAZEnabled()
-                        : guiConfiguration.getMainPageSortOptionsConfiguration().getNameAZDisabled()
-                ).decoration(TextDecoration.ITALIC,false)
+                        type == SortType.NAME_A_Z ?
+                                guiConfiguration.getMainPageSortOptionsConfiguration().getNameAZEnabled()
+                                : guiConfiguration.getMainPageSortOptionsConfiguration().getNameAZDisabled()
+                ).decoration(TextDecoration.ITALIC, false)
         );
         lore.add(
                 (
-                type==SortType.NAME_Z_A ?
-                        guiConfiguration.getMainPageSortOptionsConfiguration().getNameZAEnabled()
-                        : guiConfiguration.getMainPageSortOptionsConfiguration().getNameZADisabled()
-                ).decoration(TextDecoration.ITALIC,false)
+                        type == SortType.NAME_Z_A ?
+                                guiConfiguration.getMainPageSortOptionsConfiguration().getNameZAEnabled()
+                                : guiConfiguration.getMainPageSortOptionsConfiguration().getNameZADisabled()
+                ).decoration(TextDecoration.ITALIC, false)
         );
         lore.add(
                 (
-                type==SortType.PRICE_H_L ?
-                        guiConfiguration.getMainPageSortOptionsConfiguration().getPriceHLEnabled()
-                        : guiConfiguration.getMainPageSortOptionsConfiguration().getPriceHLDisabled()
-                ).decoration(TextDecoration.ITALIC,false)
+                        type == SortType.PRICE_H_L ?
+                                guiConfiguration.getMainPageSortOptionsConfiguration().getPriceHLEnabled()
+                                : guiConfiguration.getMainPageSortOptionsConfiguration().getPriceHLDisabled()
+                ).decoration(TextDecoration.ITALIC, false)
         );
         lore.add(
                 (
-                type==SortType.PRICE_L_H ?
-                        guiConfiguration.getMainPageSortOptionsConfiguration().getPriceLHEnabled()
-                        : guiConfiguration.getMainPageSortOptionsConfiguration().getPriceLHDisabled()
-                ).decoration(TextDecoration.ITALIC,false)
+                        type == SortType.PRICE_L_H ?
+                                guiConfiguration.getMainPageSortOptionsConfiguration().getPriceLHEnabled()
+                                : guiConfiguration.getMainPageSortOptionsConfiguration().getPriceLHDisabled()
+                ).decoration(TextDecoration.ITALIC, false)
         );
         lore.add(
                 (
-                        type==SortType.PRICE_PER_PIECE_H_L ?
+                        type == SortType.PRICE_PER_PIECE_H_L ?
                                 guiConfiguration.getMainPageSortOptionsConfiguration().getPricePerPieceHLEnabled()
                                 : guiConfiguration.getMainPageSortOptionsConfiguration().getPricePerPieceHLDisabled()
-                ).decoration(TextDecoration.ITALIC,false)
+                ).decoration(TextDecoration.ITALIC, false)
         );
         lore.add(
                 (
-                type==SortType.PRICE_PER_PICE_L_H ?
-                        guiConfiguration.getMainPageSortOptionsConfiguration().getPricePerPieceLHEnabled()
-                        : guiConfiguration.getMainPageSortOptionsConfiguration().getPricePerPieceLHDisabled()
-                ).decoration(TextDecoration.ITALIC,false)
+                        type == SortType.PRICE_PER_PICE_L_H ?
+                                guiConfiguration.getMainPageSortOptionsConfiguration().getPricePerPieceLHEnabled()
+                                : guiConfiguration.getMainPageSortOptionsConfiguration().getPricePerPieceLHDisabled()
+                ).decoration(TextDecoration.ITALIC, false)
         );
 
-        for(Component c : guiConfiguration.getSortIcon().lore()){
+        for (Component c : guiConfiguration.getSortIcon().lore()) {
             lore.add(c);
         }
 
@@ -456,23 +450,22 @@ public class MainPage implements Page {
     private void createCategoryItem(int index) {
         bottom.setItem(
                 index,
-                createCategoryItem(plugin.getAuctionHouse().getPreferencesBlocking(playerID).categoryEntries(), categoryItemSelectedIndex),
-                action ->{
-                    PlayerPreferences preferences = plugin.getAuctionHouse().getPreferencesBlocking(playerID);
-                    if(action.isLeftClick()){
-                        if(preferences.categoryEntries().size()>categoryItemSelectedIndex+1){
-                            categoryItemSelectedIndex = (categoryItemSelectedIndex+1);
-                            filter = (preferences.categoryEntries().get(categoryItemSelectedIndex).filter());
+                createCategoryItem(plugin.getPlayerDataController().getPlayerData(playerID).getPreferences().getCategories(), categoryItemSelectedIndex),
+                action -> {
+                    List<Category> categories = plugin.getPlayerDataController().getPlayerData(playerID).getPreferences().getCategories();
+                    if (action.isLeftClick()) {
+                        if (categories.size() > categoryItemSelectedIndex + 1) {
+                            categoryItemSelectedIndex = (categoryItemSelectedIndex + 1);
+                            filter = MaterialPatternParser.parse(categories.get(categoryItemSelectedIndex).getFilter());
                             createCategoryItem(index);
                             buildCenterContent();
                             center.refresh();
                             bottom.refresh();
                         }
-                    }
-                    else if(action.isRightClick()){
-                        if(categoryItemSelectedIndex> 0){
-                            categoryItemSelectedIndex = (categoryItemSelectedIndex-1);
-                            filter = (preferences.categoryEntries().get(categoryItemSelectedIndex).filter());
+                    } else if (action.isRightClick()) {
+                        if (categoryItemSelectedIndex > 0) {
+                            categoryItemSelectedIndex = (categoryItemSelectedIndex - 1);
+                            filter = MaterialPatternParser.parse(categories.get(categoryItemSelectedIndex).getFilter());
                             createCategoryItem(index);
                             buildCenterContent();
                             center.refresh();
@@ -483,24 +476,23 @@ public class MainPage implements Page {
         );
     }
 
-    private ItemStack createCategoryItem(List<PlayerPreferencesCategoryEntry> categories, int index){
+    private ItemStack createCategoryItem(List<Category> categories, int index) {
         List<Component> lore = new ArrayList<>(categories.size());
         lore.add(Component.text(" "));
-        for(int i = 0; i < categories.size(); i++){
-            if(i==index) {
-                String name = PlainTextComponentSerializer.plainText().serialize(categories.get(i).preview().getItemMeta().displayName());
-                Component displayName = MiniMessage.miniMessage().deserialize(configuration.getCategoryEnabled().replace("{NAME}", name)).decoration(TextDecoration.ITALIC,false);
+        for (int i = 0; i < categories.size(); i++) {
+            if (i == index) {
+                String name = PlainTextComponentSerializer.plainText().serialize(categories.get(i).getPreview().getItemMeta().displayName());
+                Component displayName = MiniMessage.miniMessage().deserialize(configuration.getCategoryEnabled().replace("{NAME}", name)).decoration(TextDecoration.ITALIC, false);
                 lore.add(i, displayName);
-            }
-            else {
-                String name = PlainTextComponentSerializer.plainText().serialize(categories.get(i).preview().getItemMeta().displayName());
-                Component displayName = MiniMessage.miniMessage().deserialize(configuration.getCategoryDisabled().replace("{NAME}", name)).decoration(TextDecoration.ITALIC,false);
+            } else {
+                String name = PlainTextComponentSerializer.plainText().serialize(categories.get(i).getPreview().getItemMeta().displayName());
+                Component displayName = MiniMessage.miniMessage().deserialize(configuration.getCategoryDisabled().replace("{NAME}", name)).decoration(TextDecoration.ITALIC, false);
                 lore.add(i, displayName);
             }
         }
 
-        for(Component c : configuration.getCategoriesIcon().lore()){
-            lore.add(c.decoration(TextDecoration.ITALIC,false));
+        for (Component c : configuration.getCategoriesIcon().lore()) {
+            lore.add(c.decoration(TextDecoration.ITALIC, false));
         }
 
         ItemStack result = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration().getCategoriesIcon();
@@ -511,18 +503,17 @@ public class MainPage implements Page {
     private void createHistoryItem(int index) {
         bottom.setItem(
                 index,
-                createHistoryItem(plugin.getAuctionHouse().getTransactionHistoryBlocking(playerID)),
-                action ->{
-                    List<AHTransactionHistoryEntry> historyEntries = plugin.getAuctionHouse().getTransactionHistoryBlocking(playerID);
-                    if(action.isLeftClick()){
-                        if(historyEntries.size() > historySelectedIndex + 1){
+                createHistoryItem(plugin.getPlayerDataController().getPlayerData(playerID).getTransactions()),
+                action -> {
+                    List<Transaction> historyEntries = plugin.getPlayerDataController().getPlayerData(playerID).getTransactions();
+                    if (action.isLeftClick()) {
+                        if (historyEntries.size() > historySelectedIndex + 1) {
                             historySelectedIndex++;
                             createHistoryItem(index);
                             bottom.refresh();
                         }
-                    }
-                    else if(action.isRightClick()){
-                        if(historySelectedIndex > 0){
+                    } else if (action.isRightClick()) {
+                        if (historySelectedIndex > 0) {
                             historySelectedIndex--;
                             createHistoryItem(index);
                             bottom.refresh();
@@ -532,9 +523,9 @@ public class MainPage implements Page {
         );
     }
 
-    private ItemStack createHistoryItem(List<AHTransactionHistoryEntry> historyEntries){
-        if(historyEntries == null){
-            historyEntries = plugin.getAuctionHouse().getTransactionHistoryBlocking(playerID);
+    private ItemStack createHistoryItem(List<Transaction> historyEntries) {
+        if (historyEntries == null) {
+            historyEntries = plugin.getPlayerDataController().getPlayerData(playerID).getTransactions();
         }
 
         ItemStack result = configuration.getHistoryIcon();
@@ -542,30 +533,29 @@ public class MainPage implements Page {
 
         lore.add(Component.text(" "));
 
-        if(historyEntries.isEmpty()){
+        if (historyEntries.isEmpty()) {
             lore.add(Component.text("No history available", TextColor.color(0xAAAAAA)).decoration(TextDecoration.ITALIC, false));
-        }
-        else{
-            if(historySelectedIndex >= historyEntries.size()){
+        } else {
+            if (historySelectedIndex >= historyEntries.size()) {
                 historySelectedIndex = historyEntries.size() - 1;
             }
 
-            for(int i = 0; i < historyEntries.size(); i++){
-                AHTransactionHistoryEntry entry = historyEntries.get(i);
-                String itemName = PlainTextComponentSerializer.plainText().serialize(entry.content().displayName());
+            for (int i = 0; i < historyEntries.size(); i++) {
+                Transaction entry = historyEntries.get(i);
+                String itemName = PlainTextComponentSerializer.plainText().serialize(entry.getContent().displayName());
                 boolean selected = i == historySelectedIndex;
 
                 Component line = Component.text(selected ? "> " : "| ", TextColor.color(0xAAAAAA))
                         .append(Component.text(itemName, TextColor.color(selected ? 0x5555FF : 0xFFFFFF)))
-                        .append(Component.text(" (" + NumberFormat.formatGerman(entry.price()) + "$)", TextColor.color(0x555555)))
+                        .append(Component.text(" (" + NumberFormat.formatGerman(entry.getPrice()) + "$)", TextColor.color(0x555555)))
                         .decoration(TextDecoration.ITALIC, false);
 
                 lore.add(line);
             }
         }
 
-        if(result.lore() != null){
-            for(Component c : result.lore()){
+        if (result.lore() != null) {
+            for (Component c : result.lore()) {
                 lore.add(c.decoration(TextDecoration.ITALIC, false));
             }
         }

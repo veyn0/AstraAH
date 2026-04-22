@@ -3,7 +3,7 @@ package dev.veyno.astraAH.ui.pages;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.config.guis.ListingInfoGuiConfiguration;
-import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -59,8 +59,8 @@ public class ListingInfoPage implements Page {
         ListingInfoGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getListingInfoGuiConfiguration();
         inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerId));
 
-        navBar = inventory.createRegionFromCoords("navigation", 0,3,8,5);
-        content = inventory.createRegionFromCoords("content", 0,0,8,2);
+        navBar = inventory.createRegionFromCoords("navigation", 0, 3, 8, 5);
+        content = inventory.createRegionFromCoords("content", 0, 0, 8, 2);
     }
 
     @Override
@@ -68,30 +68,32 @@ public class ListingInfoPage implements Page {
 
     }
 
-    private void buildNavbar(){
+    private void buildNavbar() {
         ListingInfoGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getListingInfoGuiConfiguration();
         navBar.setItem(
                 18,
                 configuration.getBackIcon(),
-                action ->{
+                action -> {
                     previousPage.open(null);
                 }
-                );
+        );
         navBar.setItem(
                 10,
                 getSellerHeadIcon(),
-                () ->{}
-                );
+                () -> {
+                }
+        );
         navBar.setItem(
                 12,
-                currentListing.content(),
-                () ->{}
+                currentListing.getContent(),
+                () -> {
+                }
         );
-        if(currentListing.playerId().equals(playerId)) {
+        if (currentListing.getSellerId().equals(playerId)) {
             navBar.setItem(
                     14,
                     configuration.getDeleteIcon(),
-                    action ->{
+                    action -> {
                         Dialog dialog = InteractiveDialogGui.create(Component.text("Confirm Deleting"))
                                 .message(Component.text("Are you sure you want to Delete your Listing? Already paid taxes will NOT be refunded"))
                                 .confirmation(
@@ -99,6 +101,8 @@ public class ListingInfoPage implements Page {
                                         Component.text(""),
                                         ctx -> {
                                             Player p = ctx.player();
+                                            // TODO: actually remove the listing via ListingController
+                                            //   plugin.getListingController().removeListingIfPresent(currentListing.getListingId());
                                             p.sendMessage("PlaceHolder - deleted");
                                             previousPage.open(null);
                                         },
@@ -114,7 +118,7 @@ public class ListingInfoPage implements Page {
 
                         action.getPlayer().showDialog(dialog);
                     }
-                    );
+            );
         }
     }
 
@@ -124,10 +128,10 @@ public class ListingInfoPage implements Page {
 
         if (meta == null) return head;
 
-        PlayerProfile profile = Bukkit.createProfile(currentListing.playerId());
+        PlayerProfile profile = Bukkit.createProfile(currentListing.getSellerId());
         meta.setPlayerProfile(profile);
 
-        var offline = Bukkit.getOfflinePlayer(currentListing.playerId());
+        var offline = Bukkit.getOfflinePlayer(currentListing.getSellerId());
         String name = offline.getName();
 
         meta.displayName(Component.text(
@@ -136,7 +140,7 @@ public class ListingInfoPage implements Page {
         ));
 
         meta.lore(List.of(
-                Component.text("UUID: " + currentListing.playerId(), NamedTextColor.GRAY),
+                Component.text("UUID: " + currentListing.getSellerId(), NamedTextColor.GRAY),
                 Component.text("Status: : " + (offline.isOnline() ? "Online" : "Offline"), NamedTextColor.GRAY)
         ));
 
@@ -144,17 +148,18 @@ public class ListingInfoPage implements Page {
         return head;
     }
 
-    private void buildContent(){
+    private void buildContent() {
         content.clearItems();
-        for(ItemStack i : getShulkerContents(currentListing.content())){
+        for (ItemStack i : getShulkerContents(currentListing.getContent())) {
             content.addItem(
                     i,
-                    () ->{}
+                    () -> {
+                    }
             );
         }
     }
 
-    public void openListingInfo(Listing l, Page previousPage){
+    public void openListingInfo(Listing l, Page previousPage) {
         this.currentListing = l;
         this.previousPage = previousPage;
         buildContent();

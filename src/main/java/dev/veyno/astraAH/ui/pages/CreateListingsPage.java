@@ -2,17 +2,15 @@ package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.config.guis.CreateListingGuiConfiguration1;
-import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
 import dev.veyno.astraAH.util.IDLocks;
 import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.dialog.DialogResponseView;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
@@ -53,12 +51,12 @@ public class CreateListingsPage implements Page {
 
     @Override
     public void open(Page previousPage) {
-        if(step==0) {
-            if(inventoryItemSelect==null) rebuild();
+        if (step == 0) {
+            if (inventoryItemSelect == null) rebuild();
             rebuildContent();
             inventoryItemSelect.open();
         }
-        if(step==1){
+        if (step == 1) {
 
         }
     }
@@ -72,39 +70,39 @@ public class CreateListingsPage implements Page {
     @Override
     public void rebuild() {
         CreateListingGuiConfiguration1 configuration = plugin.getConfiguration().getConfiguredGuis().getCreateListingGuiConfiguration1();
-        inventoryItemSelect = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(),Bukkit.getPlayer(playerID));
-        itemSelectNavigation = inventoryItemSelect.createRegionFromCoords("navigation", 0,4,8,5);
+        inventoryItemSelect = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID));
+        itemSelectNavigation = inventoryItemSelect.createRegionFromCoords("navigation", 0, 4, 8, 5);
 
         itemSelectNavigation.setItem(
                 9,
                 configuration.getCancelIcon(),
-                action ->{
+                action -> {
                     pageController.getMyListingsPage().open(null);
                 }
-                );
+        );
 
-        itemSelectContent = inventoryItemSelect.createRegionFromCoords("content", 0,0,8,3);
-
+        itemSelectContent = inventoryItemSelect.createRegionFromCoords("content", 0, 0, 8, 3);
 
 
     }
 
-    private void rebuildContent(){
+    private void rebuildContent() {
         itemSelectContent.clearItems();
-        for(ItemStack i : getAllPlayerItems(Bukkit.getPlayer(playerID))){
+        for (ItemStack i : getAllPlayerItems(Bukkit.getPlayer(playerID))) {
             itemSelectContent.addItem(
                     i,
-                    action ->{
+                    action -> {
                         selectedItem = i;
                         itemSelectNavigation.setItem(
                                 13,
                                 i,
-                                () ->{}
+                                () -> {
+                                }
                         );
                         itemSelectNavigation.setItem(
                                 17,
                                 new ItemStack(Material.LIME_CONCRETE),
-                                ctx ->{
+                                ctx -> {
                                     openPriceInput();
                                 }
                         );
@@ -183,14 +181,24 @@ public class CreateListingsPage implements Page {
         Bukkit.getPlayer(playerID).showDialog(dialog);
     }
 
-    private void createListing(){
+    private void createListing() {
         synchronized (IDLocks.getLock(playerID)) {
             if (selectedItem == null || price <= 0) return;
             Player p = Bukkit.getPlayer(playerID);
 
-            Listing l = new Listing(UUID.randomUUID(), p.getUniqueId(), price, selectedItem);
+            // TODO: createdAt, currency and status should be set by a service/factory once available.
+            //       Status 0 represents the active status used by YamlListingsRepository.
+            Listing l = new Listing(
+                    UUID.randomUUID(),
+                    p.getUniqueId(),
+                    selectedItem,
+                    System.currentTimeMillis(),
+                    price,
+                    null,
+                    0
+            );
 
-            plugin.getAuctionHouse().createListingBlocking(l);
+            plugin.getListingController().postListing(l);
         }
     }
 

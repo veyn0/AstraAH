@@ -2,12 +2,11 @@ package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.config.guis.PlayerListingsGuiConfiguration;
-import dev.veyno.astraAH.entity.Listing;
+import dev.veyno.astraAH.data.dto.CachedListing;
+import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
-import dev.veyno.astraAH.util.InteractiveDialogGui;
-import io.papermc.paper.dialog.Dialog;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 
@@ -48,10 +47,10 @@ public class MyListingsPage implements Page {
         PlayerListingsGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getPlayerListingsGuiConfiguration();
         overviewInventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID));
 
-        navBar = overviewInventory.createRegionFromCoords("navigation", 0,5,8,5);
+        navBar = overviewInventory.createRegionFromCoords("navigation", 0, 5, 8, 5);
         buildNavBar();
 
-        content = overviewInventory.createRegionFromCoords("content", 0,0,8,4);
+        content = overviewInventory.createRegionFromCoords("content", 0, 0, 8, 4);
         buildContent();
     }
 
@@ -60,29 +59,37 @@ public class MyListingsPage implements Page {
 
     }
 
-    private void buildContent(){
-        List<Listing> listings = new ArrayList<>(plugin.getAuctionHouse().getListingsBlocking(playerID));
+    private void buildContent() {
+        // TODO: replace with a dedicated per-seller lookup on ListingController (e.g. getListingsBySeller(UUID))
+        //       once it exists. Current implementation filters the full cached listing set client-side.
+        List<Listing> listings = new ArrayList<>();
+        for (CachedListing cached : plugin.getListingController().getListings()) {
+            Listing l = cached.getListing();
+            if (playerID.equals(l.getSellerId())) {
+                listings.add(l);
+            }
+        }
 
         content.clearItems();
 
-        for(Listing l : listings){
+        for (Listing l : listings) {
             content.addItem(
-                    l.content(),
-                    action ->{
+                    l.getContent(),
+                    action -> {
                         pageController.getListingInfoPage().openListingInfo(l, this);
                     }
-                    );
+            );
         }
 
     }
 
-    private void buildNavBar(){
+    private void buildNavBar() {
         PlayerListingsGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getPlayerListingsGuiConfiguration();
 
         navBar.setItem(
                 0,
                 configuration.getPreviousPageIcon(),
-                action ->{
+                action -> {
                     content.previousPageAndRefresh();
                 }
         );
@@ -90,7 +97,7 @@ public class MyListingsPage implements Page {
         navBar.setItem(
                 8,
                 configuration.getNextPageIcon(),
-                action ->{
+                action -> {
                     content.nextPageAndRefresh();
                 }
         );
@@ -98,7 +105,7 @@ public class MyListingsPage implements Page {
         navBar.setItem(
                 2,
                 configuration.getBackIcon(),
-                action ->{
+                action -> {
                     pageController.openMainPage(false);
                 }
         );
@@ -106,7 +113,7 @@ public class MyListingsPage implements Page {
         navBar.setItem(
                 4,
                 configuration.getCreateListingIcon(),
-                action ->{
+                action -> {
                     pageController.openCreateListingsPage();
                 }
         );

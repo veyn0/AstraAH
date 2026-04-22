@@ -2,7 +2,6 @@ package dev.veyno.astraAH.ah.configuration.config.categories;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.Configurable;
-import dev.veyno.astraAH.entity.ListingsFilter;
 import dev.veyno.astraAH.util.ItemStackParser;
 import dev.veyno.astraAH.util.MaterialPatternParser;
 import org.bukkit.Material;
@@ -42,7 +41,7 @@ public class CategoryFilterConfiguration extends Configurable {
         return materials;
     }
 
-    public ListingsFilter toListingsFilter() {
-        return new ListingsFilter(materials, getPreviewItem());
-    }
+//    public ListingsFilter toListingsFilter() {
+//        return new ListingsFilter(materials, getPreviewItem());
+//    }
 }

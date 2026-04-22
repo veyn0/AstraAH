@@ -3,7 +3,7 @@ package dev.veyno.astraAH.ah.configuration.config;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.ah.configuration.Configurable;
 import dev.veyno.astraAH.ah.configuration.config.categories.CategoryFilterConfiguration;
-import dev.veyno.astraAH.entity.ListingsFilter;
+
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
@@ -28,9 +28,9 @@ public class ConfiguredCategories extends Configurable {
         return filters;
     }
 
-    public List<ListingsFilter> getListingsFilters() {
-        return filters.stream()
-                .map(CategoryFilterConfiguration::toListingsFilter)
-                .toList();
-    }
+//    public List<ListingsFilter> getListingsFilters() {
+//        return filters.stream()
+//                .map(CategoryFilterConfiguration::toListingsFilter)
+//                .toList();
+//    }
 }
