@@ -7,22 +7,30 @@ package dev.veyno.astraAH;
 //import de.leycm.i18label4j.serializer.KyoriAdventureSerializer;
 //import de.leycm.i18label4j.source.FileSource;
 //import de.leycm.init4j.instance.Instanceable;
-
-import dev.veyno.astraAH.ah.AuctionHouse;
+//
+//import dev.veyno.astraAH.ah.AuctionHouse;
 import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
+import dev.veyno.astraAH.app.ListingController;
+import dev.veyno.astraAH.app.PlayerDataController;
 import dev.veyno.astraAH.command.AuctionHouseCommand;
+import dev.veyno.astraAH.data.ListingsService;
+import dev.veyno.astraAH.data.PlayerDataService;
+import dev.veyno.astraAH.data.repository.ListingsRepository;
+import dev.veyno.astraAH.data.repository.PlayerDataRepository;
+import dev.veyno.astraAH.data.repository.listings.YamlListingsRepository;
+import dev.veyno.astraAH.data.repository.playerdata.YamlPlayerDataRepository;
 import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
 import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.permissions.provider.DefaultPermissionsProvider;
-import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
-import dev.veyno.astraAH.storage.actions.provider.FileAHPlayerActionsStorageProvider;
-import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
-import dev.veyno.astraAH.storage.history.provider.FileAHTransactionHistoryStorageProvider;
-import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
-import dev.veyno.astraAH.storage.listings.provider.FileAHListingsStorageProvider;
-import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
-import dev.veyno.astraAH.storage.preferences.provider.FileAHPlayerPreferencesStorageProvider;
+//import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
+//import dev.veyno.astraAH.storage.actions.provider.FileAHPlayerActionsStorageProvider;
+//import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
+//import dev.veyno.astraAH.storage.history.provider.FileAHTransactionHistoryStorageProvider;
+//import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
+//import dev.veyno.astraAH.storage.listings.provider.FileAHListingsStorageProvider;
+//import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
+//import dev.veyno.astraAH.storage.preferences.provider.FileAHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -48,16 +56,20 @@ TODO:
  - alerts: thresholds /h for money made, specific interactions and all time values.
  - add customizable filters: when joining initially player filters will be set to the default filters and they can edit them afterwards
  - Backups: full backups or backups of partial stuff and actions, custom triggers where it can be specified what should be backed up
+ - add pending deliveries for purchased items that did not fit in the inventory, optional enabled by default. add configurable maximum time an item is available to collect
  */
 
 public final class AstraAH extends JavaPlugin {
 
     private AstraAHConfiguration configuration;
 
-    private AHListingsStorageProvider storageProvider;
-    private AHPlayerPreferencesStorageProvider playerPreferencesStorageProvider;
-    private AHTransactionHistoryStorageProvider transactionHistoryStorageProvider;
-    private AHPlayerActionsStorageProvider playerActionsStorageProvider;
+    private ListingController listingController;
+    private PlayerDataController playerDataController;
+
+//    private AHListingsStorageProvider storageProvider;
+//    private AHPlayerPreferencesStorageProvider playerPreferencesStorageProvider;
+//    private AHTransactionHistoryStorageProvider transactionHistoryStorageProvider;
+//    private AHPlayerActionsStorageProvider playerActionsStorageProvider;
 
     private ErrorHandler errorHandler;
 
@@ -65,9 +77,7 @@ public final class AstraAH extends JavaPlugin {
 
     private ClickableInventory.InventoryManager inventoryManager;
 
-    private AuctionHouse auctionHouse;
-
-    private
+//    private AuctionHouse auctionHouse;
 
     private EconomyProvider economy;
 
@@ -81,19 +91,41 @@ public final class AstraAH extends JavaPlugin {
         configuration = new AstraAHConfiguration(this);
         setupEconomy();
         setupCommands();
-       // saveResource("lang/en_us.yml", false);
-        storageProvider = new FileAHListingsStorageProvider(this);
-        playerPreferencesStorageProvider = new FileAHPlayerPreferencesStorageProvider(this);
-        transactionHistoryStorageProvider = new FileAHTransactionHistoryStorageProvider(this);
-        playerActionsStorageProvider = new FileAHPlayerActionsStorageProvider(this);
-        auctionHouse = new AuctionHouse(
+
+        ListingsRepository listingsRepository = new YamlListingsRepository(this, 30);
+        this.listingController = new ListingController(
                 this,
-                storageProvider,
-                playerPreferencesStorageProvider,
-                transactionHistoryStorageProvider,
-                playerActionsStorageProvider,
-                economy
+                new ListingsService(
+                        this,
+                        listingsRepository,
+                        3000,
+                        4000
+                )
         );
+
+        PlayerDataRepository playerDataRepository = new YamlPlayerDataRepository(this);
+        this.playerDataController = new PlayerDataController(
+                this,
+                new PlayerDataService(
+                        playerDataRepository,
+                        this,
+                        10
+                )
+        );
+
+       // saveResource("lang/en_us.yml", false);
+//        storageProvider = new FileAHListingsStorageProvider(this);
+//        playerPreferencesStorageProvider = new FileAHPlayerPreferencesStorageProvider(this);
+//        transactionHistoryStorageProvider = new FileAHTransactionHistoryStorageProvider(this);
+//        playerActionsStorageProvider = new FileAHPlayerActionsStorageProvider(this);
+//        auctionHouse = new AuctionHouse(
+//                this,
+//                storageProvider,
+//                playerPreferencesStorageProvider,
+//                transactionHistoryStorageProvider,
+//                playerActionsStorageProvider,
+//                economy
+//        );
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
 
@@ -124,6 +156,14 @@ public final class AstraAH extends JavaPlugin {
 
     }
 
+    public ListingController getListingController() {
+        return listingController;
+    }
+
+    public PlayerDataController getPlayerDataController() {
+        return playerDataController;
+    }
+
     @Override
     public void onDisable() {
     }
@@ -136,34 +176,34 @@ public final class AstraAH extends JavaPlugin {
         return errorHandler;
     }
 
-    public AuctionHouse getAuctionHouse() {
-        return auctionHouse;
-    }
+//    public AuctionHouse getAuctionHouse() {
+//        return auctionHouse;
+//    }
 
     public PermissionsProvider getPermissionsProvider() {
         return permissionsProvider;
     }
-
-    public AHListingsStorageProvider getStorageProvider() {
-        return storageProvider;
-    }
-
-    public AHPlayerPreferencesStorageProvider getPlayerPreferencesStorageProvider() {
-        return playerPreferencesStorageProvider;
-    }
-
-    public AHTransactionHistoryStorageProvider getTransactionHistoryStorageProvider() {
-        return transactionHistoryStorageProvider;
-    }
+//
+//    public AHListingsStorageProvider getStorageProvider() {
+//        return storageProvider;
+//    }
+//
+//    public AHPlayerPreferencesStorageProvider getPlayerPreferencesStorageProvider() {
+//        return playerPreferencesStorageProvider;
+//    }
+//
+//    public AHTransactionHistoryStorageProvider getTransactionHistoryStorageProvider() {
+//        return transactionHistoryStorageProvider;
+//    }
 
     public PageController getPageController(UUID playerID){
         if(!pageControllers.containsKey(playerID)) pageControllers.put(playerID, new PageController(this, playerID));
         return pageControllers.get(playerID);
     }
 
-    public AHPlayerActionsStorageProvider getPlayerActionsStorageProvider() {
-        return playerActionsStorageProvider;
-    }
+//    public AHPlayerActionsStorageProvider getPlayerActionsStorageProvider() {
+//        return playerActionsStorageProvider;
+//    }
 
     public AstraAHConfiguration getConfiguration() {
         return configuration;

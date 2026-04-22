@@ -1,8 +1,13 @@
 package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.app.dto.ButtonLayout;
+import dev.veyno.astraAH.app.dto.LayoutTemplate;
 import dev.veyno.astraAH.app.dto.SortType;
 import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
+import dev.veyno.astraAH.data.dto.Category;
+import dev.veyno.astraAH.data.dto.Listing;
+import dev.veyno.astraAH.data.dto.Preferences;
 import dev.veyno.astraAH.entity.AHTransactionHistoryEntry;
 import dev.veyno.astraAH.dto.MainPageLayoutState;
 import dev.veyno.astraAH.ui.Page;
@@ -51,25 +56,27 @@ public class MainPage implements Page {
     private ClickableInventory.InventoryRegion sidebarRight;
     private ClickableInventory.InventoryRegion bottom;
 
-    private MainPageLayoutState layoutState;
+
+    private LayoutTemplate layoutTemplate;
+//    private MainPageLayoutState layoutState;
 
     private MainPageGuiConfiguration configuration;
 
-    public MainPageLayoutState getLayoutState() {
-        return layoutState;
-    }
+//    public MainPageLayoutState getLayoutState() {
+//        return layoutState;
+//    }
 
-    public MainPage(AstraAH plugin, PageController pageController, UUID playerID, MainPageLayoutState layoutState) {
+    public MainPage(AstraAH plugin, PageController pageController, UUID playerID, LayoutTemplate layoutTemplate) {
         this.plugin = plugin;
         this.pageController = pageController;
         this.playerID = playerID;
         this.configuration = plugin.getConfiguration().getConfiguredGuis().getMainPageGuiConfiguration();
-        this.layoutState = layoutState;
+        this.layoutTemplate = layoutTemplate;
         rebuild();
     }
 
-    public void setLayoutState(MainPageLayoutState layoutState) {
-        this.layoutState = layoutState;
+    public void setLayoutState(LayoutTemplate layoutTemplate) {
+        this.layoutTemplate = layoutTemplate;
     }
 
     @Override
@@ -84,11 +91,11 @@ public class MainPage implements Page {
 
     @Override
     public void rebuild() {
-        sortType = layoutState.getSortType();
+        sortType = layoutTemplate.getSortType();
         inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID) );
         createNavbar();
         buildCenterContent();
-        if(layoutState.getAdvancedCategories()== MainPageLayoutState.ButtonLayout.SIDEBAR) {
+        if(layoutTemplate.getAdvancedCategories()== ButtonLayout.SIDEBAR) {
             buildCategorySidebar();
         }
     }
@@ -103,7 +110,7 @@ public class MainPage implements Page {
     }
 
     public void resetFilter() {
-        this.filter = layoutState.getFilter();
+        this.filter = layoutTemplate.getFilter();
     }
 
     private void buildCategorySidebar(){
@@ -127,12 +134,12 @@ public class MainPage implements Page {
                 }
         );
 
-        for(PlayerPreferencesCategoryEntry entry : plugin.getAuctionHouse().getPreferencesBlocking(playerID).categoryEntries()){
+        for(Category entry : plugin.getPlayerDataController().getPlayerData(playerID).getPreferences().getCategories()){
             sidebarLeft.addItem(
-                    entry.preview(),
+                    entry.getPreview(),
                     action ->{
                         if(!action.isLeftClick()) return;
-                        filter = entry.filter();
+                        filter = entry.getFilter();
                         buildCenterContent();
                         center.refresh();
                         //open(Bukkit.getPlayer(playerID), layoutState, null);

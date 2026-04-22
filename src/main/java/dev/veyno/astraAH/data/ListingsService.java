@@ -53,7 +53,7 @@ public class ListingsService {
 
     }
 
-    public boolean removeListingBlocking(UUID listingId){
+    public boolean removeListingIfPresent(UUID listingId){
         synchronized (IDLocks.getLock(listingId)) {
             if (listingsRepository.removeIfPresent(listingId)){
                 listingCache.remove(listingId);
@@ -95,3 +95,4 @@ public class ListingsService {
     }
 
 }
+
