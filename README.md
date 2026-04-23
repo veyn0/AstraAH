@@ -4,7 +4,6 @@ Packet-based Auction House plugin for Paper/Folia servers.
 
 This project is currently alpha/work-in-progress. Do not expect any functionality. Features Listed below may be implemented but not accessible in-game.
 
-# AstraAH 
 
 ## User GUI
 - [x] Packet based
