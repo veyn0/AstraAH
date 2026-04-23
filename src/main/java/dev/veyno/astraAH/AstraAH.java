@@ -66,24 +66,15 @@ public final class AstraAH extends JavaPlugin {
     private ListingController listingController;
     private PlayerDataController playerDataController;
 
-//    private AHListingsStorageProvider storageProvider;
-//    private AHPlayerPreferencesStorageProvider playerPreferencesStorageProvider;
-//    private AHTransactionHistoryStorageProvider transactionHistoryStorageProvider;
-//    private AHPlayerActionsStorageProvider playerActionsStorageProvider;
-
     private ErrorHandler errorHandler;
 
     private Map<UUID, PageController> pageControllers = new ConcurrentHashMap<>();
 
     private ClickableInventory.InventoryManager inventoryManager;
 
-//    private AuctionHouse auctionHouse;
-
     private EconomyProvider economy;
 
     private PermissionsProvider permissionsProvider;
-
-//    private LabelProvider provider;
 
     @Override
     public void onEnable() {
@@ -113,46 +104,12 @@ public final class AstraAH extends JavaPlugin {
                 )
         );
 
-       // saveResource("lang/en_us.yml", false);
-//        storageProvider = new FileAHListingsStorageProvider(this);
-//        playerPreferencesStorageProvider = new FileAHPlayerPreferencesStorageProvider(this);
-//        transactionHistoryStorageProvider = new FileAHTransactionHistoryStorageProvider(this);
-//        playerActionsStorageProvider = new FileAHPlayerActionsStorageProvider(this);
-//        auctionHouse = new AuctionHouse(
-//                this,
-//                storageProvider,
-//                playerPreferencesStorageProvider,
-//                transactionHistoryStorageProvider,
-//                playerActionsStorageProvider,
-//                economy
-//        );
         inventoryManager = new ClickableInventory.InventoryManager(this);
         errorHandler = new ErrorHandler(this);
 
         permissionsProvider = new DefaultPermissionsProvider();
 
 
-
-//        FileSource source = FileSource.yaml(new File(getDataFolder(), "lang").toURI());
-//        provider = CommonLabelProvider.builder()
-//                .defaultMappingRule(MappingRule.CURLY)
-//                .withSerializer(Component.class, new KyoriAdventureSerializer.KyoriMiniMessage())
-//                .buildWarm(source, Locale.US);
-//
-//        Instanceable.register(provider, LabelProvider.class);
-//
-//
-//        Label.of("w").map("pl1", "<red>du stinkst</red>").resolve(Component.class);
-
-//        for(int i = 0; i < 10; i++) {
-//            for (Listing l : UIController.createExampleListings()) {
-//
-//                try {
-//                    listingStorage.saveListing(l);
-//                } catch (Exception e) {
-//                }
-//            }
-//        }
 
     }
 
@@ -176,34 +133,16 @@ public final class AstraAH extends JavaPlugin {
         return errorHandler;
     }
 
-//    public AuctionHouse getAuctionHouse() {
-//        return auctionHouse;
-//    }
-
     public PermissionsProvider getPermissionsProvider() {
         return permissionsProvider;
     }
-//
-//    public AHListingsStorageProvider getStorageProvider() {
-//        return storageProvider;
-//    }
-//
-//    public AHPlayerPreferencesStorageProvider getPlayerPreferencesStorageProvider() {
-//        return playerPreferencesStorageProvider;
-//    }
-//
-//    public AHTransactionHistoryStorageProvider getTransactionHistoryStorageProvider() {
-//        return transactionHistoryStorageProvider;
-//    }
+
 
     public PageController getPageController(UUID playerID){
         if(!pageControllers.containsKey(playerID)) pageControllers.put(playerID, new PageController(this, playerID));
         return pageControllers.get(playerID);
     }
 
-//    public AHPlayerActionsStorageProvider getPlayerActionsStorageProvider() {
-//        return playerActionsStorageProvider;
-//    }
 
     public AstraAHConfiguration getConfiguration() {
         return configuration;
