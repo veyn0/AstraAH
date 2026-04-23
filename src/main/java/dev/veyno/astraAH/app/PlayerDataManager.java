@@ -17,7 +17,8 @@ public class PlayerDataManager {
     private final AstraAH plugin;
     private PlayerDataService playerDataService;
 
-    public PlayerDataManager(AstraAH plugin) {
+    public PlayerDataManager(AstraAH plugin, PlayerDataService playerDataService) {
+        this.playerDataService = playerDataService;
         this.plugin = plugin;
     }
 
