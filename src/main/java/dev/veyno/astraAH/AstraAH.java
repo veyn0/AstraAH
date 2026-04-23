@@ -1,14 +1,5 @@
 package dev.veyno.astraAH;
 
-//import de.leycm.i18label4j.CommonLabelProvider;
-//import de.leycm.i18label4j.Label;
-//import de.leycm.i18label4j.LabelProvider;
-//import de.leycm.i18label4j.mapping.MappingRule;
-//import de.leycm.i18label4j.serializer.KyoriAdventureSerializer;
-//import de.leycm.i18label4j.source.FileSource;
-//import de.leycm.init4j.instance.Instanceable;
-//
-//import dev.veyno.astraAH.ah.AuctionHouse;
 import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
 import dev.veyno.astraAH.app.ListingController;
 import dev.veyno.astraAH.app.PlayerDataController;
@@ -23,16 +14,7 @@ import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
 import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.permissions.provider.DefaultPermissionsProvider;
-//import dev.veyno.astraAH.storage.actions.AHPlayerActionsStorageProvider;
-//import dev.veyno.astraAH.storage.actions.provider.FileAHPlayerActionsStorageProvider;
-//import dev.veyno.astraAH.storage.history.AHTransactionHistoryStorageProvider;
-//import dev.veyno.astraAH.storage.history.provider.FileAHTransactionHistoryStorageProvider;
-//import dev.veyno.astraAH.storage.listings.AHListingsStorageProvider;
-//import dev.veyno.astraAH.storage.listings.provider.FileAHListingsStorageProvider;
-//import dev.veyno.astraAH.storage.preferences.AHPlayerPreferencesStorageProvider;
-//import dev.veyno.astraAH.storage.preferences.provider.FileAHPlayerPreferencesStorageProvider;
 import dev.veyno.astraAH.ui.PageController;
-import dev.veyno.astraAH.ui.error.ErrorHandler;
 import dev.veyno.astraAH.util.ClickableInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -65,8 +47,6 @@ public final class AstraAH extends JavaPlugin {
 
     private ListingController listingController;
     private PlayerDataController playerDataController;
-
-    private ErrorHandler errorHandler;
 
     private Map<UUID, PageController> pageControllers = new ConcurrentHashMap<>();
 
@@ -105,7 +85,6 @@ public final class AstraAH extends JavaPlugin {
         );
 
         inventoryManager = new ClickableInventory.InventoryManager(this);
-        errorHandler = new ErrorHandler(this);
 
         permissionsProvider = new DefaultPermissionsProvider();
 
@@ -127,10 +106,6 @@ public final class AstraAH extends JavaPlugin {
 
     public ClickableInventory.InventoryManager getInventoryManager() {
         return inventoryManager;
-    }
-
-    public ErrorHandler getErrorHandler() {
-        return errorHandler;
     }
 
     public PermissionsProvider getPermissionsProvider() {
