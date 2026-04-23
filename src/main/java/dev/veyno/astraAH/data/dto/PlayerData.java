@@ -5,59 +5,83 @@ import java.util.List;
 import java.util.UUID;
 
 public class PlayerData {
-    private UUID playerId;
-    private Preferences preferences;
-    private AllowedActions allowedActions;
-    private List<Transaction> transactions;
+    private final UUID playerId;
+    private final Preferences preferences;
+    private final AllowedActions allowedActions;
+    private final List<Transaction> transactions;
 
+    // only relevant for cache
     private long loadedAt;
 
-    public static PlayerData configuredDefault(UUID playerId){
-        PlayerData data = new PlayerData();
-        data.setPlayerId(playerId);
-        data.setPreferences(Preferences.configuredDefaults(playerId));
-        data.setAllowedActions(AllowedActions.configuredDefaults(playerId));
-        data.setTransactions(new ArrayList<>());
-        return data;
-    }
-
-    public long getLoadedAt() {
-        return loadedAt;
-    }
-
-    public void setLoadedAt(long loadedAt) {
+    public PlayerData(UUID playerId,
+                      Preferences preferences,
+                      AllowedActions allowedActions,
+                      List<Transaction> transactions,
+                      long loadedAt) {
+        this.playerId = playerId;
+        this.preferences = preferences;
+        this.allowedActions = allowedActions;
+        this.transactions = transactions == null ? List.of() : List.copyOf(transactions);
         this.loadedAt = loadedAt;
+    }
+
+    public static PlayerData configuredDefault(UUID playerId) {
+        return new PlayerData(
+                playerId,
+                Preferences.configuredDefaults(playerId),
+                AllowedActions.configuredDefaults(playerId),
+                new ArrayList<>(),
+                0L
+        );
     }
 
     public UUID getPlayerId() {
         return playerId;
     }
 
-    public void setPlayerId(UUID playerId) {
-        this.playerId = playerId;
-    }
-
     public Preferences getPreferences() {
         return preferences;
-    }
-
-    public void setPreferences(Preferences preferences) {
-        this.preferences = preferences;
     }
 
     public AllowedActions getAllowedActions() {
         return allowedActions;
     }
 
-    public void setAllowedActions(AllowedActions allowedActions) {
-        this.allowedActions = allowedActions;
-    }
-
     public List<Transaction> getTransactions() {
         return transactions;
     }
 
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
+    public long getLoadedAt() {
+        return loadedAt;
+    }
+
+    public PlayerData withPlayerId(UUID playerId) {
+        return new PlayerData(playerId, preferences, allowedActions, transactions, loadedAt);
+    }
+
+    public PlayerData withPreferences(Preferences preferences) {
+        return new PlayerData(playerId, preferences, allowedActions, transactions, loadedAt);
+    }
+
+    public PlayerData withAllowedActions(AllowedActions allowedActions) {
+        return new PlayerData(playerId, preferences, allowedActions, transactions, loadedAt);
+    }
+
+    public PlayerData withTransactions(List<Transaction> transactions) {
+        return new PlayerData(playerId, preferences, allowedActions, transactions, loadedAt);
+    }
+
+    public PlayerData withAddedTransaction(Transaction transaction) {
+        List<Transaction> updated = new ArrayList<>(transactions);
+        updated.add(transaction);
+        return withTransactions(updated);
+    }
+
+    public PlayerData withLoadedAt(long loadedAt) {
+        return new PlayerData(playerId, preferences, allowedActions, transactions, loadedAt);
+    }
+
+    public void setLoadedAt(long loadedAt) {
+        this.loadedAt = loadedAt;
     }
 }

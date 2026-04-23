@@ -162,7 +162,7 @@ public class CreateListingsPage implements Page {
                                                 }
 
                                                 Bukkit.getLogger().info("input: " + parsed);
-
+                                                createListing();
 
                                             } catch (NumberFormatException e) {
                                                 p.sendMessage(Component.text("Keine Zahl"));
@@ -197,8 +197,9 @@ public class CreateListingsPage implements Page {
                     null,
                     0
             );
-
-            plugin.getListingController().postListing(l);
+            if(plugin.getListingController().postListing(l)){
+                Bukkit.getPlayer(playerID).sendMessage(Component.text("[Debug]: Listing created"));
+            }
         }
     }
 

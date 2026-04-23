@@ -50,6 +50,10 @@ import java.util.UUID;
  *        int      nanoAdjustment
  * </pre>
  *
+ * <p>{@code loadedAt} is intentionally NOT serialized — it is a cache-only
+ * field initialised by {@link dev.veyno.astraAH.data.PlayerDataService} when
+ * the object enters the cache.</p>
+ *
  * <p>Write new versions by branching on the version int in {@code fromBase64}.</p>
  */
 public final class PlayerDataBase64Serializer {
@@ -192,26 +196,25 @@ public final class PlayerDataBase64Serializer {
     // -------------------------------------------------------------------------
 
     private static PlayerData readPlayerDataV1(DataInputStream in) throws IOException {
-        PlayerData d = new PlayerData();
-        d.setPlayerId(readUUID(in));
-        d.setPreferences(readPreferencesV1(in));
-        d.setAllowedActions(readAllowedActionsV1(in));
-        d.setTransactions(readTransactionsV1(in));
-        return d;
+        UUID playerId = readUUID(in);
+        Preferences preferences = readPreferencesV1(in);
+        AllowedActions allowedActions = readAllowedActionsV1(in);
+        List<Transaction> transactions = readTransactionsV1(in);
+        // loadedAt is not persisted; the cache layer sets it when loading.
+        return new PlayerData(playerId, preferences, allowedActions, transactions, 0L);
     }
 
     private static Preferences readPreferencesV1(DataInputStream in) throws IOException {
-        Preferences p = new Preferences();
-        p.setShowCategories(in.readBoolean());
-        p.setShowHistory(in.readBoolean());
+        boolean showCategories = in.readBoolean();
+        boolean showHistory = in.readBoolean();
 
         int catCount = in.readInt();
         List<Category> categories = new ArrayList<>(catCount);
         for (int i = 0; i < catCount; i++) {
             categories.add(readCategoryV1(in));
         }
-        p.setCategories(categories);
-        return p;
+
+        return new Preferences(showCategories, showHistory, categories);
     }
 
     private static Category readCategoryV1(DataInputStream in) throws IOException {
@@ -228,20 +231,33 @@ public final class PlayerDataBase64Serializer {
     }
 
     private static AllowedActions readAllowedActionsV1(DataInputStream in) throws IOException {
-        AllowedActions a = new AllowedActions();
-        a.setCategories(readActionState(in));
-        a.setSettings(readActionState(in));
-        a.setMyListings(readActionState(in));
-        a.setRefresh(readActionState(in));
-        a.setSort(readActionState(in));
-        a.setSearch(readActionState(in));
-        a.setHistory(readActionState(in));
-        a.setShowAdvancedCategories(readActionState(in));
-        a.setShowAdvancedHistory(readActionState(in));
-        a.setReloadOnOpen(readActionState(in));
-        a.setDefaultFilter(readActionState(in));
-        a.setDefaultSort(readActionState(in));
-        return a;
+        ActionState categories              = readActionState(in);
+        ActionState settings                = readActionState(in);
+        ActionState myListings              = readActionState(in);
+        ActionState refresh                 = readActionState(in);
+        ActionState sort                    = readActionState(in);
+        ActionState search                  = readActionState(in);
+        ActionState history                 = readActionState(in);
+        ActionState showAdvancedCategories  = readActionState(in);
+        ActionState showAdvancedHistory     = readActionState(in);
+        ActionState reloadOnOpen            = readActionState(in);
+        ActionState defaultFilter           = readActionState(in);
+        ActionState defaultSort             = readActionState(in);
+
+        return new AllowedActions(
+                categories,
+                settings,
+                myListings,
+                refresh,
+                sort,
+                search,
+                history,
+                showAdvancedCategories,
+                showAdvancedHistory,
+                reloadOnOpen,
+                defaultFilter,
+                defaultSort
+        );
     }
 
     private static ActionState readActionState(DataInputStream in) throws IOException {

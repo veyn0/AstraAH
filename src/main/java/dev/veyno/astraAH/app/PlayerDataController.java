@@ -20,4 +20,8 @@ public class PlayerDataController {
         return playerDataService.getPlayerData(playerId);
     }
 
+    public PlayerDataService getPlayerDataService() {
+        return playerDataService;
+    }
+
 }

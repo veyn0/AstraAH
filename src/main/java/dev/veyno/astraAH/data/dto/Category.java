@@ -11,7 +11,7 @@ public class Category {
     private ItemStack preview;
 
     public static List<Category> configuredDefaults(UUID playerId){
-        //TODO: make work
+        //TODO: use defaults from configuration
         return List.of();
     }
 
