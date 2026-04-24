@@ -110,12 +110,12 @@ public final class AstraAH extends JavaPlugin {
         return permissionsProvider;
     }
 
-
-    public PageController getPageController(UUID playerID){
-        if(!pageControllers.containsKey(playerID)) pageControllers.put(playerID, new PageController(this, playerID));
-        return pageControllers.get(playerID);
+    public PageController getPageController(UUID playerId){
+        return  pageControllers.computeIfAbsent(
+                playerId,
+                playerId1 -> new PageController(this, playerId1)
+        );
     }
-
 
     public AstraAHConfiguration getConfiguration() {
         return configuration;
@@ -137,4 +137,5 @@ public final class AstraAH extends JavaPlugin {
     private void setupCommands(){
         getCommand("market").setExecutor(new AuctionHouseCommand(this));
     }
+
 }
