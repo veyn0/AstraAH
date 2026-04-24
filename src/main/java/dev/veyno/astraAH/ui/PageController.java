@@ -1,83 +1,102 @@
 package dev.veyno.astraAH.ui;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.app.dto.ButtonLayout;
-import dev.veyno.astraAH.app.dto.LayoutTemplate;
-import dev.veyno.astraAH.app.dto.SortType;
+import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.ui.pages.*;
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.UUID;
 
-
-/*
-TODO: move controlling last pages to this class. add e.g. stack to allow navigation back multiple pages.
- */
-
 public class PageController {
-
 
     private final AstraAH plugin;
     private final UUID playerId;
 
-    private MainPage mainPage;
-    private SettingsPage settingsPage;
-    private CreateListingsPage createListingsPage;
-    private MyListingsPage myListingsPage;
-    private ListingInfoPage listingInfoPage;
+    private final MainPage mainPage;
+    private final SettingsPage settingsPage;
+    private final CreateListingsPage createListingsPage;
+    private final MyListingsPage myListingsPage;
+    private final ListingInfoPage listingInfoPage;
+
+    private final Deque<Page> history = new ArrayDeque<>();
+
+    private Page current;
 
     public PageController(AstraAH plugin, UUID playerId) {
         this.plugin = plugin;
         this.playerId = playerId;
-        createPages();
+
+        this.mainPage = new MainPage(plugin, this, playerId);
+        this.settingsPage = new SettingsPage(plugin, this, playerId);
+        this.createListingsPage = new CreateListingsPage(plugin, this, playerId);
+        this.myListingsPage = new MyListingsPage(plugin, this, playerId);
+        this.listingInfoPage = new ListingInfoPage(plugin, this, playerId);
     }
 
-    public void createPages() {
-        // TODO: replace null with a future controller method that returns the LayoutTemplate for a player,
-        //       e.g. plugin.getXxxController().getLayoutTemplate(playerId).
-        LayoutTemplate layoutTemplate = new LayoutTemplate(
-                ButtonLayout.BUTTON,
-                ButtonLayout.BUTTON,
-                SortType.NAME_A_Z,
-                List.of(Material.values()),
-                true,
-                true,
-                true,
-                true,
-                true
-        );
-        mainPage = new MainPage(plugin, this, playerId, layoutTemplate);
-        settingsPage = new SettingsPage(plugin, this, playerId);
-        createListingsPage = new CreateListingsPage(plugin, playerId, this);
-        myListingsPage = new MyListingsPage(playerId, plugin, this);
-        listingInfoPage = new ListingInfoPage(playerId, this, plugin);
+    public void navigate(Page target) {
+        if (target == null) return;
+        if (current != null && current != target) {
+            history.push(current);
+        }
+        current = target;
+        target.show();
     }
 
-    public void openMainPage(boolean reload) {
-        if (reload) mainPage.rebuild();
-        mainPage.open(null);
+    public void back() {
+        if (history.isEmpty()) return;
+        current = history.pop();
+        current.show();
+    }
+
+    /**
+     * User-driven reload of whatever page is currently visible. This is
+     * the only path through which a full page rebuild is triggered from
+     * outside the page itself.
+     */
+    public void reloadCurrent() {
+        if (current != null) current.reload();
+    }
+
+    public Page getCurrent() {
+        return current;
+    }
+
+    public boolean canGoBack() {
+        return !history.isEmpty();
+    }
+
+    public void openMainPage() {
+        navigate(mainPage);
     }
 
     public void openSettingsPage() {
-        settingsPage.rebuild();
-        settingsPage.open(null);
+        navigate(settingsPage);
     }
+
+    public void openMyListingsPage() {
+        navigate(myListingsPage);
+    }
+
 
     public void openCreateListingsPage() {
-        createListingsPage.open(null);
+        createListingsPage.reload();
+        navigate(createListingsPage);
     }
 
-    public MyListingsPage getMyListingsPage() {
-        return myListingsPage;
+    public void openListingInfo(Listing listing) {
+        listingInfoPage.setListing(listing);
+        navigate(listingInfoPage);
     }
 
-    public ListingInfoPage getListingInfoPage() {
-        return listingInfoPage;
-    }
+    public MainPage getMainPage()                   { return mainPage; }
+    public SettingsPage getSettingsPage()           { return settingsPage; }
+    public CreateListingsPage getCreateListingsPage(){ return createListingsPage; }
+    public MyListingsPage getMyListingsPage()       { return myListingsPage; }
+    public ListingInfoPage getListingInfoPage()     { return listingInfoPage; }
 
-    public MainPage getMainPage() {
-        return mainPage;
+    public UUID getPlayerId() {
+        return playerId;
     }
-
 }

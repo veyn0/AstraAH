@@ -21,7 +21,7 @@ public class AuctionHouseCommand implements CommandExecutor {
 
         //TODO: implement feature that allows other plugins to prevent players from opening the GUI entirely
 
-        plugin.getPageController(p.getUniqueId()).openMainPage( false);
+        plugin.getPageController(p.getUniqueId()).openMainPage();
 
         return true;
     }

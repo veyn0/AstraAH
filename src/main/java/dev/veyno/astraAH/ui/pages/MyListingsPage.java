@@ -16,106 +16,109 @@ import java.util.UUID;
 
 public class MyListingsPage implements Page {
 
-    private UUID playerID;
-    private AstraAH plugin;
-    private PageController pageController;
+    private final AstraAH plugin;
+    private final PageController pageController;
+    private final UUID playerId;
 
-    private ClickableInventory overviewInventory;
-
+    private ClickableInventory inventory;
     private ClickableInventory.InventoryRegion navBar;
     private ClickableInventory.InventoryRegion content;
 
-    public MyListingsPage(UUID playerID, AstraAH plugin, PageController pageController) {
-        this.playerID = playerID;
+    public MyListingsPage(AstraAH plugin, PageController pageController, UUID playerId) {
         this.plugin = plugin;
         this.pageController = pageController;
-        rebuild();
+        this.playerId = playerId;
+        buildOnce();
     }
 
     @Override
-    public void open(Page previousPage) {
-        overviewInventory.open();
+    public void buildOnce() {
+        PlayerListingsGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getPlayerListingsGuiConfiguration();
+        inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerId));
+
+        navBar = inventory.createRegionFromCoords("navigation", 0, 5, 8, 5);
+        content = inventory.createRegionFromCoords("content", 0, 0, 8, 4);
+
+        renderNavBar();
+        renderContent();
+    }
+
+    @Override
+    public void show() {
+        inventory.open();
+    }
+
+    @Override
+    public void reload() {
+        renderNavBar();
+        renderContent();
+        navBar.refresh();
+        content.refresh();
+    }
+
+    @Override
+    public void invalidate(Section section) {
+        switch (section) {
+            case CONTENT -> { renderContent(); content.refresh(); }
+            case NAVBAR  -> { renderNavBar();  navBar.refresh(); }
+            case ALL     -> reload();
+            default      -> { /* CATEGORIES, HISTORY don't exist here */ }
+        }
     }
 
     @Override
     public Component getPageTitle() {
-        return overviewInventory.getTitle();
+        return inventory.getTitle();
     }
 
-    @Override
-    public void rebuild() {
-        PlayerListingsGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getPlayerListingsGuiConfiguration();
-        overviewInventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID));
+    private void renderContent() {
+        content.clearItems();
 
-        navBar = overviewInventory.createRegionFromCoords("navigation", 0, 5, 8, 5);
-        buildNavBar();
+        // TODO: replace with a dedicated per-seller lookup on ListingController
+        //       (e.g. getListingsBySeller(UUID)) once it exists. The current
+        //       implementation filters the full cached listing set client-side.
 
-        content = overviewInventory.createRegionFromCoords("content", 0, 0, 8, 4);
-        buildContent();
-    }
-
-    @Override
-    public void refresh() {
-
-    }
-
-    private void buildContent() {
-        // TODO: replace with a dedicated per-seller lookup on ListingController (e.g. getListingsBySeller(UUID))
-        //       once it exists. Current implementation filters the full cached listing set client-side.
         List<Listing> listings = new ArrayList<>();
         for (CachedListing cached : plugin.getListingController().getListings()) {
             Listing l = cached.getListing();
-            if (playerID.equals(l.getSellerId())) {
+            if (playerId.equals(l.getSellerId())) {
                 listings.add(l);
             }
         }
 
-        content.clearItems();
-
         for (Listing l : listings) {
             content.addItem(
                     l.getContent(),
-                    action -> {
-                        pageController.getListingInfoPage().openListingInfo(l, this);
-                    }
+                    action -> pageController.openListingInfo(l)
             );
         }
-
     }
 
-    private void buildNavBar() {
+    private void renderNavBar() {
         PlayerListingsGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getPlayerListingsGuiConfiguration();
 
         navBar.setItem(
                 0,
                 configuration.getPreviousPageIcon(),
-                action -> {
-                    content.previousPageAndRefresh();
-                }
+                action -> content.previousPageAndRefresh()
         );
 
         navBar.setItem(
                 8,
                 configuration.getNextPageIcon(),
-                action -> {
-                    content.nextPageAndRefresh();
-                }
+                action -> content.nextPageAndRefresh()
         );
 
         navBar.setItem(
                 2,
                 configuration.getBackIcon(),
-                action -> {
-                    pageController.openMainPage(false);
-                }
+                action -> pageController.back()
         );
 
         navBar.setItem(
                 4,
                 configuration.getCreateListingIcon(),
-                action -> {
-                    pageController.openCreateListingsPage();
-                }
+                action -> pageController.openCreateListingsPage()
         );
     }
 }

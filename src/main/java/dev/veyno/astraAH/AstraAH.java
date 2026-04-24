@@ -88,8 +88,6 @@ public final class AstraAH extends JavaPlugin {
 
         permissionsProvider = new DefaultPermissionsProvider();
 
-
-
     }
 
     public ListingController getListingController() {

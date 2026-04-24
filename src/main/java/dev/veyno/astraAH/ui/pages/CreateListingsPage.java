@@ -28,104 +28,106 @@ import java.util.UUID;
 
 public class CreateListingsPage implements Page {
 
-    private AstraAH plugin;
-    private UUID playerID;
-    private PageController pageController;
+    private final AstraAH plugin;
+    private final PageController pageController;
+    private final UUID playerId;
 
     private ClickableInventory inventoryItemSelect;
-    private ClickableInventory inventoryConfirm;
-
     private ClickableInventory.InventoryRegion itemSelectContent;
     private ClickableInventory.InventoryRegion itemSelectNavigation;
 
-    int step = 0;
-
+    private int step = 0;
     private ItemStack selectedItem;
     private double price;
 
-    public CreateListingsPage(AstraAH plugin, UUID playerID, PageController pageController) {
+    public CreateListingsPage(AstraAH plugin, PageController pageController, UUID playerId) {
         this.plugin = plugin;
-        this.playerID = playerID;
         this.pageController = pageController;
+        this.playerId = playerId;
+        buildOnce();
     }
 
     @Override
-    public void open(Page previousPage) {
-        if (step == 0) {
-            if (inventoryItemSelect == null) rebuild();
-            rebuildContent();
-            inventoryItemSelect.open();
-        }
-        if (step == 1) {
+    public void buildOnce() {
+        CreateListingGuiConfiguration1 configuration = plugin.getConfiguration().getConfiguredGuis().getCreateListingGuiConfiguration1();
+        inventoryItemSelect = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerId));
+        itemSelectNavigation = inventoryItemSelect.createRegionFromCoords("navigation", 0, 4, 8, 5);
+        itemSelectContent = inventoryItemSelect.createRegionFromCoords("content", 0, 0, 8, 3);
+        renderNavigation();
+        renderContent();
+    }
 
+    @Override
+    public void show() {
+        if (step == 0) {
+            inventoryItemSelect.open();
         }
     }
 
+    @Override
+    public void reload() {
+        step = 0;
+        selectedItem = null;
+        price = 0;
+        renderNavigation();
+        renderContent();
+        itemSelectNavigation.refresh();
+        itemSelectContent.refresh();
+    }
+
+    @Override
+    public void invalidate(Section section) {
+        switch (section) {
+            case CONTENT -> { renderContent();    itemSelectContent.refresh(); }
+            case NAVBAR  -> { renderNavigation(); itemSelectNavigation.refresh(); }
+            case ALL     -> reload();
+            default      -> { }
+        }
+    }
 
     @Override
     public Component getPageTitle() {
-        return null;
+        return inventoryItemSelect.getTitle();
     }
 
-    @Override
-    public void rebuild() {
+    private void renderNavigation() {
         CreateListingGuiConfiguration1 configuration = plugin.getConfiguration().getConfiguredGuis().getCreateListingGuiConfiguration1();
-        inventoryItemSelect = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerID));
-        itemSelectNavigation = inventoryItemSelect.createRegionFromCoords("navigation", 0, 4, 8, 5);
+        itemSelectNavigation.clearItems();
 
         itemSelectNavigation.setItem(
                 9,
                 configuration.getCancelIcon(),
-                action -> {
-                    pageController.getMyListingsPage().open(null);
-                }
+                action -> pageController.back()
         );
-
-        itemSelectContent = inventoryItemSelect.createRegionFromCoords("content", 0, 0, 8, 3);
-
-
     }
 
-    private void rebuildContent() {
+    private void renderContent() {
         itemSelectContent.clearItems();
-        for (ItemStack i : getAllPlayerItems(Bukkit.getPlayer(playerID))) {
+        Player player = Bukkit.getPlayer(playerId);
+        if (player == null) return;
+
+        for (ItemStack i : getAllPlayerItems(player)) {
             itemSelectContent.addItem(
                     i,
-                    action -> {
-                        selectedItem = i;
-                        itemSelectNavigation.setItem(
-                                13,
-                                i,
-                                () -> {
-                                }
-                        );
-                        itemSelectNavigation.setItem(
-                                17,
-                                new ItemStack(Material.LIME_CONCRETE),
-                                ctx -> {
-                                    openPriceInput();
-                                }
-                        );
-                        itemSelectNavigation.refresh();
-                    }
+                    action -> onItemSelected(i)
             );
         }
     }
 
-    public static List<ItemStack> getAllPlayerItems(Player player) {
-        PlayerInventory inv = player.getInventory();
-        List<ItemStack> items = new ArrayList<>();
+    private void onItemSelected(ItemStack item) {
+        selectedItem = item;
 
-        // Main + Hotbar
-        Collections.addAll(items, inv.getContents());
-
-        // Armor
-        Collections.addAll(items, inv.getArmorContents());
-
-        // Offhand
-        items.add(inv.getItemInOffHand());
-        items.removeIf(item -> item == null || item.getType().isAir());
-        return items;
+        itemSelectNavigation.setItem(
+                13,
+                item,
+                () -> { }
+        );
+        itemSelectNavigation.setItem(
+                17,
+                new ItemStack(Material.LIME_CONCRETE),
+                ctx -> openPriceInput()
+        );
+        itemSelectNavigation.refresh();
     }
 
     public void openPriceInput() {
@@ -155,15 +157,13 @@ public class CreateListingsPage implements Page {
 
                                             try {
                                                 double parsed = Double.parseDouble(input);
-
                                                 if (parsed < 0) {
                                                     p.sendMessage(Component.text("Muss positiv sein"));
                                                     return;
                                                 }
-
+                                                price = parsed;
                                                 Bukkit.getLogger().info("input: " + parsed);
                                                 createListing();
-
                                             } catch (NumberFormatException e) {
                                                 p.sendMessage(Component.text("Keine Zahl"));
                                             }
@@ -178,13 +178,15 @@ public class CreateListingsPage implements Page {
                 ))
         );
 
-        Bukkit.getPlayer(playerID).showDialog(dialog);
+        Player player = Bukkit.getPlayer(playerId);
+        if (player != null) player.showDialog(dialog);
     }
 
     private void createListing() {
-        synchronized (IDLocks.getLock(playerID)) {
+        synchronized (IDLocks.getLock(playerId)) {
             if (selectedItem == null || price <= 0) return;
-            Player p = Bukkit.getPlayer(playerID);
+            Player p = Bukkit.getPlayer(playerId);
+            if (p == null) return;
 
             // TODO: createdAt, currency and status should be set by a service/factory once available.
             //       Status 0 represents the active status used by YamlListingsRepository.
@@ -197,15 +199,19 @@ public class CreateListingsPage implements Page {
                     null,
                     0
             );
-            if(plugin.getListingController().postListing(l)){
-                Bukkit.getPlayer(playerID).sendMessage(Component.text("[Debug]: Listing created"));
+            if (plugin.getListingController().postListing(l)) {
+                p.sendMessage(Component.text("[Debug]: Listing created"));
             }
         }
     }
 
-
-    @Override
-    public void refresh() {
-
+    public static List<ItemStack> getAllPlayerItems(Player player) {
+        PlayerInventory inv = player.getInventory();
+        List<ItemStack> items = new ArrayList<>();
+        Collections.addAll(items, inv.getContents());
+        Collections.addAll(items, inv.getArmorContents());
+        items.add(inv.getItemInOffHand());
+        items.removeIf(item -> item == null || item.getType().isAir());
+        return items;
     }
 }

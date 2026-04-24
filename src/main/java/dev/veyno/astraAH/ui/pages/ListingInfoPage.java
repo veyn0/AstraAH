@@ -25,107 +25,138 @@ import java.util.UUID;
 
 public class ListingInfoPage implements Page {
 
-
-    private UUID playerId;
-    private PageController pageController;
-    private AstraAH plugin;
+    private final AstraAH plugin;
+    private final PageController pageController;
+    private final UUID playerId;
 
     private Listing currentListing;
-    private Page previousPage;
 
     private ClickableInventory inventory;
     private ClickableInventory.InventoryRegion navBar;
     private ClickableInventory.InventoryRegion content;
 
-    public ListingInfoPage(UUID playerId, PageController pageController, AstraAH plugin) {
-        this.playerId = playerId;
-        this.pageController = pageController;
+    public ListingInfoPage(AstraAH plugin, PageController pageController, UUID playerId) {
         this.plugin = plugin;
-        rebuild();
+        this.pageController = pageController;
+        this.playerId = playerId;
+        buildOnce();
+    }
+
+    public void setListing(Listing listing) {
+        this.currentListing = listing;
+        if (inventory != null) {
+            renderNavBar();
+            renderContent();
+            navBar.refresh();
+            content.refresh();
+        }
+    }
+
+    public Listing getCurrentListing() {
+        return currentListing;
     }
 
     @Override
-    public void open(Page previousPage) {
-        inventory.open();
-    }
-
-    @Override
-    public Component getPageTitle() {
-        return null;
-    }
-
-    @Override
-    public void rebuild() {
+    public void buildOnce() {
         ListingInfoGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getListingInfoGuiConfiguration();
         inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerId));
-
         navBar = inventory.createRegionFromCoords("navigation", 0, 3, 8, 5);
         content = inventory.createRegionFromCoords("content", 0, 0, 8, 2);
     }
 
     @Override
-    public void refresh() {
-
+    public void show() {
+        inventory.open();
     }
 
-    private void buildNavbar() {
+    @Override
+    public void reload() {
+        if (currentListing == null) return;
+        renderNavBar();
+        renderContent();
+        navBar.refresh();
+        content.refresh();
+    }
+
+    @Override
+    public void invalidate(Section section) {
+        if (currentListing == null) return;
+        switch (section) {
+            case CONTENT -> { renderContent(); content.refresh(); }
+            case NAVBAR  -> { renderNavBar();  navBar.refresh(); }
+            case ALL     -> reload();
+            default      -> { }
+        }
+    }
+
+    @Override
+    public Component getPageTitle() {
+        return inventory.getTitle();
+    }
+
+    private void renderNavBar() {
         ListingInfoGuiConfiguration configuration = plugin.getConfiguration().getConfiguredGuis().getListingInfoGuiConfiguration();
+        navBar.clearItems();
+
         navBar.setItem(
                 18,
                 configuration.getBackIcon(),
-                action -> {
-                    previousPage.open(null);
-                }
+                action -> pageController.back()
         );
+
         navBar.setItem(
                 10,
                 getSellerHeadIcon(),
-                () -> {
-                }
+                () -> { }
         );
+
         navBar.setItem(
                 12,
                 currentListing.getContent(),
-                () -> {
-                }
+                () -> { }
         );
+
         if (currentListing.getSellerId().equals(playerId)) {
             navBar.setItem(
                     14,
                     configuration.getDeleteIcon(),
-                    action -> {
-                        Dialog dialog = InteractiveDialogGui.create(Component.text("Confirm Deleting"))
-                                .message(Component.text("Are you sure you want to Delete your Listing? Already paid taxes will NOT be refunded"))
-                                .confirmation(
-                                        Component.text("Yes"),
-                                        Component.text(""),
-                                        ctx -> {
-                                            Player p = ctx.player();
-                                            // TODO: actually remove the listing via ListingController
-                                            //   plugin.getListingController().removeListingIfPresent(currentListing.getListingId());
-                                            p.sendMessage("PlaceHolder - deleted");
-                                            previousPage.open(null);
-                                        },
-
-                                        Component.text("Cancel"),
-                                        Component.text(""),
-                                        ctx -> {
-                                            Player p = ctx.player();
-                                            p.sendMessage(Component.text("placeholder - deleting canceled"));
-                                        }
-                                )
-                                .build();
-
-                        action.getPlayer().showDialog(dialog);
-                    }
+                    action -> showDeleteDialog(action.getPlayer())
             );
         }
+    }
+
+    private void renderContent() {
+        content.clearItems();
+        for (ItemStack i : getShulkerContents(currentListing.getContent())) {
+            content.addItem(i, () -> { });
+        }
+    }
+
+    private void showDeleteDialog(Player clicker) {
+        Dialog dialog = InteractiveDialogGui.create(Component.text("Confirm Deleting"))
+                .message(Component.text("Are you sure you want to Delete your Listing? Already paid taxes will NOT be refunded"))
+                .confirmation(
+                        Component.text("Yes"),
+                        Component.text(""),
+                        ctx -> {
+                            Player p = ctx.player();
+                            // TODO: actually remove the listing via ListingController
+                            //   plugin.getListingController().removeListingIfPresent(currentListing.getListingId());
+                            p.sendMessage("PlaceHolder - deleted");
+                            pageController.back();
+                        },
+                        Component.text("Cancel"),
+                        Component.text(""),
+                        ctx -> ctx.player().sendMessage(Component.text("placeholder - deleting canceled"))
+                )
+                .build();
+
+        clicker.showDialog(dialog);
     }
 
     public ItemStack getSellerHeadIcon() {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
-
         if (meta == null) return head;
 
         PlayerProfile profile = Bukkit.createProfile(currentListing.getSellerId());
@@ -148,25 +179,6 @@ public class ListingInfoPage implements Page {
         return head;
     }
 
-    private void buildContent() {
-        content.clearItems();
-        for (ItemStack i : getShulkerContents(currentListing.getContent())) {
-            content.addItem(
-                    i,
-                    () -> {
-                    }
-            );
-        }
-    }
-
-    public void openListingInfo(Listing l, Page previousPage) {
-        this.currentListing = l;
-        this.previousPage = previousPage;
-        buildContent();
-        buildNavbar();
-        open(previousPage);
-    }
-
     public static ItemStack[] getShulkerContents(ItemStack item) {
         Inventory inv = getShulkerInventory(item);
         return inv != null ? inv.getContents() : new ItemStack[0];
@@ -174,11 +186,8 @@ public class ListingInfoPage implements Page {
 
     private static Inventory getShulkerInventory(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return null;
-
         if (!(item.getItemMeta() instanceof BlockStateMeta meta)) return null;
         if (!(meta.getBlockState() instanceof ShulkerBox shulker)) return null;
-
         return shulker.getInventory();
     }
-
 }
