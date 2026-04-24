@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.util;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.config.categories.CategoryFilterConfiguration;
+import dev.veyno.astraAH.configuration.config.categories.CategoryFilterConfiguration;
 import dev.veyno.astraAH.app.ListingController;
 import dev.veyno.astraAH.app.PlayerDataController;
 import dev.veyno.astraAH.data.dto.Category;

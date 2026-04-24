@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.config.guis.PlayerListingsGuiConfiguration;
+import dev.veyno.astraAH.configuration.config.guis.PlayerListingsGuiConfiguration;
 import dev.veyno.astraAH.data.dto.CachedListing;
 import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.ui.Page;

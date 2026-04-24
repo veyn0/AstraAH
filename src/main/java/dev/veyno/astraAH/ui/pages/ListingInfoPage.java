@@ -2,7 +2,7 @@ package dev.veyno.astraAH.ui.pages;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.config.guis.ListingInfoGuiConfiguration;
+import dev.veyno.astraAH.configuration.config.guis.ListingInfoGuiConfiguration;
 import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;

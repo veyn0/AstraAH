@@ -1,7 +1,7 @@
-package dev.veyno.astraAH.ah.configuration.config.guis.main;
+package dev.veyno.astraAH.configuration.config.guis.main;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.Configurable;
+import dev.veyno.astraAH.configuration.Configurable;
 import net.kyori.adventure.text.Component;
 
 public class MainPageSortOptionsConfiguration extends Configurable {

@@ -1,7 +1,7 @@
 package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.config.guis.main.MainPageGuiConfiguration;
+import dev.veyno.astraAH.configuration.config.guis.main.MainPageGuiConfiguration;
 import dev.veyno.astraAH.app.dto.ButtonLayout;
 import dev.veyno.astraAH.app.dto.LayoutTemplate;
 import dev.veyno.astraAH.app.dto.SortType;

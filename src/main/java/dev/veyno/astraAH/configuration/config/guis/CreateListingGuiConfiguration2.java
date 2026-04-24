@@ -1,7 +1,7 @@
-package dev.veyno.astraAH.ah.configuration.config.guis;
+package dev.veyno.astraAH.configuration.config.guis;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.Configurable;
+import dev.veyno.astraAH.configuration.Configurable;
 
 public class CreateListingGuiConfiguration2 extends Configurable {
 

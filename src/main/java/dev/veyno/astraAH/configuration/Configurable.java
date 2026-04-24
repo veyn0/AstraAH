@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.ah.configuration;
+package dev.veyno.astraAH.configuration;
 
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.util.ItemStackParser;

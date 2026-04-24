@@ -1,7 +1,7 @@
-package dev.veyno.astraAH.ah.configuration.config.settings;
+package dev.veyno.astraAH.configuration.config.settings;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.Configurable;
+import dev.veyno.astraAH.configuration.Configurable;
 
 public class SettingsActionsConfiguration extends Configurable {
 

@@ -1,6 +1,6 @@
 package dev.veyno.astraAH;
 
-import dev.veyno.astraAH.ah.configuration.AstraAHConfiguration;
+import dev.veyno.astraAH.configuration.AstraAHConfiguration;
 import dev.veyno.astraAH.app.ListingController;
 import dev.veyno.astraAH.app.PlayerDataController;
 import dev.veyno.astraAH.command.AuctionHouseCommand;

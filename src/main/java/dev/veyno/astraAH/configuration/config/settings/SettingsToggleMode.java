@@ -1,4 +1,4 @@
-package dev.veyno.astraAH.ah.configuration.config.settings;
+package dev.veyno.astraAH.configuration.config.settings;
 
 import java.util.Locale;
 

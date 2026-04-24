@@ -1,10 +1,10 @@
-package dev.veyno.astraAH.ah.configuration;
+package dev.veyno.astraAH.configuration;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.config.ConfiguredCategories;
-import dev.veyno.astraAH.ah.configuration.config.ConfiguredEconomy;
-import dev.veyno.astraAH.ah.configuration.config.ConfiguredGuis;
-import dev.veyno.astraAH.ah.configuration.config.ConfiguredSettings;
+import dev.veyno.astraAH.configuration.config.ConfiguredCategories;
+import dev.veyno.astraAH.configuration.config.ConfiguredEconomy;
+import dev.veyno.astraAH.configuration.config.ConfiguredGuis;
+import dev.veyno.astraAH.configuration.config.ConfiguredSettings;
 
 public class AstraAHConfiguration {
 

@@ -1,7 +1,7 @@
-package dev.veyno.astraAH.ah.configuration.config.categories;
+package dev.veyno.astraAH.configuration.config.categories;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.Configurable;
+import dev.veyno.astraAH.configuration.Configurable;
 import dev.veyno.astraAH.util.ItemStackParser;
 import dev.veyno.astraAH.util.MaterialPatternParser;
 import org.bukkit.Material;

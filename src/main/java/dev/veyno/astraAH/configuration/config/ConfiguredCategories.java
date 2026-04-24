@@ -1,8 +1,8 @@
-package dev.veyno.astraAH.ah.configuration.config;
+package dev.veyno.astraAH.configuration.config;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.Configurable;
-import dev.veyno.astraAH.ah.configuration.config.categories.CategoryFilterConfiguration;
+import dev.veyno.astraAH.configuration.Configurable;
+import dev.veyno.astraAH.configuration.config.categories.CategoryFilterConfiguration;
 
 import org.bukkit.configuration.ConfigurationSection;
 

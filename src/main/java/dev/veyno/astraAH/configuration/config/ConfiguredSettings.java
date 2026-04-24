@@ -1,11 +1,11 @@
-package dev.veyno.astraAH.ah.configuration.config;
+package dev.veyno.astraAH.configuration.config;
 
 import dev.veyno.astraAH.AstraAH;
-import dev.veyno.astraAH.ah.configuration.Configurable;
-import dev.veyno.astraAH.ah.configuration.config.settings.SettingsActionsConfiguration;
-import dev.veyno.astraAH.ah.configuration.config.settings.SettingsDefaultsConfiguration;
-import dev.veyno.astraAH.ah.configuration.config.settings.SettingsEconomyConfiguration;
-import dev.veyno.astraAH.ah.configuration.config.settings.StorageSettingsConfiguration;
+import dev.veyno.astraAH.configuration.Configurable;
+import dev.veyno.astraAH.configuration.config.settings.SettingsActionsConfiguration;
+import dev.veyno.astraAH.configuration.config.settings.SettingsDefaultsConfiguration;
+import dev.veyno.astraAH.configuration.config.settings.SettingsEconomyConfiguration;
+import dev.veyno.astraAH.configuration.config.settings.StorageSettingsConfiguration;
 
 public class ConfiguredSettings extends Configurable {
 
