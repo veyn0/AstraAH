@@ -111,7 +111,7 @@ public final class AstraAH extends JavaPlugin {
     }
 
     public PageController getPageController(UUID playerId){
-        return  pageControllers.computeIfAbsent(
+        return pageControllers.computeIfAbsent(
                 playerId,
                 playerId1 -> new PageController(this, playerId1)
         );

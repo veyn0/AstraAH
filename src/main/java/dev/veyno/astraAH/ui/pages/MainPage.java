@@ -138,7 +138,6 @@ public class MainPage implements Page {
 
     private void createInventory() {
         inventory = new ClickableInventory(plugin.getInventoryManager(), configuration.getTitle(), Bukkit.getPlayer(playerId));
-        // Subsequent region references are set up in each render*() method.
         center = null;
         sidebarLeft = null;
         sidebarRight = null;
@@ -172,6 +171,7 @@ public class MainPage implements Page {
                     plugin.getLogger().info(Bukkit.getPlayer(playerId).getName() + " Leftclicked Listing.");
                 } else if (clickContext.isRightClick()) {
                     plugin.getLogger().info(Bukkit.getPlayer(playerId).getName() + " Rightclicked Listing.");
+                    pageController.openListingInfo(l);
                 }
             });
         }
@@ -260,7 +260,10 @@ public class MainPage implements Page {
             bottom.setItem(
                     index,
                     configuration.getRefreshIcon(),
-                    action -> reload()
+                    action -> {
+                        reload();
+                        show();
+                    }
             );
         }
         index++;
