@@ -5,18 +5,13 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListenerAbstract;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
-import com.github.retrooper.packetevents.protocol.component.ComponentTypes;
-import com.github.retrooper.packetevents.protocol.component.builtin.item.ItemLore;
 import com.github.retrooper.packetevents.protocol.item.ItemStack;
-import com.github.retrooper.packetevents.protocol.item.type.ItemType;
-import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCloseWindow;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCloseWindow;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowItems;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetSlot;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -33,6 +28,28 @@ import java.util.function.Consumer;
  * Packet-based ClickableInventory using PacketEvents.
  * No Bukkit inventories or Bukkit inventory events are used.
  * All inventory display and interaction is handled purely via packets.
+ *
+ * <h2>Large mode</h2>
+ * When constructed with {@code large = true}, the virtual grid is a fixed
+ * {@code 9 x 10} layout: the top 6 rows map to the chest container, rows 6–8
+ * map to the main player inventory (Bukkit slots 9–35), and row 9 maps to
+ * the hotbar (Bukkit slots 0–8). Regions can span the full 9×10 grid; the
+ * renderer transparently splits the output into the container {@code WindowItems}
+ * payload and the 36 player-inventory slots that are part of the same packet.
+ * <p>
+ * In large mode the player inventory is NOT mirrored any more: the slots
+ * covered by the virtual grid are filled with the configured
+ * {@link #setPlayerSlotFillerItem(org.bukkit.inventory.ItemStack) filler item}
+ * (or empty if none is set). When the inventory closes, a single
+ * {@code WindowItems} packet with the player's real inventory is sent so the
+ * client resyncs the actual contents.
+ * <p>
+ * When constructed with {@code large = false} (default) no player-inventory
+ * data is sent at all when opening; the 36 trailing slots of the
+ * {@code WindowItems} packet are left empty. This means the client will
+ * visually clear the player inventory until something (e.g. another packet
+ * or closing the container) forces a resync. Use large mode if you want
+ * predictable control over those slots.
  */
 public class ClickableInventory {
 
@@ -41,9 +58,17 @@ public class ClickableInventory {
     // 0 = generic 9x1, 1 = generic 9x2, ... 5 = generic 9x6
     private static final int CONTAINER_TYPE_BASE = 0;
 
+    /** Number of container rows exposed by a 6-row chest. */
+    private static final int MAX_CONTAINER_ROWS = 6;
+    /** Total rows in the virtual grid when large mode is active: 6 chest + 3 main-inv + 1 hotbar. */
+    private static final int LARGE_GRID_ROWS = 10;
+    /** Number of player-inventory slots appended to the WindowItems payload (27 main + 9 hotbar). */
+    private static final int PLAYER_INV_SLOTS = 36;
+
     private final InventoryManager manager;
     private final Component title;
     private final Player player;
+    private final boolean large;
 
     private final Map<String, InventoryRegion> regions;
     private final Map<Integer, Consumer<ClickContext>> slotActions;
@@ -53,20 +78,39 @@ public class ClickableInventory {
     private int containerId = -1;
     /** State ID for packet synchronization. */
     private int stateId = 0;
-    /** The virtual slot contents (size = rows * 9). */
+    /** The virtual slot contents for the grid (size = grid rows * 9). */
     private ItemStack[] contents;
+    /** Optional filler rendered in empty player-inventory slots (only used in large mode). */
+    private org.bukkit.inventory.ItemStack playerSlotFillerItem;
 
+    /**
+     * Convenience constructor — defaults to {@code large = false} (classic 6-row chest,
+     * player inventory is NOT actively managed and NOT mirrored after open).
+     */
     public ClickableInventory(InventoryManager manager, Component title, Player player) {
+        this(manager, title, player, false);
+    }
+
+    public ClickableInventory(InventoryManager manager, Component title, Player player, boolean large) {
         this.manager = manager;
         this.title = title;
         this.player = player;
+        this.large = large;
         this.regions = new LinkedHashMap<>();
         this.slotActions = new HashMap<>();
-        this.rows = 6;
+        this.rows = MAX_CONTAINER_ROWS;
     }
 
+    /**
+     * Sets the number of rows of the chest container. Only meaningful when large mode
+     * is disabled — in large mode the container is always 6 rows so the virtual 9×10
+     * grid is complete.
+     */
     public ClickableInventory setRows(int rows) {
-        if (rows < 1 || rows > 6) {
+        if (large) {
+            throw new IllegalStateException("setRows ist im large-Mode nicht erlaubt (festes 9x10 Grid)");
+        }
+        if (rows < 1 || rows > MAX_CONTAINER_ROWS) {
             throw new IllegalArgumentException("Anzahl der Reihen muss zwischen 1 und 6 liegen");
         }
         this.rows = rows;
@@ -75,6 +119,18 @@ public class ClickableInventory {
 
     public int getRows() {
         return rows;
+    }
+
+    /**
+     * @return the total row count of the virtual grid exposed to the region API —
+     * always 10 in large mode, equals {@link #getRows()} otherwise.
+     */
+    public int getGridRows() {
+        return large ? LARGE_GRID_ROWS : rows;
+    }
+
+    public boolean isLarge() {
+        return large;
     }
 
     public Component getTitle() {
@@ -89,15 +145,40 @@ public class ClickableInventory {
         return manager;
     }
 
+    /**
+     * Sets the item rendered in player-inventory slots that are not covered by any region.
+     * Only applies in large mode. Pass {@code null} to leave those slots empty.
+     */
+    public ClickableInventory setPlayerSlotFillerItem(org.bukkit.inventory.ItemStack itemStack) {
+        this.playerSlotFillerItem = itemStack == null ? null : itemStack.clone();
+        return this;
+    }
+
+    /**
+     * Sets a filler item by {@link Material}. The item will have no display name and no lore.
+     * Only applies in large mode.
+     */
+    public ClickableInventory setPlayerSlotFillerItem(Material material) {
+        if (material == null || material == Material.AIR) {
+            this.playerSlotFillerItem = null;
+            return this;
+        }
+        this.playerSlotFillerItem = new org.bukkit.inventory.ItemStack(material);
+        return this;
+    }
+
+    public org.bukkit.inventory.ItemStack getPlayerSlotFillerItem() {
+        return playerSlotFillerItem == null ? null : playerSlotFillerItem.clone();
+    }
+
     // ── Coordinate helpers ─────────────────────────────────────────────
 
     /**
-     * Converts an (x, y) coordinate to an inventory slot index.
+     * Converts an (x, y) coordinate to a grid slot index.
      * Origin (0,0) is the top-left corner of the inventory.
-     *
-     * @param x column (0–8)
-     * @param y row (0–5)
-     * @return the slot index
+     * <p>
+     * In large mode, y is valid up to 9 (6 container + 3 main inv + 1 hotbar).
+     * Otherwise y is valid up to 5.
      */
     public static int slotAt(int x, int y) {
         return y * SLOTS_PER_ROW + x;
@@ -107,28 +188,34 @@ public class ClickableInventory {
      * Computes all slot indices inside the rectangular area from (x1,y1) to (x2,y2), inclusive.
      * The coordinates are automatically normalized so order doesn't matter.
      * Slots are returned in reading order (left-to-right, top-to-bottom).
-     *
-     * @param x1 first corner column  (0–8)
-     * @param y1 first corner row     (0–5)
-     * @param x2 second corner column (0–8)
-     * @param y2 second corner row    (0–5)
-     * @return list of slot indices
+     * <p>
+     * This static variant keeps the legacy 0–5 y range for backwards compatibility.
+     * Use {@link #slotsFromCoords(int, int, int, int, int)} for arbitrary max-y.
      */
     public static List<Integer> slotsFromCoords(int x1, int y1, int x2, int y2) {
+        return slotsFromCoords(x1, y1, x2, y2, MAX_CONTAINER_ROWS - 1);
+    }
+
+    /**
+     * Same as {@link #slotsFromCoords(int, int, int, int)} but lets the caller specify
+     * the maximum allowed y (inclusive). Used internally to validate against the
+     * instance grid size (which may extend to y=9 in large mode).
+     */
+    public static List<Integer> slotsFromCoords(int x1, int y1, int x2, int y2, int maxY) {
         int minX = Math.min(x1, x2);
         int maxX = Math.max(x1, x2);
         int minY = Math.min(y1, y2);
-        int maxY = Math.max(y1, y2);
+        int maxYNorm = Math.max(y1, y2);
 
         if (minX < 0 || maxX > 8) {
             throw new IllegalArgumentException("X-Koordinate muss zwischen 0 und 8 liegen (war: " + x1 + ", " + x2 + ")");
         }
-        if (minY < 0 || maxY > 5) {
-            throw new IllegalArgumentException("Y-Koordinate muss zwischen 0 und 5 liegen (war: " + y1 + ", " + y2 + ")");
+        if (minY < 0 || maxYNorm > maxY) {
+            throw new IllegalArgumentException("Y-Koordinate muss zwischen 0 und " + maxY + " liegen (war: " + y1 + ", " + y2 + ")");
         }
 
-        List<Integer> result = new ArrayList<>((maxX - minX + 1) * (maxY - minY + 1));
-        for (int y = minY; y <= maxY; y++) {
+        List<Integer> result = new ArrayList<>((maxX - minX + 1) * (maxYNorm - minY + 1));
+        for (int y = minY; y <= maxYNorm; y++) {
             for (int x = minX; x <= maxX; x++) {
                 result.add(slotAt(x, y));
             }
@@ -152,7 +239,7 @@ public class ClickableInventory {
     }
 
     public InventoryRegion createRegion(String id, InventoryLayout layout) {
-        return createRegion(id, layout.getSlots(getRows()));
+        return createRegion(id, layout.getSlots(getGridRows()));
     }
 
     public InventoryRegion createRegion(String id, int... slots) {
@@ -167,18 +254,10 @@ public class ClickableInventory {
      * Creates a region spanning the rectangular area from (x1,y1) to (x2,y2).
      * Origin (0,0) is top-left. Both corners are inclusive and order-independent.
      * <p>
-     * Example: {@code createRegionFromCoords("content", 1, 1, 7, 4)} creates a region
-     * covering columns 1–7 in rows 1–4 (the inner area of a 6-row inventory).
-     *
-     * @param id the region identifier
-     * @param x1 first corner column  (0–8)
-     * @param y1 first corner row     (0–5)
-     * @param x2 second corner column (0–8)
-     * @param y2 second corner row    (0–5)
-     * @return the created region
+     * In large mode y may range from 0 to 9. Otherwise from 0 to 5.
      */
     public InventoryRegion createRegionFromCoords(String id, int x1, int y1, int x2, int y2) {
-        return createRegion(id, slotsFromCoords(x1, y1, x2, y2));
+        return createRegion(id, slotsFromCoords(x1, y1, x2, y2, getGridRows() - 1));
     }
 
     public InventoryRegion getRegion(String id) {
@@ -220,6 +299,10 @@ public class ClickableInventory {
     public void close() {
         if (player != null && player.isOnline()) {
             sendCloseWindow();
+            if (large) {
+                // Resync the player inventory so the client sees the real server state again.
+                sendRealPlayerInventory();
+            }
             manager.unregisterInventory(player.getUniqueId());
             containerId = -1;
         }
@@ -243,6 +326,9 @@ public class ClickableInventory {
     // ── Packet sending ─────────────────────────────────────────────────
 
     private void sendOpenWindow() {
+        // Container packet is always a chest of `rows` rows — large mode just
+        // extends the virtual grid over the 36 player-inv slots that the
+        // WindowItems payload already carries.
         int containerType = CONTAINER_TYPE_BASE + (rows - 1); // 0=9x1 .. 5=9x6
         WrapperPlayServerOpenWindow packet = new WrapperPlayServerOpenWindow(
                 containerId,
@@ -254,21 +340,44 @@ public class ClickableInventory {
 
     private void sendWindowItems() {
         stateId++;
-        List<ItemStack> items = new ArrayList<>(Arrays.asList(contents));
 
-        // The WindowItems packet also expects the 36 player inventory slots appended
-        // after the container slots (9 hotbar + 27 main inventory, in protocol order:
-        // slots 9-35 of the Bukkit inventory = main, slots 0-8 = hotbar).
-        // We must send the player's REAL items here, otherwise the client will
-        // visually clear the player's inventory.
-        org.bukkit.inventory.PlayerInventory playerInv = player.getInventory();
-        // Main inventory (Bukkit slots 9–35, i.e. rows 2–4)
-        for (int i = 9; i <= 35; i++) {
-            items.add(toPacketItem(playerInv.getItem(i)));
+        int containerSize = rows * SLOTS_PER_ROW;
+        List<ItemStack> items = new ArrayList<>(containerSize + PLAYER_INV_SLOTS);
+
+        // 1) Container slots
+        if (large) {
+            // In large mode the contents array is sized for the full 9x10 grid
+            // but the container only uses the first 6 rows (54 slots).
+            for (int i = 0; i < containerSize; i++) {
+                items.add(contents[i]);
+            }
+        } else {
+            // Classic mode: contents array is already sized to containerSize
+            for (int i = 0; i < contents.length; i++) {
+                items.add(contents[i]);
+            }
         }
-        // Hotbar (Bukkit slots 0–8)
-        for (int i = 0; i <= 8; i++) {
-            items.add(toPacketItem(playerInv.getItem(i)));
+
+        // 2) Player-inventory slots of the WindowItems payload.
+        //    The packet expects the 36 player slots appended after the container
+        //    slots in protocol order: main inventory (rows 2–4) first, then hotbar.
+        if (large) {
+            // Large mode: render from the virtual grid.
+            //   Grid rows 6,7,8 → main inventory (Bukkit slots 9–35, protocol order matches)
+            //   Grid row 9     → hotbar (Bukkit slots 0–8)
+            for (int i = 6 * SLOTS_PER_ROW; i < 9 * SLOTS_PER_ROW; i++) {
+                items.add(contents[i]);
+            }
+            for (int i = 9 * SLOTS_PER_ROW; i < 10 * SLOTS_PER_ROW; i++) {
+                items.add(contents[i]);
+            }
+        } else {
+            // Non-large mode: do NOT mirror the player inventory. Send empty
+            // slots — the client will visually clear the player inventory while
+            // this container is open, which matches the documented contract.
+            for (int i = 0; i < PLAYER_INV_SLOTS; i++) {
+                items.add(ItemStack.EMPTY);
+            }
         }
 
         WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(
@@ -276,6 +385,55 @@ public class ClickableInventory {
                 stateId,
                 items,
                 ItemStack.EMPTY // carried item (cursor)
+        );
+        PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
+    }
+
+    /**
+     * Sends a {@code WindowItems} packet addressed to window id 0 (the player's
+     * own inventory window) carrying the player's real inventory. Used when
+     * closing a large-mode inventory so the client resyncs the real state of
+     * the 36 player slots.
+     */
+    private void sendRealPlayerInventory() {
+        org.bukkit.inventory.PlayerInventory playerInv = player.getInventory();
+
+        // Window id 0 is the player-inventory window. Its slot layout is:
+        //   0       : crafting result
+        //   1–4     : crafting grid (2x2)
+        //   5–8     : armor (head, chest, legs, feet)
+        //   9–35    : main inventory
+        //   36–44   : hotbar
+        //   45      : offhand
+        // Total: 46 slots.
+        List<ItemStack> items = new ArrayList<>(46);
+        // Crafting result + grid are not tracked server-side in the same way;
+        // we send empty here, the client reconciles once any further event fires.
+        for (int i = 0; i < 5; i++) {
+            items.add(ItemStack.EMPTY);
+        }
+        // Armor slots (Bukkit order: helmet, chest, legs, boots)
+        items.add(toPacketItem(playerInv.getHelmet()));
+        items.add(toPacketItem(playerInv.getChestplate()));
+        items.add(toPacketItem(playerInv.getLeggings()));
+        items.add(toPacketItem(playerInv.getBoots()));
+        // Main inventory
+        for (int i = 9; i <= 35; i++) {
+            items.add(toPacketItem(playerInv.getItem(i)));
+        }
+        // Hotbar
+        for (int i = 0; i <= 8; i++) {
+            items.add(toPacketItem(playerInv.getItem(i)));
+        }
+        // Offhand
+        items.add(toPacketItem(playerInv.getItemInOffHand()));
+
+        stateId++;
+        WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(
+                0,
+                stateId,
+                items,
+                ItemStack.EMPTY
         );
         PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
     }
@@ -288,7 +446,7 @@ public class ClickableInventory {
     // ── Content building ───────────────────────────────────────────────
 
     private void buildContents() {
-        int size = rows * SLOTS_PER_ROW;
+        int size = getGridRows() * SLOTS_PER_ROW;
         contents = new ItemStack[size];
         Arrays.fill(contents, ItemStack.EMPTY);
         slotActions.clear();
@@ -296,27 +454,52 @@ public class ClickableInventory {
         for (InventoryRegion region : regions.values()) {
             region.renderInto(contents, slotActions);
         }
+
+        if (large) {
+            // Fill uncovered player-inventory slots (grid rows 6–9) with the
+            // configured filler, so the player sees a deterministic layout
+            // instead of whatever was in their inventory before opening.
+            ItemStack packetFiller = toPacketItem(playerSlotFillerItem);
+            int playerGridStart = MAX_CONTAINER_ROWS * SLOTS_PER_ROW;
+            for (int i = playerGridStart; i < size; i++) {
+                if (contents[i].isEmpty() && !packetFiller.isEmpty()) {
+                    contents[i] = packetFiller;
+                }
+            }
+        }
     }
 
     protected int getContainerId() {
         return containerId;
     }
 
+    /**
+     * Size of the virtual grid (in slots). This is what region APIs validate against —
+     * in large mode it is 90, otherwise {@code rows * 9}.
+     */
     protected int getInventorySize() {
-        return rows * SLOTS_PER_ROW;
+        return getGridRows() * SLOTS_PER_ROW;
     }
 
     // ── Click handling (called from InventoryManager packet listener) ──
 
+    /**
+     * @param rawSlot slot index as reported by the client's click packet — this
+     *                uses the chest's slot layout: 0 .. (rows*9 - 1) are chest
+     *                slots, then (rows*9) .. (rows*9 + 26) are the 27 main-inv
+     *                slots, then the next 9 are the hotbar.
+     */
     protected void handleClick(Player clicker, int rawSlot, int button, int mode) {
         // Always deny the click by re-sending the window items (resets client state)
         sendWindowItems();
 
-        if (rawSlot < 0 || rawSlot >= getInventorySize()) {
+        // Translate the client-reported raw slot to our virtual grid index.
+        int gridSlot = rawSlotToGridSlot(rawSlot);
+        if (gridSlot < 0 || gridSlot >= getInventorySize()) {
             return;
         }
 
-        Consumer<ClickContext> action = slotActions.get(rawSlot);
+        Consumer<ClickContext> action = slotActions.get(gridSlot);
         if (action == null) {
             return;
         }
@@ -332,8 +515,8 @@ public class ClickableInventory {
 
         ClickContext context = new ClickContext(
                 clicker,
-                rawSlot,
-                contents[rawSlot],
+                gridSlot,
+                contents[gridSlot],
                 shiftClick,
                 leftClick,
                 rightClick,
@@ -347,6 +530,41 @@ public class ClickableInventory {
 
         // Run action on the region scheduler (Folia-safe)
         Bukkit.getRegionScheduler().run(manager.getPlugin(), clicker.getLocation(), task -> action.accept(context));
+    }
+
+    /**
+     * Translates a raw slot from a client click packet into the virtual grid slot.
+     * <p>
+     * For a chest with {@code rows} rows opened on top of the player inventory, the
+     * client numbers slots as:
+     * <ul>
+     *   <li>{@code 0 .. rows*9 - 1}  → chest slots (top-left to bottom-right)</li>
+     *   <li>{@code rows*9 .. rows*9 + 26} → main inventory (rows 6,7,8 of our grid)</li>
+     *   <li>next 9 slots               → hotbar (row 9 of our grid)</li>
+     * </ul>
+     * In non-large mode, clicks on the player inventory portion are outside the
+     * grid and return {@code -1} (ignored upstream).
+     */
+    private int rawSlotToGridSlot(int rawSlot) {
+        int containerSize = rows * SLOTS_PER_ROW;
+
+        if (rawSlot < 0) return -1;
+        if (rawSlot < containerSize) return rawSlot; // chest slot → same grid index
+
+        if (!large) {
+            return -1; // player-inv clicks are not part of the grid
+        }
+
+        int playerSlot = rawSlot - containerSize; // 0..35
+        if (playerSlot < 0 || playerSlot >= PLAYER_INV_SLOTS) return -1;
+
+        if (playerSlot < 27) {
+            // Main inventory → grid rows 6,7,8
+            return MAX_CONTAINER_ROWS * SLOTS_PER_ROW + playerSlot;
+        } else {
+            // Hotbar → grid row 9
+            return 9 * SLOTS_PER_ROW + (playerSlot - 27);
+        }
     }
 
     // ── Static helper to create Bukkit ItemStacks (unchanged) ──────────
@@ -936,6 +1154,10 @@ public class ClickableInventory {
             return new ClickableInventory(this, title, player);
         }
 
+        public ClickableInventory create(Component title, Player player, boolean large) {
+            return new ClickableInventory(this, title, player, large);
+        }
+
         @Override
         public void onPacketReceive(PacketReceiveEvent event) {
             // Handle window click packets
@@ -970,6 +1192,9 @@ public class ClickableInventory {
                 if (inv == null) return;
 
                 if (packet.getWindowId() == inv.getContainerId()) {
+
+                    inv.sendRealPlayerInventory();
+
                     activeInventories.remove(player.getUniqueId());
                     inv.containerId = -1;
                 }
@@ -984,6 +1209,9 @@ public class ClickableInventory {
                 ClickableInventory inv = entry.getValue();
                 if (inv.player != null && inv.player.isOnline() && inv.containerId != -1) {
                     inv.sendCloseWindow();
+                    if (inv.large) {
+                        inv.sendRealPlayerInventory();
+                    }
                 }
             }
             activeInventories.clear();
