@@ -203,6 +203,7 @@ public class CreateListingsPage implements Page {
                 p.sendMessage(Component.text("[Debug]: Listing created"));
             }
         }
+        pageController.back();
     }
 
     public static List<ItemStack> getAllPlayerItems(Player player) {
