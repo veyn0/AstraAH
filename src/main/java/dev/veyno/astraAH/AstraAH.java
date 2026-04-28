@@ -39,6 +39,11 @@ TODO:
  - add customizable filters: when joining initially player filters will be set to the default filters and they can edit them afterwards
  - Backups: full backups or backups of partial stuff and actions, custom triggers where it can be specified what should be backed up
  - add pending deliveries for purchased items that did not fit in the inventory, optional enabled by default. add configurable maximum time an item is available to collect
+ Idea: "purchase-bot" where players can pay a price per time and there is an automatic check and a selected item type below a set price will be automatically purchased (optional only when player online)
+ - add compatibility for enchantments (Categories, search, filter and other functions)
+
+
+
  */
 
 public final class AstraAH extends JavaPlugin {

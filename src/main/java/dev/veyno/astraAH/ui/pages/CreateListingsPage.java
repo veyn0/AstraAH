@@ -15,6 +15,7 @@ import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -132,9 +133,9 @@ public class CreateListingsPage implements Page {
 
     public void openPriceInput() {
         Dialog dialog = Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("set Price"))
+                .base(DialogBase.builder(Component.text("[Placeholder] set Price"))
                         .inputs(List.of(
-                                DialogInput.text("value", Component.text("Price"))
+                                DialogInput.text("value", Component.text("[Placeholder] Price"))
                                         .initial("00.00")
                                         .maxLength(20)
                                         .width(200)
@@ -143,7 +144,7 @@ public class CreateListingsPage implements Page {
                         .build()
                 )
                 .type(DialogType.confirmation(
-                        ActionButton.builder(Component.text("Done"))
+                        ActionButton.builder(Component.text("[Placeholder] Done"))
                                 .action(DialogAction.customClick(
                                         (view, audience) -> {
                                             if (!(audience instanceof Player p)) return;
@@ -151,28 +152,28 @@ public class CreateListingsPage implements Page {
 
                                             String input = view.getText("value");
                                             if (input == null || input.isEmpty()) {
-                                                p.sendMessage(Component.text("Ungültige Eingabe"));
+                                                p.sendMessage(Component.text("[Placeholder] Ungültige Eingabe"));
                                                 return;
                                             }
 
                                             try {
                                                 double parsed = Double.parseDouble(input);
                                                 if (parsed < 0) {
-                                                    p.sendMessage(Component.text("Muss positiv sein"));
+                                                    p.sendMessage(Component.text("[Placeholder] Muss positiv sein"));
                                                     return;
                                                 }
                                                 price = parsed;
                                                 Bukkit.getLogger().info("input: " + parsed);
                                                 createListing();
                                             } catch (NumberFormatException e) {
-                                                p.sendMessage(Component.text("Keine Zahl"));
+                                                p.sendMessage(Component.text("[Placeholder] Keine Zahl"));
                                             }
                                         },
                                         ClickCallback.Options.builder().uses(1).build()
                                 ))
                                 .build(),
 
-                        ActionButton.builder(Component.text("Cancel"))
+                        ActionButton.builder(Component.text("[Placeholder] Cancel"))
                                 .action(null)
                                 .build()
                 ))
@@ -182,12 +183,12 @@ public class CreateListingsPage implements Page {
         if (player != null) player.showDialog(dialog);
     }
 
+    //TODO: Move this logic to Service Class
     private void createListing() {
         synchronized (IDLocks.getLock(playerId)) {
             if (selectedItem == null || price <= 0) return;
             Player p = Bukkit.getPlayer(playerId);
             if (p == null) return;
-
             // TODO: createdAt, currency and status should be set by a service/factory once available.
             //       Status 0 represents the active status used by YamlListingsRepository.
             Listing l = new Listing(
@@ -200,7 +201,12 @@ public class CreateListingsPage implements Page {
                     0
             );
             if (plugin.getListingController().postListing(l)) {
-                p.sendMessage(Component.text("[Debug]: Listing created"));
+                p.sendMessage(Component.text("[Placeholder]: Listing created"));
+            }
+            else {
+                p.closeDialog();
+                p.closeInventory();
+                p.sendMessage("[Placeholder] Failed to create Listing");
             }
         }
         pageController.back();
