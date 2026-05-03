@@ -1,6 +1,7 @@
 package dev.veyno.astraAH.command;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.util.DemoDataGenerator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,6 +19,7 @@ public class AuctionHouseCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
         if(!(commandSender instanceof Player p)) return false;
+
 
         //TODO: implement feature that allows other plugins to prevent players from opening the GUI entirely
 

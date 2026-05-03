@@ -16,6 +16,7 @@ import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.permissions.provider.DefaultPermissionsProvider;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
+import dev.veyno.astraAH.util.DemoDataGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
