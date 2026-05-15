@@ -19,6 +19,7 @@ public class PlayerDataService {
     private PlayerDataRepository playerDataRepository;
     private AstraAH plugin;
 
+//    TODO: Remove magic numbers
     private static final int CACHE_LIFESPAN = 100_000;
 
     private Map<UUID, Long> playerQuitTimes = new ConcurrentHashMap<>();
