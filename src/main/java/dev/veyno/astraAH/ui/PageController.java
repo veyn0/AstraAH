@@ -4,6 +4,7 @@ import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.data.dto.Listing;
 import dev.veyno.astraAH.ui.pages.*;
 import org.bukkit.Bukkit;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -19,6 +20,7 @@ public class PageController {
     private final CreateListingsPage createListingsPage;
     private final MyListingsPage myListingsPage;
     private final ListingInfoPage listingInfoPage;
+    private final CategoryEditPage categoryEditPage;
 
     private final Deque<Page> history = new ArrayDeque<>();
 
@@ -33,6 +35,7 @@ public class PageController {
         this.createListingsPage = new CreateListingsPage(plugin, this, playerId);
         this.myListingsPage = new MyListingsPage(plugin, this, playerId);
         this.listingInfoPage = new ListingInfoPage(plugin, this, playerId);
+        this.categoryEditPage = new CategoryEditPage(this, playerId,plugin );
     }
 
     public void navigate(Page target) {
@@ -48,6 +51,10 @@ public class PageController {
         if (history.isEmpty()) return;
         current = history.pop();
         current.show();
+    }
+
+    public void openCategoryEditPage(){
+        navigate(categoryEditPage);
     }
 
     /**

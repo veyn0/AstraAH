@@ -80,6 +80,14 @@ public class SettingsPage implements Page {
         );
 
         content.setItem(
+                14,
+                new ItemStack(Material.BOOKSHELF),
+                action -> {
+                    pageController.openCategoryEditPage();
+                }
+        );
+
+        content.setItem(
                 45,
                 new ItemStack(Material.ARROW),
                 action -> pageController.back()

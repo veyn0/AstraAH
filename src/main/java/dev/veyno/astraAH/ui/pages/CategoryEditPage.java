@@ -7,6 +7,7 @@ import dev.veyno.astraAH.util.ClickableInventory;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class CategoryEditPage implements Page {
         this.pageController = pageController;
         this.playerId = playerId;
         this.plugin = plugin;
+        buildOnce();
     }
 
     private ClickableInventory inventory;
@@ -28,7 +30,7 @@ public class CategoryEditPage implements Page {
 
     @Override
     public void show() {
-
+        inventory.open();
     }
 
     @Override
