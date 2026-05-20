@@ -71,7 +71,7 @@ public class PlayerDataService {
     private void refreshPlayerData(UUID playerId){
         synchronized (IDLocks.getLock(playerId)) {
             PlayerData data = playerDataRepository.getPlayerData(playerId);
-            if(data==null) data = PlayerData.configuredDefault(playerId);
+            if(data==null) data = PlayerData.configuredDefault(playerId, plugin);
             data.setLoadedAt(System.nanoTime());
             playerDataCache.put(playerId, data);
         }

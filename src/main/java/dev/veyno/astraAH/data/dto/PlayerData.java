@@ -1,5 +1,7 @@
 package dev.veyno.astraAH.data.dto;
 
+import dev.veyno.astraAH.AstraAH;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +27,10 @@ public class PlayerData {
         this.loadedAt = loadedAt;
     }
 
-    public static PlayerData configuredDefault(UUID playerId) {
+    public static PlayerData configuredDefault(UUID playerId, AstraAH plugin) {
         return new PlayerData(
                 playerId,
-                Preferences.configuredDefaults(playerId),
+                Preferences.configuredDefaults(playerId, plugin),
                 AllowedActions.configuredDefaults(playerId),
                 new ArrayList<>(),
                 0L

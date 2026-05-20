@@ -27,4 +27,10 @@ public class AuctionHouseCommand implements CommandExecutor {
 
         return true;
     }
+
+
+    private void test(){
+//        plugin.getConfiguration().getConfiguredCategories().getFilters();
+//        plugin.getPlayerDataController().getPlayerDataManager().getPreferencesManager(null).addCategory();
+    }
 }

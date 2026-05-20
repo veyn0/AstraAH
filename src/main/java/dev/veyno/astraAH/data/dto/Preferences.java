@@ -1,5 +1,7 @@
 package dev.veyno.astraAH.data.dto;
 
+import dev.veyno.astraAH.AstraAH;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,12 +17,12 @@ public class Preferences {
         this.categories = categories == null ? List.of() : List.copyOf(categories);
     }
 
-    public static Preferences configuredDefaults(UUID playerId) {
+    public static Preferences configuredDefaults(UUID playerId, AstraAH plugin) {
         //TODO: use defaults from configuration
         return new Preferences(
                 false,
                 false,
-                Category.configuredDefaults(playerId)
+                Category.configuredDefaults(playerId, plugin)
         );
     }
 
