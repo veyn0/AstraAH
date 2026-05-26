@@ -1,6 +1,8 @@
 package dev.veyno.astraAH.ui.pages;
 
 import dev.veyno.astraAH.AstraAH;
+import dev.veyno.astraAH.data.dto.Category;
+import dev.veyno.astraAH.data.dto.PlayerData;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -18,6 +20,9 @@ public class CategoryEditPage implements Page {
     private UUID playerId;
     private final PageController pageController;
 
+    private ClickableInventory inventory;
+    private ClickableInventory.InventoryRegion content, navigation;
+
     public CategoryEditPage(PageController pageController, UUID playerId, AstraAH plugin) {
         this.pageController = pageController;
         this.playerId = playerId;
@@ -25,8 +30,6 @@ public class CategoryEditPage implements Page {
         buildOnce();
     }
 
-    private ClickableInventory inventory;
-    private ClickableInventory.InventoryRegion content, navigation;
 
     @Override
     public void show() {
@@ -58,7 +61,16 @@ public class CategoryEditPage implements Page {
     }
 
     private void renderContent(){
+        PlayerData playerData = plugin.getPlayerDataController().getPlayerData(playerId);
+        for(Category c : playerData.getPreferences().getCategories()){
+            content.addItem(
+                    c.getPreview(),
+                    action -> {
 
+                    }
+            );
+
+        }
     }
 
     private void renderNavBar(){
