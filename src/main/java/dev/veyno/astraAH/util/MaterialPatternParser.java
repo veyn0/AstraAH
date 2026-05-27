@@ -13,6 +13,8 @@ public final class MaterialPatternParser {
     }
 
     public static List<Material> parse(List<String> patterns) {
+        if(patterns == null) return new ArrayList<>();
+
         Set<Material> result = new LinkedHashSet<>();
 
         for (String pattern : patterns) {
