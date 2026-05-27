@@ -500,6 +500,7 @@ public class MainPage implements Page {
                 .strip()
                 .replace(" ", "_")
                 .toLowerCase();
+        term = "*" + term +"*";
         List<String> result = new ArrayList<>();
         result.add(term);
         filter = result;
