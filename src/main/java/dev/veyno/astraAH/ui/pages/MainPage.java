@@ -42,7 +42,7 @@ public class MainPage implements Page {
     private final MainPageGuiConfiguration configuration;
 
     private LayoutTemplate layoutTemplate;
-    private List<Material> filter;
+    private List<String> filter;
     private SortType sortType = SortType.NAME_A_Z;
     private int categoryItemSelectedIndex = 0;
     private int historySelectedIndex = 0;
@@ -164,6 +164,8 @@ public class MainPage implements Page {
         }
         List<Listing> listings = sortListings(all, sortType);
 
+        List<Material> filter = MaterialPatternParser.parse(this.filter);
+
         for (Listing l : listings) {
             if (filter != null && !filter.contains(l.getContent().getType())) continue;
             center.addItem(getDisplayItem(l), clickContext -> {
@@ -204,7 +206,7 @@ public class MainPage implements Page {
                     entry.getPreview(),
                     action -> {
                         if (!action.isLeftClick()) return;
-                        filter = MaterialPatternParser.parse(entry.getFilter());
+                        filter = entry.getFilter();
                         invalidate(Section.CONTENT);
                     }
             );
@@ -319,7 +321,7 @@ public class MainPage implements Page {
     }
 
     private void onCategoryCycleChanged(int slot, List<Category> current) {
-        filter = MaterialPatternParser.parse(current.get(categoryItemSelectedIndex).getFilter());
+        filter = current.get(categoryItemSelectedIndex).getFilter();
         renderCategoryCycleButton(slot);
         invalidate(Section.CONTENT);
         bottom.refresh();
@@ -494,13 +496,12 @@ public class MainPage implements Page {
 
     private void onSearch(String searchTerm) {
         if (searchTerm == null) return;
-        String term = searchTerm.replace(" ", "_").toLowerCase();
-        List<Material> result = new ArrayList<>();
-        for (Material m : Material.values()) {
-            if (m.name().toLowerCase().contains(term)) {
-                result.add(m);
-            }
-        }
+        String term = searchTerm
+                .strip()
+                .replace(" ", "_")
+                .toLowerCase();
+        List<String> result = new ArrayList<>();
+        result.add(term);
         filter = result;
         invalidate(Section.CONTENT);
     }

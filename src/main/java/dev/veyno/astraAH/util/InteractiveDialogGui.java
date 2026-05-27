@@ -139,19 +139,19 @@ public final class InteractiveDialogGui {
         return this;
     }
 
-//    public @NotNull InteractiveDialogGui multiAction(@NotNull List<ActionButton> actions) {
-//        this.type = DialogType.multiAction(actions);
-//        return this;
-//    }
-//
-//    public @NotNull InteractiveDialogGui multiActionSpecs(@NotNull List<ActionSpec> actions) {
-//        List<ActionButton> built = new ArrayList<>(actions.size());
-//        for (ActionSpec spec : actions) {
-//            built.add(spec.build());
-//        }
-//        this.type = DialogType.multiAction(built);
-//        return this;
-//    }
+    public @NotNull InteractiveDialogGui multiAction(@NotNull List<ActionButton> actions) {
+        this.type = DialogType.multiAction(actions).build();
+        return this;
+    }
+
+    public @NotNull InteractiveDialogGui multiActionSpecs(@NotNull List<ActionSpec> actions) {
+        List<ActionButton> built = new ArrayList<>(actions.size());
+        for (ActionSpec spec : actions) {
+            built.add(spec.build());
+        }
+        this.type = DialogType.multiAction(built).build();
+        return this;
+    }
 
     public @NotNull Dialog build() {
         if (this.type == null) {
