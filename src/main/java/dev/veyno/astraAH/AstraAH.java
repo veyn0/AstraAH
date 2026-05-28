@@ -11,7 +11,9 @@ import dev.veyno.astraAH.data.repository.PlayerDataRepository;
 import dev.veyno.astraAH.data.repository.listings.YamlListingsRepository;
 import dev.veyno.astraAH.data.repository.playerdata.YamlPlayerDataRepository;
 import dev.veyno.astraAH.econ.EconomyProvider;
+import dev.veyno.astraAH.econ.TransactionController;
 import dev.veyno.astraAH.econ.provider.FileEconomyProvider;
+import dev.veyno.astraAH.econ.provider.VaultEconomyProvider;
 import dev.veyno.astraAH.permissions.PermissionsProvider;
 import dev.veyno.astraAH.permissions.provider.DefaultPermissionsProvider;
 import dev.veyno.astraAH.ui.PageController;
@@ -48,6 +50,8 @@ TODO:
  */
 
 public final class AstraAH extends JavaPlugin {
+
+    private TransactionController transactionController;
 
     private AstraAHConfiguration configuration;
 
@@ -96,6 +100,10 @@ public final class AstraAH extends JavaPlugin {
 
     }
 
+    public EconomyProvider getEconomy() {
+        return economy;
+    }
+
     public ListingController getListingController() {
         return listingController;
     }
@@ -123,15 +131,21 @@ public final class AstraAH extends JavaPlugin {
         );
     }
 
+    public TransactionController getTransactionController() {
+        return transactionController;
+    }
+
     public AstraAHConfiguration getConfiguration() {
         return configuration;
     }
 
     private void setupEconomy(){
 
+        this.transactionController = new TransactionController(this);
+
         //TODO: implement more economy providers and the selection in the config file aswell as automaticly using the file to provide economy
         try {
-            //economy = VaultEconomyProvider.createOrNull();
+            economy = VaultEconomyProvider.createOrNull();
         }catch (Exception e){
             getLogger().warning("Vault API not found");
         }

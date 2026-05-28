@@ -186,27 +186,33 @@ public class CreateListingsPage implements Page {
     //TODO: Move this logic to Service Class
     private void createListing() {
         synchronized (IDLocks.getLock(playerId)) {
-            if (selectedItem == null || price <= 0) return;
-            Player p = Bukkit.getPlayer(playerId);
-            if (p == null) return;
-            // TODO: createdAt, currency and status should be set by a service/factory once available.
-            //       Status 0 represents the active status used by YamlListingsRepository.
-            Listing l = new Listing(
-                    UUID.randomUUID(),
-                    p.getUniqueId(),
-                    selectedItem,
-                    System.currentTimeMillis(),
-                    price,
-                    null,
-                    0
-            );
-            if (plugin.getListingController().postListing(l)) {
-                p.sendMessage(Component.text("[Placeholder]: Listing created"));
-            }
-            else {
-                p.closeDialog();
-                p.closeInventory();
-                p.sendMessage("[Placeholder] Failed to create Listing");
+            UUID listingID = UUID.randomUUID();
+            synchronized (IDLocks.getLock(listingID)) {
+                if (selectedItem == null || price <= 0) return;
+                Player p = Bukkit.getPlayer(playerId);
+                if (p == null) return;
+                // TODO: createdAt, currency and status should be set by a service/factory once available.
+                //       Status 0 represents the active status used by YamlListingsRepository.
+
+
+                p.getInventory().remove(selectedItem);
+
+                Listing l = new Listing(
+                        UUID.randomUUID(),
+                        p.getUniqueId(),
+                        selectedItem,
+                        System.currentTimeMillis(),
+                        price,
+                        null,
+                        0
+                );
+                if (plugin.getListingController().postListing(l)) {
+                    p.sendMessage(Component.text("[Placeholder]: Listing created"));
+                } else {
+                    p.closeDialog();
+                    p.closeInventory();
+                    p.sendMessage("[Placeholder] Failed to create Listing");
+                }
             }
         }
         pageController.back();

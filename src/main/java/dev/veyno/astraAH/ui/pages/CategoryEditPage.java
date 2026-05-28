@@ -49,7 +49,6 @@ public class CategoryEditPage implements Page {
         buildOnce();
     }
 
-
     @Override
     public void show() {
         inventory.open();

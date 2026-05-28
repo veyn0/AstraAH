@@ -4,6 +4,7 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.veyno.astraAH.AstraAH;
 import dev.veyno.astraAH.configuration.config.guis.ListingInfoGuiConfiguration;
 import dev.veyno.astraAH.data.dto.Listing;
+import dev.veyno.astraAH.econ.EconomyProvider;
 import dev.veyno.astraAH.ui.Page;
 import dev.veyno.astraAH.ui.PageController;
 import dev.veyno.astraAH.util.ClickableInventory;
@@ -120,7 +121,20 @@ public class ListingInfoPage implements Page {
             navBar.setItem(
                     14,
                     configuration.getDeleteIcon(),
-                    action -> showDeleteDialog(action.getPlayer())
+                    action -> {
+
+                        showPurchaseDialog(action.getPlayer());//TODO: revert to showDeleteDialog.
+//                        showDeleteDialog(action.getPlayer());
+                    }
+            );
+        }
+        else {
+            navBar.setItem(
+                    14,
+                    new ItemStack(Material.GREEN_CONCRETE),
+                    action -> {
+                        showPurchaseDialog(action.getPlayer());
+                    }
             );
         }
     }
@@ -179,6 +193,7 @@ public class ListingInfoPage implements Page {
         return head;
     }
 
+    //TODO: fix broken
     public static ItemStack[] getShulkerContents(ItemStack item) {
         Inventory inv = getShulkerInventory(item);
         return inv != null ? inv.getContents() : new ItemStack[0];
@@ -190,4 +205,28 @@ public class ListingInfoPage implements Page {
         if (!(meta.getBlockState() instanceof ShulkerBox shulker)) return null;
         return shulker.getInventory();
     }
+
+    private void showPurchaseDialog(Player clicker){
+        Dialog dialog = InteractiveDialogGui.create(Component.text("[PLACEHOLDER] Confirm Purchasing"))
+                .message(Component.text("[PLACEHOLDER] Are you sure you want to Purchase this Listing? There will be no refunds"))
+                .confirmation(
+                        Component.text("[PLACEHOLDER] Yes"),
+                        Component.text(""),
+                        ctx -> {
+                            Player p = ctx.player();
+
+                            plugin.getTransactionController().finalizePurchase(currentListing, p);
+
+                            p.sendMessage("[PlaceHolder] - purchased");
+                            pageController.back();
+                        },
+                        Component.text("[PLACEHOLDER] Cancel"),
+                        Component.text(""),
+                        ctx -> ctx.player().sendMessage(Component.text("placeholder - deleting canceled"))
+                )
+                .build();
+
+        clicker.showDialog(dialog);
+    }
+
 }
